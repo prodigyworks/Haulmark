@@ -239,9 +239,7 @@
    			   	('$enddate' BETWEEN DATE(A.startdate) AND DATE(A.enddate)) 
    			   )";
 		$result = mysql_query($sql);	
-		logError($sql, false);
-		
-		
+			
 		if (! $result) {
 			logError($sql . " - " . mysql_error());
 		}

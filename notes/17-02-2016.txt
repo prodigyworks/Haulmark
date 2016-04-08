@@ -1,0 +1,43 @@
+DONE
+New column on customer for folder name (POD upload)
+Java process to scan folder (system config setting) to upload POD's to customer pod table
+Multiple file upload for POD's
+Sage customer reference on customer table.
+Sage sage tax code on customer table.
+Sage customer reference on customer app.
+Sage sage tax code on customer app.
+Tracey to create sub folder for each customer
+Calculate using trucks 56 mph max
+Show trailer number on the combo in Job awaiting allocation instead of description
+Number of pallets column reinstated - optional
+
+TODO
+New column on customer pod for booking id.
+Extract booking number from the file names. E.g. 192992-Allow.pdf and attempt to link
+Drivers to be users
+User to have folder (Documents). Contract of employment, Payslips, Driving licence (users document button)
+Holiday year from May to April
+Export invoice CSV, Tracey to email example.
+CSV - Description to include booking number
+CSV - SI hard coded
+Add booking
+All jobs have 30 minutes check - Check button 
+Allow customer to login with login. Allow them to add booking (Quote). Don't show rate. Show charge.
+Customers have price per mile override.
+If duration goes over x(13) hours add surcharge (system config) and add y(11) hours break
+Convert quote to booking app
+Quote system to be available link on web site
+Delivery note Need collection address
+Delivery note Print map on report
+Do not show first and last endpoint of journey for delivery note
+Show booking number, driver and trailer on pop up for planner
+Allow edit from planner and allow status change.
+Add key for planner key
+Full width for screen
+Saving references in New bookings. Currently not saving
+Status - jobs allocated, should disappear unless all drivers, trailer and vehicles exist
+Previous prices
+
+
+
+

@@ -7,11 +7,12 @@
 		$maxsequenceid = -1;
 		$sequence = 0;
 		$nextsequence = 0;
+		$memberid = getLoggedOnMemberID();
 		
-		$qry = "SELECT sequence " .
-				"FROM {$_SESSION['DB_PREFIX']}pagenavigation A " .
-				"WHERE A.pageid = $pageid " .
-				"AND A.childpageid = $id ";
+		$qry = "SELECT sequence 
+				FROM {$_SESSION['DB_PREFIX']}pagenavigation A 
+				WHERE A.pageid = $pageid 
+				AND A.childpageid = $id";
 		$result = mysql_query($qry);
 
 		//Check whether the query was successful or not
@@ -26,11 +27,11 @@
 			logError(mysql_error());
 		}
 		
-		$qry = "SELECT pagenavigationid, sequence " .
-				"FROM {$_SESSION['DB_PREFIX']}pagenavigation A " .
-				"WHERE A.pageid = $pageid AND " .
-				"A.sequence < $sequence " .
-				"ORDER BY A.sequence DESC ";
+		$qry = "SELECT pagenavigationid, sequence 
+				FROM {$_SESSION['DB_PREFIX']}pagenavigation A
+				WHERE A.pageid = $pageid AND 
+				A.sequence < $sequence 
+				ORDER BY A.sequence DESC ";
 		$result = mysql_query($qry);
 
 		//Check whether the query was successful or not
@@ -47,10 +48,12 @@
 		}
 		
 		if ($maxsequenceid != -1) {
-			$qry = "UPDATE {$_SESSION['DB_PREFIX']}pagenavigation " .
-					"SET sequence = '$nextsequence', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-					"WHERE pageid = $pageid " .
-					"AND childpageid = $id ";
+			$qry = "UPDATE {$_SESSION['DB_PREFIX']}pagenavigation SET 
+					sequence = '$nextsequence', 
+					metamodifieddate = NOW(), 
+					metamodifieduserid = $memberid
+					WHERE pageid = $pageid 
+					AND childpageid = $id ";
 
 			$result = mysql_query($qry);
 			
@@ -58,9 +61,11 @@
 				logError(mysql_error());
 			}
 			
-			$qry = "UPDATE {$_SESSION['DB_PREFIX']}pagenavigation " .
-					"SET sequence = '$sequence', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-					"WHERE pagenavigationid = $maxsequenceid";
+			$qry = "UPDATE {$_SESSION['DB_PREFIX']}pagenavigation SET 
+					sequence = '$sequence', 
+					metamodifieddate = NOW(), 
+					metamodifieduserid = $memberid
+					WHERE pagenavigationid = $maxsequenceid";
 			$result = mysql_query($qry);
 			
 			if (! $result) {
@@ -74,13 +79,14 @@
 	function sequenceDown() {		$id = $_POST['navigationid'];
 		$pageid = $_POST['navigationpageid'];
 		$maxsequenceid = -1;
+		$memberid = getLoggedOnMemberID();
 		$sequence = 0;
 		$nextsequence = 0;
 		
-		$qry = "SELECT sequence " .
-				"FROM {$_SESSION['DB_PREFIX']}pagenavigation A " .
-				"WHERE A.pageid = $pageid " .
-				"AND A.childpageid = $id ";
+		$qry = "SELECT sequence 
+				FROM {$_SESSION['DB_PREFIX']}pagenavigation A 
+				WHERE A.pageid = $pageid 
+				AND A.childpageid = $id ";
 		$result = mysql_query($qry);
 
 		//Check whether the query was successful or not
@@ -95,11 +101,11 @@
 			logError(mysql_error());
 		}
 		
-		$qry = "SELECT pagenavigationid, sequence " .
-				"FROM {$_SESSION['DB_PREFIX']}pagenavigation A " .
-				"WHERE A.pageid = $pageid AND " .
-				"A.sequence > $sequence " .
-				"ORDER BY A.sequence ";
+		$qry = "SELECT pagenavigationid, sequence 
+				FROM {$_SESSION['DB_PREFIX']}pagenavigation A 
+				WHERE A.pageid = $pageid AND 
+				A.sequence > $sequence
+				ORDER BY A.sequence ";
 		$result = mysql_query($qry);
 
 		//Check whether the query was successful or not
@@ -116,10 +122,12 @@
 		}
 		
 		if ($maxsequenceid != -1) {
-			$qry = "UPDATE {$_SESSION['DB_PREFIX']}pagenavigation " .
-					"SET sequence = '$nextsequence', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-					"WHERE pageid = $pageid " .
-					"AND childpageid = $id ";
+			$qry = "UPDATE {$_SESSION['DB_PREFIX']}pagenavigation SET 
+					sequence = '$nextsequence', 
+					metamodifieddate = NOW(), 
+					metamodifieduserid = $memberid
+					WHERE pageid = $pageid 
+					AND childpageid = $id ";
 
 			$result = mysql_query($qry);
 			
@@ -127,9 +135,11 @@
 				logError(mysql_error());
 			}
 			
-			$qry = "UPDATE {$_SESSION['DB_PREFIX']}pagenavigation " .
-					"SET sequence = '$sequence', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-					"WHERE pagenavigationid = $maxsequenceid";
+			$qry = "UPDATE {$_SESSION['DB_PREFIX']}pagenavigation SET 
+					sequence = '$sequence', 
+					metamodifieddate = NOW(), 
+					metamodifieduserid = $memberid
+					WHERE pagenavigationid = $maxsequenceid";
 			$result = mysql_query($qry);
 			
 			if (! $result) {
@@ -143,8 +153,13 @@
 	function saveContent() {
 		$pageid = $_POST['contentpageid'];
 		$contentvalue = mysql_escape_string($_POST['contentvalue']);
+		$memberid = getLoggedOnMemberID();
 		
-		$qry = "UPDATE {$_SESSION['DB_PREFIX']}pages SET content = '$contentvalue', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " WHERE pageid = $pageid";
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}pages SET 
+				content = '$contentvalue', 
+				metamodifieddate = NOW(), 
+				metamodifieduserid = $memberid 
+				WHERE pageid = $pageid";
 		$result = mysql_query($qry);
 		
 		if (! $result) {
@@ -157,6 +172,7 @@
 		public function postInsertEvent() {
 			$pageid = mysql_insert_id();
 			$parentpageid = 1;
+			$memberid = getLoggedOnMemberID();
 			
 			if (isset($_GET['id'])) {
 				$parentpageid = $_GET['id'];
@@ -164,9 +180,9 @@
 			
 			$maxSequence = 0;
 			
-			$qry = "SELECT MAX(sequence) AS maxseq " .
-					"FROM {$_SESSION['DB_PREFIX']}pagenavigation A " .
-					"WHERE A.pageid = $parentpageid";
+			$qry = "SELECT MAX(sequence) AS maxseq 
+					FROM {$_SESSION['DB_PREFIX']}pagenavigation A 
+					WHERE A.pageid = $parentpageid";
 			$result = mysql_query($qry);
 
 			//Check whether the query was successful or not
@@ -180,7 +196,18 @@
 			
 			$maxSequence += 100;
 			
-			$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}pageroles (pageid, roleid, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) VALUE($pageid, 'PUBLIC', NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")";
+			$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}pageroles 
+					(
+						pageid, roleid, 
+						metacreateddate, metacreateduserid, 
+						metamodifieddate, metamodifieduserid
+					) 
+					VALUE
+					(
+						$pageid, 'PUBLIC', 
+						NOW(), $memberid, 
+						NOW(), $memberid
+					)";
 			$result = mysql_query($qry);
 			
 			if (! $result) {
@@ -188,12 +215,29 @@
 			}
 			
 			if ($_POST['menuitem'] == "Y") {
-				$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}pagenavigation (pageid, childpageid, sequence, pagetype, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) VALUE($parentpageid, $pageid, $maxSequence, 'M', NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")";
+				if ($parentpageid == 1) {
+					$pagetype = "P";
+					
+				} else {
+					$pagetype = "M";
+				}
 				
 			} else {
-				$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}pagenavigation (pageid, childpageid, sequence, pagetype, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) VALUE($parentpageid, $pageid, $maxSequence, 'L', NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")";
+				$pagetype = "L";
 			}
 			
+			$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}pagenavigation 
+					(
+						pageid, childpageid, sequence, pagetype, 
+						metacreateddate, metacreateduserid, 
+						metamodifieddate, metamodifieduserid
+					) 
+					VALUE
+					(
+						$parentpageid, $pageid, $maxSequence, '$pagetype', 
+						NOW(), $memberid, 
+						NOW(), $memberid
+					)";
 			$result = mysql_query($qry);
 			
 			if (! $result) {
@@ -212,7 +256,9 @@
 				}
 				
 				$pageid = $_POST['pageid'];
-				$qry = "DELETE FROM {$_SESSION['DB_PREFIX']}pageroles WHERE pageid = $pageid";
+				$memberid = getLoggedOnMemberID();
+				$qry = "DELETE FROM {$_SESSION['DB_PREFIX']}pageroles 
+						WHERE pageid = $pageid";
 				$result = mysql_query($qry);
 				
 				if (! $result) {
@@ -222,7 +268,18 @@
 				for ($i = 0; $i < $counter; $i++) {
 					$roleid = $_POST['roles'][$i];
 					
-					$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}pageroles (pageid, roleid, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) VALUES ($pageid, '$roleid', NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")";
+					$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}pageroles 
+							(
+								pageid, roleid, 
+								metacreateddate, metacreateduserid, 
+								metamodifieddate, metamodifieduserid
+							) 
+							VALUES 
+							(
+								$pageid, '$roleid', 
+								NOW(), $memberid, 
+								NOW(), $memberid
+							)";
 					$result = mysql_query($qry);
 				};
 			}

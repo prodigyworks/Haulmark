@@ -90,7 +90,13 @@
 									<label class="prefix">logged on: </label>
 									<label>
 									<a href='profile.php'>
-										<?php echo $_SESSION['SESS_FIRST_NAME'] . " " . $_SESSION['SESS_LAST_NAME']; ?>
+										<?php 
+											echo $_SESSION['SESS_FIRST_NAME'] . " " . $_SESSION['SESS_LAST_NAME']; 
+											
+											if (isUserInRole("CUSTOMER")) {
+												echo "&nbsp;&nbsp;( " . $_SESSION['SESS_CUSTOMER_NAME'] . " )"; 
+											}
+										?>
 									</a>
 									<span>
 									&nbsp;|&nbsp;<a href='system-logout.php'>logout</a>

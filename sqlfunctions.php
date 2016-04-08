@@ -2,10 +2,6 @@
 include ("SimpleImage.php");
 
 function getImageData($name, $maxHeight = 300, $maxWidth = 300) {
-	if (! defined('MAX_FILE_SIZE')) {
-		define ('MAX_FILE_SIZE', 1024 * 500); 
-	}
-	
 	$imageid = 0;
 	 
 	// make sure it's a genuine file upload
@@ -98,10 +94,6 @@ function getImageData($name, $maxHeight = 300, $maxWidth = 300) {
 
 
 function getFileData($name) {
-	if (! defined('MAX_FILE_SIZE')) {
-		define ('MAX_FILE_SIZE', 1024 * 500); 
-	}
-	
 	$imageid = 0;
 	 
 	// make sure it's a genuine file upload
@@ -110,9 +102,9 @@ function getFileData($name) {
 	  $filename = str_replace(' ', '_', $_FILES[$name]['name']);
 	  // get the MIME type 
 	  $mimetype = $_FILES[$name]['type'];
-	
+	logError("SIZE: ". $_FILES[$name]['size'], false);
 	 // upload if file is OK
-	 if ($_FILES[$name]['size'] > 0 && $_FILES[$name]['size'] <= MAX_FILE_SIZE) {
+	 if ($_FILES[$name]['size'] > 0) {
 	     	
 		   switch ($_FILES[$name]['error']) {
 		     case 0:
@@ -129,7 +121,7 @@ function getFileData($name) {
 		       // get the width and height
 		       $binimage = file_get_contents($_FILES[$name]['tmp_name']);
 		       $image = mysql_real_escape_string($binimage);
-		       $size = $_FILES['document']['size'];
+		       $size = $_FILES[$name]['size'];
 		       $filename = mysql_escape_string($_FILES[$name]['name']);
 		       
 				$result = mysql_query("INSERT INTO {$_SESSION['DB_PREFIX']}documents " .

@@ -71,7 +71,7 @@
 					$sql = "SELECT id, registration AS name FROM {$_SESSION['DB_PREFIX']}trailer ORDER BY registration";
 					
 				} else if ($mode == "D") {
-					$sql = "SELECT id, name FROM {$_SESSION['DB_PREFIX']}driver ORDER BY name";
+					$sql = "SELECT id, code AS name FROM {$_SESSION['DB_PREFIX']}driver ORDER BY agencydriver, name";
 				}
 				
 				$result = mysql_query($sql);

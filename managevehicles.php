@@ -1,11 +1,28 @@
 <?php
 	require_once("crud.php");
 	
+	function disableVehicle() {
+		$id = $_POST['vehicle_id'];
+		
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}vehicle SET active = 'N' WHERE id = $id";
+		$result = mysql_query($qry);
+	}
+	
+	function enableVehicle() {
+		$id = $_POST['vehicle_id'];
+		
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}vehicle SET active = 'Y' WHERE id = $id";
+		$result = mysql_query($qry);
+	}
+	
 	class ContactCrud extends Crud {
 		
 		/* Post header event. */
 		public function postHeaderEvent() {
 			createDocumentLink();
+
+			createConfirmDialog("disabledialog", "Disable Vehicle ?", "confirmDisableVehicle");
+			createConfirmDialog("enabledialog", "Enable Vehicle ?", "confirmEnableVehicle");
 		}
 		
 		public function postScriptEvent() {
@@ -13,14 +30,61 @@
 			function editDocuments(node) {
 				viewDocument(node, "addvehicledocument.php", node, "vehicledocs", "vehicleid");
 			}
+			
+			function disableVehicle(id) {
+				currentID = id;
+				
+				$("#disabledialog .confirmdialogbody").html("You are about to de-activate this vehicle.<br>Are you sure ?");
+				$("#disabledialog").dialog("open");
+			}
+			
+			function enableVehicle(id) {
+				currentID = id;
+				
+				$("#enabledialog .confirmdialogbody").html("You are about to activate this vehicle.<br>Are you sure ?");
+				$("#enabledialog").dialog("open");
+			}
+
+			function confirmDisableVehicle() {
+				$("#disabledialog").dialog("close");
+
+				post("editform", "disableVehicle", "submitframe", 
+						{ 
+							vehicle_id: currentID
+						}
+					);
+			}
+			
+			function confirmEnableVehicle() {
+				$("#enabledialog").dialog("close");
+				
+				post("editform", "enableVehicle", "submitframe", 
+						{ 
+							vehicle_id: currentID
+						}
+					);
+			}
+			
+			function checkClick(node) {
+				if (node.active != "Yes") {
+					$("#enablebutton").show();
+					$("#disablebutton").hide();
+					
+				} else {
+					$("#disablebutton").show();
+					$("#enablebutton").hide();
+				}				
+			}
 <?php			
 		}
 	}
 
 	$crud = new ContactCrud();
 	$crud->title = "Vehicles";
+	$crud->allowRemove = false;
+	$crud->onClickCallback = "checkClick";
 	$crud->table = "{$_SESSION['DB_PREFIX']}vehicle";
-	$crud->dialogwidth = 950;
+	$crud->dialogwidth = 970;
 	$crud->sql = 
 			"SELECT A.*, B.registration AS trailername, C.name AS drivername, D.name AS vehicletypename " .
 			"FROM {$_SESSION['DB_PREFIX']}vehicle A " .
@@ -31,6 +95,10 @@
 			"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}vehicletype D " .
 			"ON D.id = A.vehicletypeid " .
 			"ORDER BY A.registration";
+	
+	$crud->messages = array(
+			array('id'		  => 'vehicle_id')
+		);
 	
 	$crud->columns = array(
 			array(
@@ -71,6 +139,7 @@
 			array(
 				'name'       => 'purchasedate',
 				'length' 	 => 10,
+				'required'	 => false,
 				'datatype'	 => 'date',
 				'label' 	 => 'Purchase Date'
 			),
@@ -78,12 +147,14 @@
 				'name'       => 'purchaseprice',
 				'datatype'	 => 'money',
 				'align'		 => 'right',
+				'required'	 => false,
 				'length' 	 => 12,
 				'label' 	 => 'Purchase Price'
 			),
 			array(
 				'name'       => 'mpg',
 				'datatype'	 => 'money',
+				'required'	 => false,
 				'align'		 => 'right',
 				'length' 	 => 12,
 				'label' 	 => 'MPG'
@@ -92,6 +163,7 @@
 				'name'       => 'presentprice',
 				'datatype'	 => 'money',
 				'align'		 => 'right',
+				'required'	 => false,
 				'length' 	 => 12,
 				'label' 	 => 'Present Price'
 			),
@@ -99,18 +171,21 @@
 				'name'       => 'grossweight',
 				'datatype'	 => 'float',
 				'align'		 => 'right',
+				'required'	 => false,
 				'length' 	 => 12,
 				'label' 	 => 'Gross Weight'
 			),
 			array(
 				'name'       => 'ystachometer',
 				'length' 	 => 10,
+				'required'	 => false,
 				'align'		 => 'right',
 				'label' 	 => 'YS Tachometer'
 			),
 			array(
 				'name'       => 'capacity',
 				'datatype'	 => 'float',
+				'required'	 => false,
 				'align'		 => 'right',
 				'length' 	 => 12,
 				'label' 	 => 'Capacity'
@@ -166,6 +241,24 @@
 				'table_name' => 'registration'
 			),
 			array(
+				'name'       => 'active',
+				'length' 	 => 10,
+				'bind'		 => false,
+				'editable'	 => false,
+				'label' 	 => 'Active',
+				'type'       => 'COMBO',
+				'options'    => array(
+						array(
+							'value'		=> 'Y',
+							'text'		=> 'Yes'
+						),
+						array(
+							'value'		=> 'N',
+							'text'		=> 'No'
+						)
+					)
+			),
+			array(
 				'name'       => 'notes',
 				'length' 	 => 50,
 				'type'		 => 'TEXTAREA',
@@ -175,6 +268,18 @@
 		);
 
 	$crud->subapplications = array(
+			array(
+				'id'		  => 'disablebutton',
+				'title'		  => 'De-activate',
+				'imageurl'	  => 'images/delete.png',
+				'script' 	  => 'disableVehicle'
+			),
+			array(
+				'id'		  => 'enablebutton',
+				'title'		  => 'Activate',
+				'imageurl'	  => 'images/thumbs_up.gif',
+				'script' 	  => 'enableVehicle'
+			),
 			array(
 				'title'		  => 'Documents',
 				'imageurl'	  => 'images/document.gif',

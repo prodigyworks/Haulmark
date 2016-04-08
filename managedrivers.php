@@ -201,6 +201,7 @@
 			array(
 				'name'       => 'email',
 				'length' 	 => 70,
+				'required'	 => false,
 				'label' 	 => 'Email'
 			),
 			array(
@@ -211,6 +212,7 @@
 			array(
 				'name'       => 'fax',
 				'length' 	 => 12,
+				'required'	 => false,
 				'label' 	 => 'Fax'
 			),
 			array(
@@ -219,7 +221,7 @@
 				'length' 	 => 10,
 				'label' 	 => 'Usual Vehicle',
 				'table'		 => 'vehicle',
-				'required'	 => trues,
+				'required'	 => false,
 				'table_id'	 => 'id',
 				'alias'		 => 'vehiclename',
 				'table_name' => 'registration'
@@ -230,7 +232,7 @@
 				'length' 	 => 10,
 				'label' 	 => 'Usual Trailer',
 				'table'		 => 'trailer',
-				'required'	 => true,
+				'required'	 => false,
 				'table_id'	 => 'id',
 				'alias'		 => 'trailername',
 				'table_name' => 'registration'
@@ -239,6 +241,7 @@
 				'name'       => 'startdate',
 				'datatype'	 => 'date',
 				'length' 	 => 12,
+				'required'	 => false,
 				'onchange'	 => 'holidayentitlement_onchange',
 				'label' 	 => 'Start Date'
 			),
@@ -246,6 +249,7 @@
 				'name'       => 'holidayentitlement',
 				'length' 	 => 10,
 				'onchange'	 => 'holidayentitlement_onchange',
+				'required'	 => false,
 				'align' 	 => 'center',
 				'label' 	 => 'Entitlement'
 			),
@@ -253,6 +257,7 @@
 				'name'       => 'prorataholidayentitlement',
 				'length' 	 => 10,
 				'readonly'	 => true,
+				'required'	 => false,
 				'align' 	 => 'center',
 				'label' 	 => 'Entitlement (Pro Rata)'
 			),

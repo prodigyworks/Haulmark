@@ -105,6 +105,7 @@
 					ON J.id = A.worktypeid
 					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}loadtype K 
 					ON K.id = A.loadtypeid
+					WHERE A.statusid IN ( 1, 2, 3, 9)
 					ORDER BY A.id DESC";
 			
 			$this->columns = array(
@@ -141,16 +142,6 @@
 						'table_name' => 'name'
 					),
 					array(
-						'name'       => 'memberid',
-						'type'       => 'DATACOMBO',
-						'length' 	 => 30,
-						'label' 	 => 'Logged By',
-						'table'		 => 'members',
-						'table_id'	 => 'member_id',
-						'alias'		 => 'fullname',
-						'table_name' => 'fullname'
-					),
-					array(
 						'name'       => 'customerid',
 						'type'       => 'DATACOMBO',
 						'length' 	 => 35,
@@ -172,18 +163,6 @@
 						'table_name' => 'name'
 					),
 					array(
-						'name'       => 'vehicletypeid',
-						'type'       => 'DATACOMBO',
-						'length' 	 => 19,
-						'label' 	 => 'Vehicle Type',
-						'table'		 => 'vehicletype',
-						'required'	 => true,
-						'onchange'	 => 'vehicletypeid_onchange',
-						'table_id'	 => 'id',
-						'alias'		 => 'vehicletypename',
-						'table_name' => 'name'
-					),
-					array(
 						'name'       => 'vehicleid',
 						'type'       => 'DATACOMBO',
 						'length' 	 => 10,
@@ -194,6 +173,18 @@
 						'table_id'	 => 'id',
 						'alias'		 => 'vehiclename',
 						'table_name' => 'registration'
+					),
+					array(
+						'name'       => 'vehicletypeid',
+						'type'       => 'DATACOMBO',
+						'length' 	 => 19,
+						'label' 	 => 'Vehicle Type',
+						'table'		 => 'vehicletype',
+						'required'	 => true,
+						'onchange'	 => 'vehicletypeid_onchange',
+						'table_id'	 => 'id',
+						'alias'		 => 'vehicletypename',
+						'table_name' => 'name'
 					),
 					array(
 						'name'       => 'trailerid',
@@ -209,24 +200,15 @@
 					),
 					array(
 						'name'       => 'drivername',
+						'showInView' => false,
 						'length' 	 => 20,
 						'label' 	 => 'Driver Name'
 					),
 					array(
 						'name'       => 'storename',
 						'length' 	 => 10,
+						'showInView' => false,
 						'label' 	 => 'Store Name'
-					),
-					array(
-						'name'       => 'worktypeid',
-						'type'       => 'DATACOMBO',
-						'length' 	 => 19,
-						'label' 	 => 'Work Type',
-						'table'		 => 'worktype',
-						'required'	 => true,
-						'table_id'	 => 'id',
-						'alias'		 => 'worktypename',
-						'table_name' => 'name'
 					),
 					array(
 						'name'       => 'loadtypeid',
@@ -369,6 +351,13 @@
 						'label' 	 => 'Items'
 					),
 					array(
+						'name'       => 'pallets',
+						'length' 	 => 12,
+						'datatype'	 => 'integer',
+						'align'		 => 'right',
+						'label' 	 => 'Pallets'
+					),
+					array(
 						'name'       => 'weight',
 						'length' 	 => 12,
 						'datatype'	 => 'double',
@@ -402,6 +391,16 @@
 						'length' 	 => 12,
 						'align'		 => 'right',
 						'label' 	 => 'Charge'
+					),
+					array(
+						'name'       => 'memberid',
+						'type'       => 'DATACOMBO',
+						'length' 	 => 30,
+						'label' 	 => 'Logged By',
+						'table'		 => 'members',
+						'table_id'	 => 'member_id',
+						'alias'		 => 'fullname',
+						'table_name' => 'fullname'
 					),
 					array(
 						'name'       => 'notes',
@@ -526,6 +525,7 @@
 		public function postHeaderEvent() {
 			createDocumentLink();
 ?>
+			<script type="text/javascript" src="js/html2canvas.js"></script>
 			<div id="mapDialog" class="modal">
      			<div id="map_canvas" style="width:780px;height:500px; border:1px solid grey; ">
 				</div>
@@ -546,7 +546,7 @@
 						<tr>
 							<td width='90px'>Vehicle</td>
 							<td>
-								<?php createCombo("copyvehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "", false); ?>
+								<?php createCombo("copyvehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'", false); ?>
 								<span></span>
 							</td>
 						</tr>
@@ -703,6 +703,19 @@
 		    	return padZero(pointhr) + ":" + padZero(pointmin);
 		    }
 		    
+			function saveMapToDataUrl() {
+			
+			    var element = $("#map_canvas");
+			
+			    html2canvas(element, {
+			        useCORS: true,
+			        onrendered: function(canvas) {
+			            var dataUrl= canvas.toDataURL("image/png");
+			
+			            window.open(dataUrl);
+			        }
+			    });
+			}		    
 		    function initializeMap(start, end, waypoints, startIndex) {
 		    	if (map == null) {
 				    directionsService = new google.maps.DirectionsService();
@@ -735,7 +748,7 @@
 							
 						    for(var i=0; i < legs.length; ++i) {
 						        totalDistance += legs[i].distance.value;
-						        totalDuration += legs[i].duration.value;
+						        totalDuration += legs[i].duration.value / 0.9;
 						        totalDuration += <?php echo getSiteConfigData()->averagewaittime * 60; ?>;
 						    }
 						    
@@ -755,7 +768,7 @@
 		    					    						prevTime.val(), 
 		    					    						prevDate.val(), 
 		    					    						startdate.attr("id"), 
-		    					    						legs[cnt++].duration.value + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
+		    					    						(legs[cnt++].duration.value / 0.9) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
 		    					    					)
 		    					    			);
 										}
@@ -771,7 +784,7 @@
     			    						prevTime.val(), 
     			    						prevDate.val(), 
     			    						"enddatetime", 
-    			    						legs[legs.length - 1].duration.value
+    			    						(legs[legs.length - 1].duration.value / 0.9)
     			    					)
     			    			);
 							
@@ -1280,6 +1293,8 @@
 								initializeMap(node.fromplace, node.toplace, waypoints, 0);
 								  
 								$("#mapDialog").dialog("open");
+								
+								saveMapToDataUrl();
 							}
 						
 						}

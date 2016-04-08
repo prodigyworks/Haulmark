@@ -64,17 +64,20 @@
 			array(
 				'name'       => 'manufacturer',
 				'length' 	 => 30,
+				'required'	 => false,
 				'label' 	 => 'Manufacturer'
 			),
 			array(
 				'name'       => 'purchasedate',
 				'length' 	 => 10,
 				'datatype'	 => 'date',
+				'required'	 => false,
 				'label' 	 => 'Purchase Date'
 			),
 			array(
 				'name'       => 'purchaseprice',
 				'datatype'	 => 'money',
+				'required'	 => false,
 				'align'		 => 'right',
 				'length' 	 => 12,
 				'label' 	 => 'Purchase Price'
@@ -83,6 +86,7 @@
 				'name'       => 'mpg',
 				'datatype'	 => 'money',
 				'align'		 => 'right',
+				'required'	 => false,
 				'length' 	 => 12,
 				'label' 	 => 'MPG'
 			),
@@ -90,6 +94,7 @@
 				'name'       => 'presentprice',
 				'datatype'	 => 'money',
 				'align'		 => 'right',
+				'required'	 => false,
 				'length' 	 => 12,
 				'label' 	 => 'Present Price'
 			),
@@ -97,6 +102,7 @@
 				'name'       => 'grossweight',
 				'datatype'	 => 'float',
 				'align'		 => 'right',
+				'required'	 => false,
 				'length' 	 => 12,
 				'label' 	 => 'Gross Weight'
 			),
@@ -104,12 +110,14 @@
 				'name'       => 'ystachometer',
 				'length' 	 => 10,
 				'align'		 => 'right',
+				'required'	 => false,
 				'label' 	 => 'YS Tachometer'
 			),
 			array(
 				'name'       => 'capacity',
 				'datatype'	 => 'float',
 				'align'		 => 'right',
+				'required'	 => false,
 				'length' 	 => 12,
 				'label' 	 => 'Capacity'
 			),
@@ -136,6 +144,7 @@
 			array(
 				'name'       => 'usualdriverid',
 				'type'       => 'DATACOMBO',
+				'required'	 => false,
 				'length' 	 => 30,
 				'label' 	 => 'Usual Driver',
 				'table'		 => 'driver',

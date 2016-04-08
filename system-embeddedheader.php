@@ -18,7 +18,7 @@
 <script src='js/jquery.hoverIntent.minified.js' type='text/javascript'></script>
 <script src='js/jquery.dcmegamenu.1.3.3.js' type='text/javascript'></script>
 <script src="js/oraclelogs.js" language="javascript" ></script> 
-<title>DTi - Project Tracker</title>
+<title>Allegro Transport</title>
 <script>
 	var autoLoad = false;
 </script>

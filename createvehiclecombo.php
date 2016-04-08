@@ -7,10 +7,10 @@
 	$vehicletypeid = $_POST['vehicletypeid'];
 
 	if ($vehicletypeid == 0) {
-		$where = " ";
+		$where = "WHERE active = 'Y'";
 		
 	} else {
-		$where = "WHERE vehicletypeid = $vehicletypeid";
+		$where = "WHERE vehicletypeid = $vehicletypeid AND active = 'Y'";
 	}
 	
 	createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", $where, false, false, array(), true);

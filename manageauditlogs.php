@@ -60,11 +60,11 @@
 	$crud->table = "{$_SESSION['DB_PREFIX']}caseauditlogs";
 //	$crud->dialogwidth = 900;
 	$crud->sql = 
-			"SELECT A.*, C.fullname, C.firstname, C.lastname " .
-			"FROM {$_SESSION['DB_PREFIX']}caseauditlogs A " .
-			"INNER JOIN {$_SESSION['DB_PREFIX']}members C " .
-			"ON C.member_id = A.auditmemberid " .
-			"ORDER BY A.id DESC";
+			"SELECT A.*, C.fullname
+			 FROM {$_SESSION['DB_PREFIX']}loginaudit A 
+			 INNER JOIN {$_SESSION['DB_PREFIX']}members C 
+			 ON C.member_id = A.memberid 
+			 ORDER BY A.id DESC";
 	
 	$crud->columns = array(
 			array(
@@ -78,13 +78,19 @@
 				'label' 	 => 'ID'
 			),
 			array(
-				'name'       => 'auditdate',
+				'name'       => 'timeon',
 				'datatype'	 => 'datetime',
 				'length' 	 => 18,
-				'label' 	 => 'Audit Date'
+				'label' 	 => 'Time On'
 			),
 			array(
-				'name'       => 'auditmemberid',
+				'name'       => 'timeoff',
+				'datatype'	 => 'datetime',
+				'length' 	 => 18,
+				'label' 	 => 'Time Off'
+			),
+			array(
+				'name'       => 'memberid',
 				'type'       => 'DATACOMBO',
 				'length' 	 => 30,
 				'label' 	 => 'User',
@@ -92,22 +98,6 @@
 				'table_id'	 => 'member_id',
 				'alias'		 => 'fullname',
 				'table_name' => 'fullname'
-			),
-			array(
-				'name'       => 'tablename',
-				'type'		 => 'DERIVED',
-				'sortcolumn' => 'A.tablename',
-				'length' 	 => 20,
-				'function'	 => 'tableName',
-				'label' 	 => 'Table'
-			),
-			array(
-				'name'       => 'type',
-				'type'		 => 'DERIVED',
-				'length' 	 => 10,
-				'sortcolumn' => 'A.type',
-				'function'	 => 'typeName',
-				'label' 	 => 'Type'
 			)
 		);
 		

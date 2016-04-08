@@ -20,7 +20,6 @@
 			
 			$this->Line(10, 48, 200, 48);
 			$this->Line(10, 56, 200, 56);
-			$this->Line(10, 95, 200, 95);
 				
 			$y = 10;
 				
@@ -46,7 +45,8 @@
 			if ($member['fax'] != "") $y = $this->addText(15, $y, "Fax : " . $member['fax'], 10, 4, '', 80);
 			
 			$y += 10;
-				
+			$this->Line(10, $y - 5, 200, $y - 5);
+			
 			$this->addText(15, $y, "Job Ticket No", 10, 4.5, 'B', 80);
 			$y = $this->addText(60, $y, $member['id'], 10, 4.5, '', 80);
 				

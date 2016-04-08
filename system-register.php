@@ -11,7 +11,7 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 }
 ?>
 <div class="registerPage">
-	<h4>Staff Registry</h4>
+	<h4>User Registry</h4>
 	<form id="loginForm" enctype="multipart/form-data" name="loginForm" class="entryform manualform" method="post" action="system-register-exec.php">
 	  <table border="0" align="left">
 	    <tr>
@@ -21,6 +21,21 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	    <tr>
 	      <td>Last Name </td>
 	      <td><input required="true" name="lname" type="text" class="textfield" id="lname" /></td>
+	    </tr>
+	    <tr>
+	      <td>Account Type </td>
+	      <td>
+	      	<SELECT id="accounttype" name="accounttype" onchange="accounttype_onchange()">
+	      		<OPTION value="ALLEGRO">Allegro Employee</OPTION>
+	      		<OPTION value="CUSTOMER">Allegro Customer</OPTION>
+	      	</SELECT>
+	      </td>
+	    </tr>
+	    <tr id="customertype" style="display:none">
+	      <td>Customer</td>
+	      <td>
+	      	<?php createCombo("customerid", "id", "name", "{$_SESSION['DB_PREFIX']}customer", "", false)?>
+	      </td>
 	    </tr>
 	    <tr>
 	      <td>Login</td>
@@ -73,7 +88,19 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 		$("#cpassword").blur(verifycpassword);
 		$("#confirmemail").blur(verifycemail);
 		$("#fname").focus();
+		
 	});
+
+	function accounttype_onchange() {
+		if ($("#accounttype").val() == "ALLEGRO") {
+			$("#customerid").val("0");
+			$("#customertype").hide();
+
+		} else if ($("#accounttype").val() == "CUSTOMER") {
+			$("#customerid").val("0");
+			$("#customertype").show();
+		}
+	}
 				
 	function verify() {
 		var isValid = verifyStandardForm('#loginForm');

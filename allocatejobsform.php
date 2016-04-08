@@ -20,7 +20,7 @@
 		<tr valign="center">
 			<td>Driver / Agency</td>
 			<td>
-				<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver"); ?>
+				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver", "", false); ?>
 				<input type="hidden" id="agencydriver" name="agencydriver">
 			</td>
 		</tr>
@@ -33,13 +33,19 @@
 		<tr valign="center">
 			<td>Vehicle</td>
 			<td>
-				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle"); ?>
+				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'"); ?>
 			</td>
 		</tr>
 		<tr valign="center">
 			<td>Trailer</td>
 			<td>
-				<?php createCombo("trailerid", "id", "description", "{$_SESSION['DB_PREFIX']}trailer"); ?>
+				<?php createCombo("trailerid", "id", "registration", "{$_SESSION['DB_PREFIX']}trailer", "", false); ?>
+			</td>
+		</tr>
+		<tr valign="center">
+			<td>Load Type</td>
+			<td>
+				<?php createCombo("loadtypeid", "id", "name", "{$_SESSION['DB_PREFIX']}loadtype", "", true); ?>
 			</td>
 		</tr>
 		<tr id="drivernamerow">
@@ -58,6 +64,12 @@
 			<td>Rate</td>
 			<td>
 				<input required="true" type="text" style="width:72px" id="rate" name="rate"><div class="bubble" title="Required field"></div>
+			</td>
+		</tr>
+		<tr valign="center">
+			<td>Pallets</td>
+			<td>
+				<input required="false" type="text" style="width:72px" id="pallets" name="pallets"><div class="bubble" title="Required field"></div>
 			</td>
 		</tr>
 		<tr valign="center">
@@ -89,7 +101,6 @@
 				<input type="hidden" id="startdatetime_time" name="startdatetime_time">
 				<input type="hidden" id="enddatetime" name="enddatetime">
 				<input type="hidden" id="enddatetime_time" name="enddatetime_time">
-				<input type="hidden" id="loadtypeid" name="loadtypeid">
 				<input type="hidden" id="ordernumber" name="ordernumber">
 				<input type="hidden" id="ordernumber2" name="ordernumber2">
 				<input type="hidden" id="miles" name="miles">

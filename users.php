@@ -2,7 +2,12 @@
 	require_once("crud.php");
 	
 	function expire() {
-		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET status = 'N', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " WHERE member_id = " . $_POST['expiredmemberid'];
+		$memberid = getLoggedOnMemberID();
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET 
+				status = 'N', 
+				metamodifieddate = NOW(), 
+				metamodifieduserid = $memberid 
+				WHERE member_id = {$_POST['expiredmemberid']}";
 		$result = mysql_query($qry);
 		
 		if (! $result) {
@@ -32,7 +37,9 @@
 				}
 				
 				$memberid = $_POST['memberid'];
-				$qry = "DELETE FROM {$_SESSION['DB_PREFIX']}userroles WHERE memberid = $memberid";
+				$currentmemberid = getLoggedOnMemberID();
+				$qry = "DELETE FROM {$_SESSION['DB_PREFIX']}userroles 
+						WHERE memberid = $memberid";
 				$result = mysql_query($qry);
 				
 				if (! $result) {
@@ -42,12 +49,35 @@
 				for ($i = 0; $i < $counter; $i++) {
 					$roleid = $_POST['roles'][$i];
 					
-					$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}userroles (memberid, roleid, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) VALUES ($memberid, '$roleid', NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")";
+					$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}userroles 
+							(
+								memberid, roleid, 
+								metacreateddate, metacreateduserid, 
+								metamodifieddate, metamodifieduserid
+							) 
+							VALUES 
+							(
+								$memberid, '$roleid', 
+								NOW(), $currentmemberid, 
+								NOW(), $currentmemberid
+							)";
 					$result = mysql_query($qry);
 				};
 			}
 		}
-
+		
+		public function postUpdateEvent($id) {
+			/* Event. */
+			$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET 
+					fullname = CONCAT(firstname, CONCAT(' ', lastname)) 
+					WHERE member_id = $id";
+			$result = mysql_query($qry);
+			
+			if (! $result) {
+				logError($qry . " = " . mysql_error());
+			}
+		}
+		
 		/* Post header event. */
 		public function postHeaderEvent() {
 ?>
@@ -228,9 +258,11 @@
 	$crud->table = "{$_SESSION['DB_PREFIX']}members";
 	
 	$crud->sql = 
-			"SELECT A.* " .
-			"FROM {$_SESSION['DB_PREFIX']}members A " .
-			"ORDER BY A.firstname, A.lastname"; 
+			"SELECT A.*, B.name
+			 FROM {$_SESSION['DB_PREFIX']}members A 
+			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer B
+			 ON B.id = A.customerid 
+			 ORDER BY A.firstname, A.lastname"; 
 			
 	$crud->columns = array(
 			array(
@@ -251,7 +283,7 @@
 			array(
 				'name'       => 'staffname',
 				'type'		 => 'DERIVED',
-				'length' 	 => 60,
+				'length' 	 => 35,
 				'bind'		 => false,
 				'function'   => 'fullName',
 				'sortcolumn' => 'A.firstname',
@@ -270,111 +302,27 @@
 				'label' 	 => 'Last Name'
 			),
 			array(
+				'name'       => 'name',
+				'length' 	 => 30,
+				'label' 	 => 'Customer',
+				'editable'	 => false,
+				'bind'		 => false
+			),
+			array(
 				'name'       => 'email',
 				'length' 	 => 60,
 				'label' 	 => 'Email'
 			),
 			array(
-				'name'       => 'landline',
-				'length' 	 => 13,
-				'label' 	 => 'Land line'
-			),
-			array(
-				'name'       => 'fax',
-				'length' 	 => 13,
-				'label' 	 => 'Fax'
-			),
-			array(
 				'name'       => 'mobile',
+				'required'	 => false,
 				'length' 	 => 13,
 				'label' 	 => 'Cell phone'
 			),
 			array(
-				'name'       => 'status',
-				'length' 	 => 30,
-				'label' 	 => 'Status',
-				'type'       => 'COMBO',
-				'options'    => array(
-						array(
-							'value'		=> 'Y',
-							'text'		=> 'Live'
-						),
-						array(
-							'value'		=> 'N',
-							'text'		=> 'Expired'
-						)
-					)
-			),
-			array(
-				'name'       => 'imageid',
-				'type'		 => 'IMAGE',
-				'length' 	 => 64,
-				'required'	 => false,
-				'showInView' => false,
-				'label' 	 => 'Image'
-			),
-			array(
-				'name'       => 'title',
-				'length'	 => 20,
-				'label' 	 => 'Title'
-			),
-			array(
-				'name'       => 'holidayentitlement',
-				'length' 	 => 10,
-				'onchange'	 => 'holidayentitlement_onchange',
-				'align' 	 => 'center',
-				'label' 	 => 'Entitlement'
-			),
-			array(
-				'name'       => 'prorataholidayentitlement',
-				'length' 	 => 10,
-				'readonly'	 => true,
-				'align' 	 => 'center',
-				'label' 	 => 'Entitlement (Pro Rata)'
-			),
-			array(
-				'name'       => 'daysbooked',
-				'length' 	 => 10,
-				'align' 	 => 'center',
-				'required'	 => false,
-				'readonly'	 => true,
-				'bind'		 => false,
-				'label' 	 => 'Booked'
-			),
-			array(
-				'name'       => 'daystaken',
-				'length' 	 => 10,
-				'bind'		 => false,
-				'readonly'	 => true,
-				'required'	 => false,
-				'align' 	 => 'center',
-				'label' 	 => 'Taken'
-			),
-			array(
-				'name'       => 'daysremaining',
-				'type'		 => 'DERIVED',
-				'length' 	 => 10,
-				'bind'		 => false,
-				'readonly'	 => true,
-				'required'	 => false,
-				'editable'	 => false,
-				'function'   => 'daysLeft',
-				'sortcolumn' => 'prorataholidayentitlement',
-				'align' 	 => 'center',
-				'label' 	 => 'Remaining'
-			),
-			array(
-				'name'       => 'absent',
-				'length' 	 => 10,
-				'bind'		 => false,
-				'readonly'	 => true,
-				'required'	 => false,
-				'align' 	 => 'center',
-				'label' 	 => 'Absent'
-			),
-			array(
 				'name'       => 'address',
 				'type'		 => 'TEXTAREA',
+				'required'	 => false,
 				'showInView' => false,
 				'filter'     => false,
 				'label' 	 => 'Address'
@@ -382,6 +330,7 @@
 			array(
 				'name'       => 'description',
 				'type'		 => 'TEXTAREA',
+				'required'	 => false,
 				'showInView' => false,
 				'filter'     => false,
 				'label' 	 => 'Details'

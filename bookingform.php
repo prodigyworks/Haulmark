@@ -26,14 +26,14 @@
 		<tr valign="center">
 			<td>Driver / Agency</td>
 			<td>
-				<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "", false); ?>
+				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver", "", false); ?>
 				<input type="hidden" id="agencydriver" name="agencydriver">
 			</td>
 		</tr>
 		<tr valign="center">
 			<td>Vehicle</td>
 			<td>
-				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "", false); ?>
+				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'",  false); ?>
 			</td>
 		</tr>
 		<tr valign="center">
@@ -136,6 +136,12 @@
 			<td>Duration</td>
 			<td>
 				<input required="true" type="text" style="width:72px" id="duration" name="duration"><div class="bubble" title="Required field"></div>
+			</td>
+		</tr>
+		<tr valign="center">
+			<td>Pallets</td>
+			<td>
+				<input required="false" type="text" style="width:72px" id="pallets" name="pallets"><div class="bubble" title="Required field"></div>
 			</td>
 		</tr>
 		<tr valign="center">

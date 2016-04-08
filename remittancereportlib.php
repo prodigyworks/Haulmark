@@ -3,31 +3,28 @@
 	require_once('pdfreport.php');
 	require_once("simple_html_dom.php");
 	
-	class QuoteReport extends PDFReport {
+	class RemittanceReport extends PDFReport {
 		private $headermember = null;
 		
 		function newPage() {
 			$this->AddPage();
 			
 			$this->Image("images/logomain2.png", 158.6, 6);
-//			$this->Image("images/footer.png", 80, 262);
 			
-			$this->addText( 83.5, 272, "Valid for 30 days", 8, 3, 'B');
-
-			$this->addText( 15, 13, "Allegro Transport", 12, 4, 'B') + 5;
+			$this->addText( 15, 13, "Allegro Transport Ltd", 12, 4, 'B') + 5;
 			$dynamicY = $this->addText(15, 20, getSiteConfigData()->address, 8, 3) + 4;
 			
 			$dynamicY = 47.5;
 			
 			$this->addText( 15, $dynamicY, "Supplier Name & Address", 8, 3, 'B');
-			$this->addText( 75, $dynamicY, "Delivery Address", 8, 3, 'B');
-			$this->addText( 160, $dynamicY, "PURCHASE ORDER", 8, 3, 'B');
+			$this->addText( 75, $dynamicY, "Remittance Address", 8, 3, 'B');
+			$this->addText( 160, $dynamicY, "REMITTANCE ADVICE", 8, 3, 'B');
 			
 			$this->addText( 145, $dynamicY + 5, "FAO:", 8, 3, 'B');
 			$this->addText( 170, $dynamicY + 5, $this->headermember['firstname'] . " " . $this->headermember['lastname'], 8, 2.4, '', 30);
 			
-			$this->addText( 145, $dynamicY + 10, "Purchase Date:", 8, 3, 'B');
-			$this->addText( 170, $dynamicY + 10, $this->headermember['orderdate'], 8, 3);
+			$this->addText( 145, $dynamicY + 10, "Remittance Date:", 8, 3, 'B');
+			$this->addText( 170, $dynamicY + 10, $this->headermember['converteddatetime'], 8, 3);
 			
 			$this->addText( 145, $dynamicY + 15, "Your Acc No:", 8, 3, 'B');
 			$this->addText( 170, $dynamicY + 15, $this->headermember['accountnumber'], 8, 3);
@@ -71,33 +68,27 @@
 			$this->Line(142, 252, 200, 252);
 			$this->Line(142, 258, 200, 258);
 			$this->Line(142, 264, 200, 264);
-			
-			if ($this->headermember['revision'] != 1) {
-				$this->addText(55, $dynamicY + 38, "This is Order Revision No " . $this->headermember['revision'] . " and Supersedes all Previous Issues", 8, 3.5, 'B');
-			}
-			
+
 			$this->addText( 10, 270, "Company Reg No: 1202559", 7, 3);
 			$this->addText( 170, 270, "Printed: " . date("d/m/Y H:i"), 7, 3);
 			$this->addText( 186, 273, "Page " . $this->PageNo() . " of {nb}", 7, 3);
 			
 			$this->SetFont('Arial','', 8);
 				
-			$cols=array( "Quantity"    => 18,
-			             "Code"  => 23,		
+			$cols=array( "Cheque Number"    => 41,
 						 "Description"  => 90.5,
 			             "Price Each"  => 19.5,
-			             "Line Total"  => 19.5,
-						 "Line VAT"  => 19.5
+						 "Line VAT"  => 19.5,
+			             "Total Paid"  => 19.5
 				);
 		
 			$this->addCols( $dynamicY + 45, $cols);
 			
-			$cols=array( "Quantity"    => "L",
-			             "Code"  => "L",		
+			$cols=array( "Cheque Number"    => "L",
 						 "Description"  => "L",
 			             "Price Each"  => "R",
-			             "Line Total"  => "R",
-						 "Line VAT"  => "R"
+						 "Line VAT"  => "R",
+			             "Total Paid"  => "R"
 				);
 			$this->addLineFormat( $cols);
 			
@@ -112,7 +103,7 @@
 	        parent::__construct($orientation, $metric, $size);
 			
 			try {
-				$sql = "SELECT A.*, DATE_FORMAT(A.orderdate, '%d/%m/%Y') AS orderdate,
+				$sql = "SELECT A.*, DATE_FORMAT(A.converteddatetime, '%d/%m/%Y') AS converteddatetime,
 						B.name AS suppliername, B.accountnumber, B.invoiceaddress1, B.invoiceaddress2, B.invoiceaddress3, 
 						B.invoicecity, B.invoicepostcode, B.deliveryaddress1, B.deliveryaddress2, 
 						B.deliveryaddress3, B.deliverycity, B.deliverypostcode, B.firstname, B.lastname,
@@ -120,12 +111,12 @@
 					    FROM  {$_SESSION['DB_PREFIX']}proforma A
 					    INNER JOIN  {$_SESSION['DB_PREFIX']}supplier B
 					    ON B.id = A.supplierid
-					    LEFT OUTER JOIN  {$_SESSION['DB_PREFIX']}members C
+					    INNER JOIN  {$_SESSION['DB_PREFIX']}members C
 					    ON C.member_id = A.takenbyid
 					    WHERE A.id = $id
 					    ORDER BY A.id DESC";
 				$result = mysql_query($sql);
-
+				
 				if ($result) {
 					while (($this->headermember = mysql_fetch_assoc($result))) {
 						$shipping = $this->headermember['deliverycharge'];
@@ -140,16 +131,15 @@
 								WHERE A.proformaid = $id 
 								ORDER BY A.id";
 						$itemresult = mysql_query($sql);
-
+						
 						if ($itemresult) {
 							while (($itemmember = mysql_fetch_assoc($itemresult))) {
 								$line = array( 
-										 "Quantity"    => $itemmember['quantity'],
-							             "Code"  => $itemmember['productcode'],		
-										 "Description"  => $itemmember['description'],
+										 "Cheque Number"    => "Paid by BACS",
+										 "Description"  => "Remittance Advice Notice For : " . $this->headermember['yourordernumber'],
 							             "Price Each"  => number_format($itemmember['priceeach'], 2),
-							             "Line Total"  => number_format($itemmember['linetotal'], 2),
-										 "Line VAT"  => number_format($itemmember['vat'], 2)
+										 "Line VAT"  => number_format($itemmember['vat'], 2),
+							             "Total Paid"  => number_format($itemmember['linetotal'], 2)
 							         );
 								             
 								$size = $this->addLine( $dynamicY, $line );
@@ -170,34 +160,31 @@
 						}
 						
 						$line = array( 
-								 "Quantity"    => " ",
-					             "Code"  => " ",		
+								 "Cheque Number"    => " ",
 								 "Description"  => " " ,
 					             "Price Each"  => " ",
-					             "Line Total"  => "Goods Net:",
-								 "Line VAT"  => number_format($total, 2)
+					             "Line VAT"  => "Goods Net:",
+								 "Total Paid"  => number_format($total, 2)
 					         );
 						             
 						$size = $this->addLine( 248, $line );
 						
 						$line = array( 
-								 "Quantity"    => " ",
-					             "Code"  => " ",		
+								 "Cheque Number"    => " ",
 								 "Description"  => " " ,
 					             "Price Each"  => " ",
-					             "Line Total"  => "VAT:",
-								 "Line VAT"  => number_format($totalvat, 2)
+					             "Line VAT"  => "VAT:",
+								 "Total Paid"  => number_format($totalvat, 2)
 					         );
 						             
 						$size = $this->addLine( 254, $line );
 						
 						$line = array( 
-								 "Quantity"    => " ",
-					             "Code"  => " ",		
+								 "Cheque Number"    => " ",
 								 "Description"  => " " ,
 					             "Price Each"  => " ",
-					             "Line Total"  => "Total:",
-								 "Line VAT"  => number_format(($totalvat + $total) - $discount, 2)
+					             "Line VAT"  => "Total:",
+								 "Total Paid"  => number_format(($totalvat + $total) - $discount, 2)
 					         );
 						             
 						$size = $this->addLine( 260, $line );

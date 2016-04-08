@@ -34,7 +34,7 @@
 		<tr>
 			<td>Vehicle</td>
 			<td>
-				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle"); ?>
+				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'"); ?>
 			</td>
 		</tr>
 		<tr>
@@ -42,7 +42,7 @@
 				Driver
 			</td>
 			<td>
-				<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver"); ?>
+				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver"); ?>
 			</td>
 		</tr>
 		<tr>
