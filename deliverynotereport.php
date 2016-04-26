@@ -136,9 +136,6 @@
 						$first = false;
 					}
 					
-					$startdate = $member['startdate'];
-					$starttime = $member['starttime'];
-					$fromplace = $member['fromplace'];
 					$bookingid = $member['id'];
 						
 					$sql = "SELECT A.*,
@@ -151,26 +148,9 @@
 										
 					if ($itemresult) {
 						while (($itemmember = mysql_fetch_assoc($itemresult))) {
-							/* Do stuff */
-							$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
-							$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 80);
-							$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
-							$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
-							$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
-							$y = $this->addText(60, $y, $starttime, 10, 4.5, '', 80) + 4;
-							
- 							$this->addText(15, $y, "Delivery", 10, 4.5, 'B', 80);
- 							$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 80);
-							$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
-							$y = $this->addText(60, $y, $itemmember['startdate'], 10, 4.5, '', 80);
-							$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
-							$y = $this->addText(60, $y, $itemmember['starttime'], 10, 4.5, '', 80);
-								
 							$startdate = $itemmember['startdate'];
 							$starttime = $itemmember['starttime'];
 							$fromplace = $itemmember['place'];
-								
-							$this->newPage();
 						}
 					
 					} else {

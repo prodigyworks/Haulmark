@@ -9,12 +9,16 @@
 	     logError("Please select your image!");
 	     
 	} else {
-		$query = mysql_query("SELECT mimetype, image, size, filename 
+		$query = mysql_query("SELECT compressed, mimetype, image, size, filename 
 							  FROM {$_SESSION['DB_PREFIX']}documents 
 							  WHERE id = $id");
 		$row = mysql_fetch_array($query);
 		$content = $row['image'];
 		$filename = $row['filename'];
+		
+		if ($row['compressed'] == 1) {
+			$content = gzuncompress($content);
+		}
 		
 		ob_clean(); 
 		

@@ -23,10 +23,20 @@
 	?>
 	<script src='./codebase/dhtmlxscheduler.js' type="text/javascript" charset="utf-8"></script>
 	<script src='./codebase/ext/dhtmlxscheduler_timeline.js' type="text/javascript" charset="utf-8"></script>
+	<script src='bookingscriptlibrary.js' type="text/javascript" charset="utf-8"></script>
+	<script type='text/javascript' src='jsc/jquery.autocomplete.js'></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places" type="text/javascript"></script>
+	<script src="http://www.google.com/uds/api?file=uds.js&v=1.0" type="text/javascript"></script>
 	<link rel='STYLESHEET' type='text/css' href='./codebase/dhtmlxscheduler_glossy.css'>
 	<link rel="stylesheet" href="./codebase/ext/dhtmlxscheduler_ext.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	
 	<style type="text/css" media="screen">
+		.keyblock {
+			width:10px;
+			height:10px;
+			border:1px solid black;
+		}
 		.one_line{
 			white-space:nowrap;
 			overflow:hidden;
@@ -41,10 +51,79 @@
 	</style>
 	
 	<script type="text/javascript" charset="utf-8">
-	
+
+		function initializeMap(start, end, waypoints, startIndex) {
+		}
+
 		$(document).ready(
 				function() {
 					init();
+					
+					$("#keydialog").dialog({
+							modal: false,
+							minWidth: 90,
+							dialogClass: "kev",
+							autoOpen: true,
+							width: "auto",
+							opacity: 0.4,
+							position: ["center", "top"],
+							overlay: { opacity: 0.3, background: "white" },
+							title: "Key"
+						});
+					
+					$("#bookingdialog").dialog({
+							modal: true,
+							dialogClass: "kev",
+							autoOpen: false,
+							width: "auto",
+							opacity: 0.4,
+							overlay: { opacity: 0.3, background: "white" },
+							title: "Edit",
+							buttons: {
+								Ok: function() {
+									callAjax(
+											"updateschedule.php", 
+											{ 
+												id: $("#eventid").val(),
+												status: $("#status").val(),
+												clientid: $("#clientid").val(),
+												memberid: $("#memberid").val(),
+												startdate: $("#entrydate").val(),
+												enddate: $("#entrydate").val(),
+												starttime: $("#starttime").val(),
+												endtime: $("#endtime").val()
+											},
+											function(data) {
+											},
+											false
+										);
+	
+									scheduler.clearAll();
+									scheduler.setCurrentView(null, "timeline");
+									
+									$("#bookingdialog").dialog("close");
+								},
+								"Remove": function() {
+									callAjax(
+											"removeschedule.php", 
+											{ 
+												id: $("#eventid").val()
+											},
+											function(data) {
+											},
+											false
+										);
+	
+									scheduler.clearAll();
+									scheduler.setCurrentView(null, "timeline");
+									
+									$("#bookingdialog").dialog("close");
+								},
+								Cancel: function() {
+									$("#bookingdialog").dialog("close");
+								}
+							}
+						});
 				}
 			);
 
@@ -71,7 +150,7 @@
 					$sql = "SELECT id, registration AS name FROM {$_SESSION['DB_PREFIX']}trailer ORDER BY registration";
 					
 				} else if ($mode == "D") {
-					$sql = "SELECT id, code AS name FROM {$_SESSION['DB_PREFIX']}driver ORDER BY agencydriver, name";
+					$sql = "SELECT id, code AS name FROM {$_SESSION['DB_PREFIX']}driver ORDER BY agencydriver, code";
 				}
 				
 				$result = mysql_query($sql);
@@ -106,7 +185,67 @@
 				y_property:	"section_id",
 				render:"bar"
 			});
-				
+
+			scheduler.locale.labels.timeline_tab = "Timeline";
+			scheduler.locale.labels.section_custom="Section";
+			scheduler.config.details_on_create=false;
+			scheduler.config.dblclick_create = false;
+			scheduler.config.drag_in = false;	      	
+			
+			scheduler.attachEvent("onBeforeViewChange", function (old_mode, old_date, mode, date) {
+			    if (old_mode != mode || +old_date != +date)
+			        scheduler.clearAll();
+			    return true;
+			});
+			scheduler.attachEvent("onBeforeDrag",function(){return false;})
+	      	scheduler.attachEvent("onDblClick",function(){return false;})
+	      	scheduler.attachEvent("onClick",function(node) {
+				callAjax(
+						"finddata.php", 
+						{ 
+							sql: "SELECT A.* " + 
+								 "FROM <?php echo $_SESSION['DB_PREFIX']; ?>booking A " +
+								 "WHERE id = " + node
+						},
+						function(data) {
+							if (data.length == 1) {
+								var node = data[0];
+
+								$("#customerid").val(node.customerid);
+								$("#statusid").val(node.statusid);
+								$("#clientid").val(node.clientid);
+								$("#memberid").val(node.memberid);
+
+								$("#driverid").val(node.driverid);
+								$("#agencydriver").val(node.agencydriver);
+								$("#vehicleid").val(node.vehicleid);
+								$("#vehicletypeid").val(node.vehicletypeid);
+								$("#trailerid").val(node.trailerid);
+								$("#drivername").val(node.drivername);
+								$("#storename").val(node.storename);
+								$("#worktypeid").val(node.worktypeid);
+								$("#loadtypeid").val(node.loadtypeid);
+								$("#ordernumber").val(node.ordernumber);
+								$("#ordernumber2").val(node.ordernumber2);
+								$("#miles").val(node.miles);
+								$("#duration").val(node.duration);
+								$("#pallets").val(node.pallets);
+								$("#weight").val(node.weight);
+								$("#rate").val(node.rate);
+								$("#charge").val(node.charge);
+								$("#notes").val(node.notes);
+							}
+						},
+						false
+					);
+
+		      		$("#bookingdialog").dialog("open");
+		      		
+			      	return false;
+		      	});
+	      	scheduler.attachEvent("onClick",function(){return false;})
+
+			
 			scheduler.attachEvent("onBeforeEventChanged", function(ev, e, is_new){
 			    //any custom logic here
 			    var strStartDate, strEndDate;
@@ -179,6 +318,36 @@
 			call("vehiclemode");
 		}
 	</script>
+	<div id="map_canvas" class="modal"></div>
+	<div id="keydialog" class="modal">
+		<table width='220px'>
+<?php 			
+			$qry = "SELECT * 
+					FROM {$_SESSION['DB_PREFIX']}bookingstatus 
+					ORDER BY name";
+		
+			$result = mysql_query($qry);
+			
+			if ($result) {
+				while (($member = mysql_fetch_assoc($result))) {
+					$statementnumber = $member['statementnumber'] + 1;
+?>
+			<tr>
+				<td><?php echo $member['name']; ?></td>
+				<td>
+					<div class="keyblock" style="background-color: <?php echo $member['bgcolour']; ?>; color: <?php echo $member['fgcolour']; ?>">&nbsp;</div>
+				</td>
+			</tr>
+<?php					
+				}
+			}
+?>
+		</table>
+	</div>
+	
+	<div id="bookingdialog" class="modal">
+		<?php include("bookingform.php"); ?>
+	</div>
 	<div onclick="drivermode()" style="font-size:11px; position:absolute; left:360px; top:62px; z-index:100" class="dhx_cal_today_button">&nbsp;&nbsp;Drivers</div>
 	<div onclick="vehiclemode()" style="font-size:11px; position:absolute; left:430px; top:62px; z-index:100" class="dhx_cal_today_button">&nbsp;Vehicles</div>
 	<div onclick="trailermode()" style="font-size:11px; position:absolute; left:500px; top:62px; z-index:100" class="dhx_cal_today_button">&nbsp;Trailers</div>

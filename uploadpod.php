@@ -49,14 +49,15 @@
 	}
 	
 	$length = strlen($content);
+	$content = gzcompress($content, 9);
 	
 	$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}documents
 			(
-				name, filename, mimetype, size, image
+				name, filename, mimetype, size, image, compressed
 			)
 			VALUES
 			(
-				'$file', '$file', 'application/pdf', $length, '$content'
+				'$file', '$file', 'application/pdf', $length, '$content', 1
 			)";
 	
 	if (! mysql_query($sql)) {

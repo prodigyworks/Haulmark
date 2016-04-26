@@ -55,14 +55,15 @@
 	       $filename = $_FILES['document']['name'];
 	       $description = $_POST['title'];
 	       $sessionid = null;
+	       $image = gzcompress($image, 9);
 	       
 	       if (isset($_GET['sessionid'])) $sessionid = $_GET['sessionid'];
 	       
 //	       mysql_real_escape_string
 			$stmt = mysqli_prepare($link, "INSERT INTO {$_SESSION['DB_PREFIX']}documents " .
-					"(sessionid, name, filename, mimetype, image, size, createdby, createddate, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) " .
+					"(sessionid, name, compressed, filename, mimetype, image, size, createdby, createddate, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) " .
 					"VALUES " .
-					"(?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")");
+					"(?, ?, 1, ?, ?, ?, ?, ?, NOW(), NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")");
 					
 			if ( !$stmt) {   
 				logError('mysqli error: '.mysqli_error($link)); 

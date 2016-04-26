@@ -601,7 +601,7 @@ function sendInternalUserMessage($id, $subject, $message, $footer = "", $attachm
 	if (!empty($error)) echo $error;
 }
 
-function createCombo($id, $value, $name, $table, $where = " ", $required = true, $isarray = false, $attributeArray = array(), $blank = true) {
+function createCombo($id, $value, $name, $table, $where = " ", $required = true, $isarray = false, $attributeArray = array(), $blank = true, $orderby = null) {
 	
 	if (! $required) {
 		echo "<select id='" . $id . "' ";
@@ -621,22 +621,26 @@ function createCombo($id, $value, $name, $table, $where = " ", $required = true,
 		echo "name='" . $id . "[]'>";
 	}
 	
-	createComboOptions($value, $name, $table, $where, $blank);
+	createComboOptions($value, $name, $table, $where, $blank, $orderby);
 	
 	echo "</select>";
 }
 	
 
 
-function createComboOptions($value, $name, $table, $where = " ", $blank = true) {
+function createComboOptions($value, $name, $table, $where = " ", $blank = true, $orderby) {
 	if ($blank) {
 		echo "<option value='0'></option>";
+	}
+	
+	if ($orderby == null) {
+		$orderby = $name;
 	}
 		
 	$qry = "SELECT A.* " .
 			"FROM $table A " .
 			$where . " " . 
-			"ORDER BY A.$name";
+			"ORDER BY $orderby";
 	$result = mysql_query($qry);
 	
 	if ($result) {

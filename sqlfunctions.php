@@ -120,14 +120,15 @@ function getFileData($name) {
 		       
 		       // get the width and height
 		       $binimage = file_get_contents($_FILES[$name]['tmp_name']);
+		       $binimage = gzcompress($binimage, 9);
 		       $image = mysql_real_escape_string($binimage);
 		       $size = $_FILES[$name]['size'];
 		       $filename = mysql_escape_string($_FILES[$name]['name']);
 		       
 				$result = mysql_query("INSERT INTO {$_SESSION['DB_PREFIX']}documents " .
-						"(name, filename, mimetype, image, size, createdby, createddate, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) " .
+						"(name, filename, compressed, mimetype, image, size, createdby, createddate, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) " .
 						"VALUES " .
-						"('$filename', '$filename', '$mimetype', '$image', '$size', " . getLoggedOnMemberID() . ", NOW(), NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")");
+						"('$filename', '$filename', 1, '$mimetype', '$image', '$size', " . getLoggedOnMemberID() . ", NOW(), NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")");
 						
 				if (! $result) {   
 					throw new Exception("Cannot persist document data ['$filename']:" . mysql_error());

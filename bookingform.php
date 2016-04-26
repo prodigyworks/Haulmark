@@ -26,20 +26,20 @@
 		<tr valign="center">
 			<td>Driver / Agency</td>
 			<td>
-				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver", "", false); ?>
+				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver", "", false, false, array(), true, "agencydriver, name"); ?>
 				<input type="hidden" id="agencydriver" name="agencydriver">
-			</td>
-		</tr>
-		<tr valign="center">
-			<td>Vehicle</td>
-			<td>
-				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'",  false); ?>
 			</td>
 		</tr>
 		<tr valign="center">
 			<td>Vehicle Type</td>
 			<td>
 				<?php createCombo("vehicletypeid", "id", "name", "{$_SESSION['DB_PREFIX']}vehicletype", "", false); ?>
+			</td>
+		</tr>
+		<tr valign="center">
+			<td>Vehicle</td>
+			<td>
+				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'",  false); ?>
 			</td>
 		</tr>
 		<tr valign="center">
@@ -145,9 +145,9 @@
 			</td>
 		</tr>
 		<tr valign="center">
-			<td>Weight</td>
+			<td>Total Weight</td>
 			<td>
-				<input required="true" type="text" style="width:72px" id="weight" name="weight">
+				<input required="true" type="text" style="width:72px" id="weight" name="weight"> (Kg)
 				<input type="hidden" id="vehiclecostoverhead" name="vehiclecostoverhead">
 				<input type="hidden" id="allegrodayrate" name="allegrodayrate">
 				<input type="hidden" id="agencydayrate" name="agencydayrate">

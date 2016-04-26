@@ -61,13 +61,8 @@
 	<input type="hidden" id="pk2" name="pk2" />
 	<input type="hidden" id="pk3" name="pk3" />
 </form>
-	<DIV id="maindiv1" class="tail-top-left"  align=center>
-		<DIV id=maindiv2 style="top:0px; WIDTH: 1014px; text-align:left">
-			<TABLE style="BORDER-COLLAPSE: collapse" cellSpacing=0 cellPadding=0 width=1014 align=left >
+			<TABLE style="BORDER-COLLAPSE: collapse" cellSpacing=0 cellPadding=0 width='100%' align=left >
 				<TR>
-					<TD style="BACKGROUND: url(images/shadow_lft.png)" width=17>
-						&nbsp;
-					</TD>
 					<TD>
 						<div class="tail-top">
 						<!-- header -->
