@@ -10,6 +10,8 @@ Tracey to create sub folder for each customer
 Calculate using trucks 56 mph max
 Show trailer number on the combo in Job awaiting allocation instead of description
 Number of pallets column reinstated - optional
+Full width for screen
+Add key for planner key0
 
 TODO
 New column on customer pod for booking id.
@@ -32,8 +34,6 @@ Delivery note Print map on report
 Do not show first and last endpoint of journey for delivery note
 Show booking number, driver and trailer on pop up for planner
 Allow edit from planner and allow status change.
-Add key for planner key
-Full width for screen
 Saving references in New bookings. Currently not saving
 Status - jobs allocated, should disappear unless all drivers, trailer and vehicles exist
 Previous prices
