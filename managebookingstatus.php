@@ -16,7 +16,7 @@
 				  FROM {$_SESSION['DB_PREFIX']}bookingstatus A
 				  LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}roles B
 				  ON B.roleid = A.workflowrole
-				  ORDER BY A.id";
+				  ORDER BY A.sequence";
 	
 	$crud->columns = array(
 			array(
@@ -32,6 +32,12 @@
 				'name'       => 'name',
 				'length' 	 => 60,
 				'label' 	 => 'Name'
+			),
+			array(
+				'name'       => 'sequence',
+				'length' 	 => 12,
+				'align'		 => 'right',
+				'label' 	 => 'Sequence'
 			),
 			array(
 				'name'		 => 'workflowrole',

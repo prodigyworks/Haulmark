@@ -57,7 +57,7 @@
 								width: 210,
 								height: 180,
 								buttons: {
-									Ok: function() {
+									"Move": function() {
 										$(this).dialog("close");
 										
 										$("#confirmmovedialog .confirmdialogbody").html("You are about to move this stock record to a different product group.<br>Are you sure ?");

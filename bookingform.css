@@ -1,0 +1,32 @@
+.prevpricetable td {
+	padding:5px;
+}
+
+.prevpricetable thead td {
+	font-weight: bold;
+	font-style: italic;
+}
+
+.bubble {
+	display: none ! important;
+}
+
+.bookingbutton:hover {
+	color: red ! important
+}
+
+.bookingbutton {
+	width: 70px;
+	height: 20px;
+	background-color: blue;
+	padding: 5px;
+	color: white;
+	font-weight: bold;
+    border-radius: 10px;
+    border: 1px solid black;
+   	background: cyan; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(cyan, blue); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(cyan, blue); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(cyan, blue); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(cyan, blue); /* Standard syntax */
+}

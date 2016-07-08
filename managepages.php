@@ -368,7 +368,7 @@
 							width: 800,
 							title: "Roles",
 							buttons: {
-								Ok: function() {
+								"Save": function() {
 									$("#rolesForm").submit();
 								},
 								Cancel: function() {
@@ -383,7 +383,7 @@
 							width: 800,
 							title: "Content",
 							buttons: {
-								Ok: function() {
+								"Save": function() {
 									tinyMCE.triggerSave();
 									
 									$(this).dialog("close");

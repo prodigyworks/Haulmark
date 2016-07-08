@@ -13,5 +13,5 @@
 		$where = "WHERE vehicletypeid = $vehicletypeid AND active = 'Y'";
 	}
 	
-	createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", $where, false, false, array(), true);
+	createComboOptions("id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", $where);
 ?>

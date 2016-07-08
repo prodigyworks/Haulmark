@@ -39,7 +39,7 @@
 							width: 810,
 							height: 420,
 							buttons: {
-								Ok: function() {
+								"Save": function() {
 									tinyMCE.triggerSave();
 									$(this).dialog("close");
 									
@@ -63,7 +63,7 @@
 								width: 810,
 								height: 420,
 								buttons: {
-									Ok: function() {
+									"Save": function() {
 										$(this).dialog("close");
 									}
 								}

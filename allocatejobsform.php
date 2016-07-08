@@ -12,12 +12,6 @@
 			</td>
 		</tr>
 		<tr valign="center">
-			<td>Status</td>
-			<td>
-				<?php createCombo("statusid", "id", "name", "{$_SESSION['DB_PREFIX']}bookingstatus", "WHERE id IN (3, 4, 5, 6, 7, 8, 9)"); ?>
-			</td>
-		</tr>
-		<tr valign="center">
 			<td>Driver / Agency</td>
 			<td>
 				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver", "", false); ?>
@@ -48,16 +42,10 @@
 				<?php createCombo("loadtypeid", "id", "name", "{$_SESSION['DB_PREFIX']}loadtype", "", true); ?>
 			</td>
 		</tr>
-		<tr id="drivernamerow">
+		<tr class="drivernamerow">
 			<td>Driver Name</td>
 			<td>
 				<input type="text" style="width:220px" id="drivername" name="drivername"><div class="bubble" title="Required field"></div>
-			</td>
-		</tr>
-		<tr id="driverstorerow">
-			<td>Store</td>
-			<td>
-				<input type="text" style="width:220px" id="storename" name="storename"><div class="bubble" title="Required field"></div>
 			</td>
 		</tr>
 		<tr valign="center">

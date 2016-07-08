@@ -1,5 +1,6 @@
 <?php
 	require_once("crud.php");
+	require_once("bookingshared.php");
 	
 	function copybooking() {
 		$id = $_POST['copy_id'];
@@ -29,7 +30,7 @@
 					dsdatetime, rate, charge, weight, miles, vehiclecostoverhead, allegrodayrate, 
 					agencydayrate, wages, fuelcostoverhead, maintenanceoverhead, profitmargin, 
 					customercostpermile, bookingtype, postedtosage, statusid, legsummary, duration, 
-					ordernumber, ordernumber2, drivername, storename, fromplace, toplace, 
+					ordernumber, ordernumber2, drivername, driverphone, fromplace, toplace, 
 					fromplace_lat, fromplace_lng, fromplace_phone, fromplace_ref, toplace_lat, 
 					toplace_lng, toplace_phone, toplace_ref, totalmiles, totaltimehrs, notes, 
 					metacreateddate, metamodifieddate, metamodifieduserid, metacreateduserid
@@ -41,7 +42,7 @@
 					rate, charge, weight, miles, vehiclecostoverhead, allegrodayrate, 
 					agencydayrate, wages, fuelcostoverhead, maintenanceoverhead, profitmargin, 
 					customercostpermile, bookingtype, postedtosage, 1, legsummary, duration, 
-					ordernumber, ordernumber2, drivername, storename, fromplace, toplace, 
+					ordernumber, ordernumber2, drivername, driverphone, fromplace, toplace, 
 					fromplace_lat, fromplace_lng, fromplace_phone, fromplace_ref, toplace_lat, 
 					toplace_lng, toplace_phone, toplace_ref, totalmiles, totaltimehrs, notes, 
 					NOW(), NOW(), $memberid, $memberid
@@ -77,6 +78,13 @@
 		public function __construct() {
 			parent::__construct();
 			
+			$and = "";
+			
+			if (isset($_GET['date'])) {
+				$date = convertStringToDate($_GET['date']);
+				$and = "AND DATE(A.startdatetime) = '$date' ";
+			}
+			
 			$this->validateForm = "validateForm";
 			$this->title = "Bookings";
 			$this->table = "{$_SESSION['DB_PREFIX']}booking";
@@ -106,6 +114,7 @@
 					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}loadtype K 
 					ON K.id = A.loadtypeid
 					WHERE A.statusid IN ( 1, 2, 3, 9)
+					$and
 					ORDER BY A.id DESC";
 			
 			$this->columns = array(
@@ -145,6 +154,7 @@
 						'name'       => 'customerid',
 						'type'       => 'DATACOMBO',
 						'length' 	 => 35,
+						'onchange'	 => 'checkBookingStatus',
 						'label' 	 => 'Customer',
 						'table'		 => 'customer',
 						'table_id'	 => 'id',
@@ -154,6 +164,7 @@
 					array(
 						'name'       => 'driverid',
 						'type'       => 'DATACOMBO',
+						'onchange'	 => 'checkBookingStatus',
 						'length' 	 => 34,
 						'label' 	 => 'Driver / Agency',
 						'table'		 => 'driver',
@@ -165,6 +176,7 @@
 					array(
 						'name'       => 'vehicleid',
 						'type'       => 'DATACOMBO',
+						'onchange'	 => 'checkBookingStatus',
 						'length' 	 => 10,
 						'label' 	 => 'Vehicle',
 						'table'		 => 'vehicle',
@@ -177,6 +189,7 @@
 					array(
 						'name'       => 'vehicletypeid',
 						'type'       => 'DATACOMBO',
+						'onchange'	 => 'checkBookingStatus',
 						'length' 	 => 19,
 						'label' 	 => 'Vehicle Type',
 						'table'		 => 'vehicletype',
@@ -191,6 +204,7 @@
 						'type'       => 'DATACOMBO',
 						'length' 	 => 10,
 						'required'   => false,
+						'onchange'	 => 'checkBookingStatus',
 						'label' 	 => 'Trailer',
 						'table'		 => 'trailer',
 						'required'	 => false,
@@ -199,16 +213,28 @@
 						'table_name' => 'registration'
 					),
 					array(
+						'name'       => 'worktypeid',
+						'type'       => 'DATACOMBO',
+						'length' 	 => 20,
+						'showInView' => false,	
+						'required'   => true,
+						'label' 	 => 'Work Type',
+						'table'		 => 'worktype',
+						'table_id'	 => 'id',
+						'alias'		 => 'worktypename',
+						'table_name' => 'name'
+					),
+					array(
 						'name'       => 'drivername',
 						'showInView' => false,
 						'length' 	 => 20,
 						'label' 	 => 'Driver Name'
 					),
 					array(
-						'name'       => 'storename',
-						'length' 	 => 10,
+						'name'       => 'driverphone',
 						'showInView' => false,
-						'label' 	 => 'Store Name'
+						'length' 	 => 20,
+						'label' 	 => 'Driver Phone'
 					),
 					array(
 						'name'       => 'loadtypeid',
@@ -368,6 +394,7 @@
 						'name'       => 'rate',
 						'length' 	 => 12,
 						'datatype'	 => 'double',
+						'readonly'	 => ! isUserInRole("ADMIN"),
 						'align'		 => 'right',
 						'label' 	 => 'Rate'
 					),
@@ -390,6 +417,7 @@
 						'datatype'	 => 'double',
 						'length' 	 => 12,
 						'align'		 => 'right',
+						'readonly'	 => ! isUserInRole("ADMIN"),
 						'label' 	 => 'Charge'
 					),
 					array(
@@ -470,8 +498,7 @@
 			$("#rate").val("0.00");
 			$("#charge").val("0.00");
 			$("#customercostpermile").val("0.00");
-			$("#drivernamerow").hide();
-			$("#driverstorerow").hide();
+			$(".drivernamerow").hide();
 			$("#memberid").val("<?php echo getLoggedOnMemberID(); ?>");
 			$("#memberid").attr("disabled", true);
 			$("#statusid").val("1");
@@ -483,42 +510,13 @@
 		public function postEditScriptEvent() {
 ?>
 			$(".pointcontainer").remove();
+			$("#memberid").attr("disabled", true);
 			
 			driverid_onchange();
 			
 			counter = 1;
 			
-			callAjax(
-					"finddata.php", 
-					{ 
-						sql: "SELECT B.id, A.fromplace, A.fromplace_ref, A.fromplace_phone, A.toplace, A.toplace_ref, A.toplace_phone, B.place, B.place_lng, place_lat, B.reference, B.phone, " +
-							 "DATE_FORMAT(B.departuretime, '%d/%m/%Y') AS departuredate, " +
-							 "DATE_FORMAT(B.departuretime, '%H:%i') AS departuretime " + 
-							 "FROM <?php echo $_SESSION['DB_PREFIX'];?>booking A " +
-							 "INNER JOIN <?php echo $_SESSION['DB_PREFIX'];?>bookingleg B " + 
-							 "ON B.bookingid = A.id " +
-							 "WHERE A.id = " + id + " " +
-							 "ORDER BY B.id"
-					},
-					function(data) {
-						if (data.length > 0) {
-							for (var i = 1; i <= data.length; i++) {
-								var node = data[i - 1];
-								
-								addPoint();
-								
-								$("#point_" + i).val(node.place);
-								$("#point_" + i + "_lat").val(node.place_lat);
-								$("#point_" + i + "_lng").val(node.place_lng);
-								$("#point_" + i + "_ref").val(node.reference);
-								$("#point_" + i + "_phone").val(node.phone);
-								$("#pointdate_" + i).val(node.departuredate);
-								$("#pointtime_" + i).val(node.departuretime.trim());
-							}
-						}
-					},
-					false
-				);
+			loadLegs(id);
 <?php			
 		}
 	
@@ -528,6 +526,34 @@
 ?>
 			<script type="text/javascript" src="js/html2canvas.js"></script>
 			<script type="text/javascript" src="bookingscriptlibrary.js"></script>
+			<link href="bookingform.css" rel="stylesheet" type="text/css" />
+			<style>
+				#dateswitch {
+					position: absolute;
+					top: 38px;
+					left: 900px;
+					width:200px;
+					height:32px;
+				}
+				#cleardate {
+					width:16px;
+					height:16px;
+				}
+			</style>
+			<div id="dateswitch">
+				<span>Date</span>
+				<input class="datepicker" id="switchdate" name="switchdate" value="<?php if (isset($_GET['date'])) echo $_GET['date']; ?>" />
+				<span id="cleardate"><img src='images/delete.png' /></span>
+			</div>
+			<div id="prevPriceDialog" class="modal">
+				<div id="prevPriceDiv">
+				</div>
+			</div>
+			<div id="rateCardDialog" class="modal">
+				<div>
+					<iframe id="rateCardIframe" src="about:blank" frameborder=1 style='width:760px;height:510px'></iframe>
+				</div>
+			</div>
 			<div id="mapDialog" class="modal">
      			<div id="map_canvas" style="width:780px;height:500px; border:1px solid grey; ">
 				</div>
@@ -560,7 +586,6 @@
 
 		public function postInsertEvent() {
 			$id = mysql_insert_id();
-			$legsummary = $_POST['fromplace'];
 			
 			for ($i = 1; ; $i++) {
 				if (isset($_POST['point_' . $i])) {
@@ -570,10 +595,9 @@
 					$pointdate = convertStringToDate($_POST['pointdate_' . $i]);
 					$pointtime = $_POST['pointtime_' . $i];
 					$pointdate = $pointdate . " " . $pointtime;
+					$phone = $_POST['point_' . $i . "_phone"];
+					$reference = $_POST['point_' . $i . "_ref"];
 					
-					$legsummary .= " -> ";
-					$legsummary .= $point;
-						
 					$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg
 							(
 							bookingid, place, place_lng, place_lat, departuretime, phone, reference
@@ -593,6 +617,8 @@
 				}
 			}
 			
+			$legsummary = getJourneyDescription($id);
+			
 			$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET 
 					legsummary = '$legsummary' 
 					WHERE id = $id";
@@ -605,7 +631,6 @@
 		public function postUpdateEvent($id) {
 			$sql = "DELETE FROM {$_SESSION['DB_PREFIX']}bookingleg WHERE bookingid = $id";
 			$result = mysql_query($sql);
-			$legsummary = $_POST['fromplace'];
 			
 			if (! $result) {
 				logError($sql . " - " . mysql_error());
@@ -627,9 +652,6 @@
 					$phone = $_POST['point_' . $i . "_phone"];
 					$reference = $_POST['point_' . $i . "_ref"];
 					
-					$legsummary .= " -> ";
-					$legsummary .= $point;
-					
 					$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg 
 							(
 							 	bookingid, place, place_lng, place_lat, departuretime, phone, reference
@@ -649,6 +671,8 @@
 				}
 			}
 			
+			$legsummary = getJourneyDescription($id);
+			
 			$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET 
 					legsummary = '$legsummary' 
 					WHERE id = $id";
@@ -664,10 +688,6 @@
 			var currentID = null;
 			var directionsService;
 			var directionsDisplay;
-		    var pointoptions = {
-		    		types: ['(cities)'],
-		    		componentRestrictions: {country: ["uk"]}       
-		    	};
 		
 			var map = null;
 		      
@@ -741,13 +761,15 @@
 		    					    						prevTime.val(), 
 		    					    						prevDate.val(), 
 		    					    						startdate.attr("id"), 
-		    					    						(legs[cnt++].duration.value / 0.9) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
+		    					    						(legs[cnt].duration.value / 0.9) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
 		    					    					)
 		    					    			);
 										}
 										
 									    prevTime = starttime; 
 									    prevDate = startdate;
+									    
+									    cnt++;
 									}
 								);
 						    
@@ -767,23 +789,45 @@
 							$('#miles').val((Math.round( totalDistance * METERS_TO_MILES * 10 ) / 10));						    
 							$('#duration').val(hours + "." + mins);	
 							
-							vehicletypeid_onchange();					    
+							fetchOverHeadRates();					    
 		        		}
 		      		});
 		      		
       	    }			
+      	    
+      	    
+      	    function calculateRate2() {
+      	    	calculateRate(
+      	    			<?php echo getSiteConfigData()->defaultwagesmargin; ?>, 
+      	    			<?php echo getSiteConfigData()->defaultprofitmargin; ?>
+      	    		);
+          	}
 		    
 			$(document).ready(function() {
+					$("#crudaddbutton span").html("New Booking");
+
 					$("#customerid").change(customerid_onchange);
 					$("#vehicleid").change(vehicleid_onchange);
 					$("#vehicletypeid").change(vehicletypeid_onchange);
-					$("#agencydayrate").change(calculateRate);
-					$("#allegrodayrate").change(calculateRate);
-					$("#vehiclecostoverhead").change(calculateRate);
-					$("#fuelcostoverhead").change(calculateRate);
-					$("#maintenanceoverhead").change(calculateRate);
-					$("#wages").change(calculateRate);
+					$("#agencydayrate").change(calculateRate2);
+					$("#allegrodayrate").change(calculateRate2);
+					$("#vehiclecostoverhead").change(calculateRate2);
+					$("#fuelcostoverhead").change(calculateRate2);
+					$("#maintenanceoverhead").change(calculateRate2);
+					$("#wages").change(calculateRate2);
 					$("#driverid").change(driverid_onchange);
+					
+					$("#switchdate").change(
+							function() {
+								navigate("<?php echo $_SERVER['PHP_SELF']; ?>?date=" + $(this).val());
+							}
+						);
+						
+					$("#cleardate").click(
+							function() {
+								navigate("<?php echo $_SERVER['PHP_SELF']; ?>");
+							}
+						);
 			
 					$("#mapDialog").dialog({
 							autoOpen: false,
@@ -791,19 +835,54 @@
 							width: 800,
 							title: "Map",
 							buttons: {
-								Ok: function() {
+								"Close": function() {
 									$(this).dialog("close");
 								}
 							}
 						});
 			
+					$("#prevPriceDialog").dialog({
+							autoOpen: false,
+							modal: true,
+							width: 800,
+							title: "Previous Prices",
+							buttons: {
+								"Select": function() {
+									$("#charge").val($("input[type='radio'][name='pricecheck']:checked").val());
+									$(this).dialog("close");
+								},
+								Cancel: function() {
+									$(this).dialog("close");
+								}
+							}
+						});
+						
+					$("#rateCardDialog").dialog({
+							autoOpen: false,
+							modal: true,
+							width: 800,
+							height: 600,
+							title: "Rate Card",
+							buttons: {
+								"Close": function() {
+									$(this).dialog("close");
+								}
+							}
+						});
+						
+					$("#btnPrevPrices").click(
+							function() {
+								showPreviousPrices();
+							}
+						);
+						
 					$("#copyDialog").dialog({
 							autoOpen: false,
 							modal: true,
 							width: 400,
 							title: "Copy",
 							buttons: {
-								Ok: function() {
+								"Copy": function() {
 									if (verifyStandardForm("#copyform")) {
 										post("editform", "copybooking", "submitframe", 
 												{ 
@@ -924,7 +1003,7 @@
 					}
 				}
 				
-				if ($("#trailerid").val() != "0") {
+				if ($("#trailerid").val() != "0" &&  $("#trailerid option[value=" +  $("#trailerid").val() + "]"). text() != "N/A") {
 					if ($("#editform #crudcmd").val() == "update") {
 						sql = "SELECT A.startdatetime, A.enddatetime FROM <?php echo $_SESSION['DB_PREFIX'];?>booking A " +
 							  "WHERE A.id != '" + $("#crudid").val() + "' " +
@@ -963,173 +1042,6 @@
 				}
 					
 				return true;
-			}
-			
-			function calculateRate() {
-				var duration = $("#duration").val();
-				var dayrate;
-				
-				if ($("#agencydriver").val() == "Y") {
-					dayrate = parseFloat($("#agencydayrate").val());
-					
-				} else {
-					dayrate = parseFloat($("#allegrodayrate").val());
-				}
-				
-				var wages = (duration * dayrate) * 1.<?php echo str_replace(".", "", getSiteConfigData()->defaultwagesmargin); ?>;
-				var miles = parseFloat($("#miles").val());
-				var totalcost = 
-						wages + 
-						((parseFloat($("#vehiclecostoverhead").val()) + 
-						  parseFloat($("#fuelcostoverhead").val()) + 
-						  parseFloat($("#maintenanceoverhead").val())) * 
-						  miles
-						);
-				
-				$("#wages").val(wages);
-
-				if ($("#customercostpermile").val() != "0.00" && $("#customercostpermile").val() != "") {
-					totalcost = parseFloat($("#customercostpermile").val()) * miles;
-					
-					if (isNaN(totalcost)) {
-						totalcost = 0;
-					}
-					
-					$("#charge").val(new Number(totalcost).toFixed(2));
-					
-				} else {
-					if (isNaN(totalcost)) {
-						totalcost = 0;
-					}
-					
-					$("#charge").val(new Number(totalcost * 1.<?php echo str_replace(".", "", getSiteConfigData()->defaultprofitmargin); ?>).toFixed(2));
-				}
-				
-				$("#rate").val(new Number(totalcost).toFixed(2));
-				$("#charge").val(new Number(totalcost * 1.<?php echo str_replace(".", "", getSiteConfigData()->defaultprofitmargin); ?>).toFixed(2));
-			}
-			
-			function driverid_onchange() {
-				$("#drivernamerow").hide();
-				$("#driverstorerow").hide();
-
-				callAjax(
-						"finddata.php", 
-						{ 
-							sql: "SELECT agencydriver, usualvehicleid, usualtrailerid FROM <?php echo $_SESSION['DB_PREFIX'];?>driver WHERE id = " + $("#driverid").val()
-						},
-						function(data) {
-							if (data.length > 0) {
-								var node = data[0];
-								
-								$("#agencydriver").val(node.agencydriver);
-								
-								if (node.usualvehicleid != null && node.usualvehicleid != 0) {
-									$("#vehicleid").val(node.usualvehicleid).trigger("change");
-								}
-								
-								if (node.usualtrailerid != null && node.usualtrailerid != 0) {
-									$("#trailerid").val(node.usualtrailerid).trigger("change");
-								}
-								
-								calculateRate();
-								
-								if (node.agencydriver == "Y") {
-									$("#drivernamerow").show();
-									$("#driverstorerow").show();
-				
-								} else {
-									$("#drivernamerow").hide();
-									$("#driverstorerow").hide();
-									$("#drivername").val("");
-									$("#storename").val("");
-								}				
-							}
-						},
-						false
-					);
-
-			}
-
-			function vehicletypeid_onchange() {
-				callAjax(
-						"finddata.php", 
-						{ 
-							sql: "SELECT A.* FROM <?php echo $_SESSION['DB_PREFIX'];?>vehicletype A " + 
-								 "WHERE A.id = " + $("#vehicletypeid").val()
-						},
-						function(data) {
-							if (data.length > 0) {
-								var node = data[0];
-								
-								$("#allegrodayrate").val(node.allegrodayrate);
-								$("#agencydayrate").val(node.agencydayrate);
-								$("#vehiclecostoverhead").val(node.vehiclecostpermile);
-								$("#fuelcostoverhead").val(node.fuelcostpermile);
-								$("#maintenanceoverhead").val(node.overheadcostpermile);
-								
-								$.ajax({
-										url: "createvehiclecombo.php",
-										dataType: 'html',
-										async: false,
-										data: { 
-											vehicletypeid: $("#vehicletypeid").val()
-										},
-										type: "POST",
-										error: function(jqXHR, textStatus, errorThrown) {
-											pwAlert("ERROR :" + errorThrown);
-										},
-										success: function(data) {
-											$("#vehicleid").parent().html(data);
-										}
-									});
-								
-								calculateRate();
-							}
-						
-						}
-					);
-			
-				
-			}
-			
-			function vehicleid_onchange() {
-				callAjax(
-						"finddata.php", 
-						{ 
-							sql: "SELECT A.vehicletypeid FROM <?php echo $_SESSION['DB_PREFIX'];?>vehicle A " +
-								 "WHERE A.id = " + $("#vehicleid").val()
-						},
-						function(data) {
-							if (data.length > 0) {
-								var node = data[0];
-								
-								$("#vehicletypeid").val(node.vehicletypeid).trigger("change");
-							}
-						
-						}
-					);
-			}
-			
-			function customerid_onchange() {
-				callAjax(
-						"finddata.php", 
-						{ 
-							sql: "SELECT A.collectionpoint, A.standardratepermile FROM <?php echo $_SESSION['DB_PREFIX'];?>customer A " +
-								 "WHERE A.id = " + $("#customerid").val()
-						},
-						function(data) {
-							if (data.length > 0) {
-								var node = data[0];
-								
-								$("#point_1").val(node.collectionpoint).trigger("change");
-								$("#customercostpermile").val(node.standardratepermile);
-								
-								calculateRate();
-							}
-						
-						}
-					);
 			}
 			
 			function bookingReference(node) {

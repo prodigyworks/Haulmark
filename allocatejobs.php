@@ -32,33 +32,11 @@
 					WHERE A.statusid IN ( 1, 2, 3, 9)
 					ORDER BY A.id DESC";
 		}
-		
-		public function postEditScriptEvent() {
-			parent::postEditScriptEvent();
-?>
-			$("#statusid").val("4");
-			$("#vehicletypeid").trigger("change");
-<?php
-		}		
-		
-		public function postUpdateEvent($id) {
-			/* Do nothing. Especially remove the legs. */
-		}
-		
-		public function editScreenSetup() {
-			include("allocatejobsform.php");
-		}
 	}
 	
 	$crud = new AllocateBookingCrud();
 	$crud->allowAdd = false;
-	$crud->allowEdit = false;
 	$crud->subapplications = array(
-			array(
-				'title'		  => 'Allocate',
-				'imageurl'	  => 'images/edit.png',
-				'script' 	  => 'edit'
-			),
 			array(
 				'title'		  => 'Map',
 				'imageurl'	  => 'images/map.png',

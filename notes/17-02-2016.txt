@@ -12,32 +12,103 @@ Show trailer number on the combo in Job awaiting allocation instead of descripti
 Number of pallets column reinstated - optional
 Full width for screen
 Add key for planner key0
+Previous prices
+Required fields causes issues due to mssing bubble div
+Show booking number, driver and trailer on pop up for planner
+CSV - SI hard coded
+Export invoice CSV, Tracey to email example.
+CSV - Description to include booking number
+User to have folder (Documents). Contract of employment, Payslips, Driving licence (users document button)
+Do not show first and last endpoint of journey for delivery note
 
+
+28/06/16
+The planner charge is Nan and times don’t recalc properly (Planner only)
+Only need trailer when artics only
+Bug fix times and duration
+Customer record has flag for self billing / automatic invoice
+Beths folder to be in included in site config
+If agency worker, make the agency phone and driver required
+remove the store column from bookings
+Rate card goes to google
+Exported flag on invoicing
+Once exported set flag and do not allow editing of invoices
+Only export not exported invoices
+Site config - Terms and conditions
+Site config - Bank details
+Invoices should be same template as given example
+Invoice order number is the 2 from the booking
+Company number on invoice not taken from site config
+If automatic, create invoice on completion if none 0 charge
+Can’t change to invoice unless Complete
+Once invoiced, only enabled column is ordernumber2
+Add booking
+Allow edit from planner and allow status change.
+Status - jobs allocated, should disappear unless all drivers, trailer and vehicles exist
+
+
+
+
+05/07/2016
+Manage Customers - Contact 1 - Operations
+Manage Customers - Contact 2 - Accounts
+Use contact 2 on the invoice
+Invoice - Remove revision
+Invoice - Remove Taken By
+Invoice - Order should be Invoice No and be at the top of the box
+Invoice - Allegro Transport should be Allegro Transport Limited
+Invoice - Include due date in place of taken by. customer.duedate
+Don't move to Awaiting Driver Notification if beyond that point in booking
+Rename columns for invoicing
+Invoice - Include Terms and conditions on bottom
+Invoices (auto) aren't being created
+Remove delivery address from invoice
+Invoice - Add item is showing all customers
+Invoice - Add item allows you add already added item
+Saving references in New bookings. Currently not saving
+Allegro Transport Limited on delivery note
+Delivery note amendments
+Remove regions for google API lookup
+Auto invoice should auto email
+Email button on invoice
+Emailed and emailed date columns on invoice table
+
+ 
 TODO
+
+Check costing. Originally quoted at 300, so could be 350
+
+X Once status gone past In Progress or above, can’t go back a level
+Exception report for completed jobs with 0 charge. Allow change and auto invoice
+Exception report for no POD for invoiced jobs - sorted by customer
+X Link booking to POD. Naming convention for files
+
 New column on customer pod for booking id.
 Extract booking number from the file names. E.g. 192992-Allow.pdf and attempt to link
 Drivers to be users
-User to have folder (Documents). Contract of employment, Payslips, Driving licence (users document button)
 Holiday year from May to April
-Export invoice CSV, Tracey to email example.
-CSV - Description to include booking number
-CSV - SI hard coded
-Add booking
 All jobs have 30 minutes check - Check button 
 Allow customer to login with login. Allow them to add booking (Quote). Don't show rate. Show charge.
 Customers have price per mile override.
 If duration goes over x(13) hours add surcharge (system config) and add y(11) hours break
 Convert quote to booking app
 Quote system to be available link on web site
-Delivery note Need collection address
-Delivery note Print map on report
-Do not show first and last endpoint of journey for delivery note
-Show booking number, driver and trailer on pop up for planner
-Allow edit from planner and allow status change.
-Saving references in New bookings. Currently not saving
-Status - jobs allocated, should disappear unless all drivers, trailer and vehicles exist
-Previous prices
 
+
+
+booking - Got some anomolies with IE 11
+booking - Boxes disappear 04/07 ACIANA
+Login screen show browser not supported if not supported
+Validation across the board for numerical input boxes. Improve crud
+56 mph calc between destinations. Currently doesn't show
+Warning for trailer in use is pointless for N/A
+driver selecting preferred wagon when not on vehicle type list. ?
+Rules for status (what should you be able to change etc)
+Key press on crud should scroll to first column match, E.g. GU goes to Guildford
+Add email button to the POD screen and use email1 from customer table
+Reduce info for customer on invoices. E.g. can't edit, don't see export etc
+When completing job (booking) Prompt for Price Agreed (Yes/No) Show Agreed by (name of user). Do you want to continue
+New role for completion of jobs only
 
 
 

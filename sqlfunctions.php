@@ -102,8 +102,8 @@ function getFileData($name) {
 	  $filename = str_replace(' ', '_', $_FILES[$name]['name']);
 	  // get the MIME type 
 	  $mimetype = $_FILES[$name]['type'];
-	logError("SIZE: ". $_FILES[$name]['size'], false);
-	 // upload if file is OK
+
+  	 // upload if file is OK
 	 if ($_FILES[$name]['size'] > 0) {
 	     	
 		   switch ($_FILES[$name]['error']) {

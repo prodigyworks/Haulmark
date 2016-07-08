@@ -1,5 +1,6 @@
 <?php 
 	include "system-db.php";
+	include "bookingshared.php";
 	
 	start_db();
 	
@@ -7,12 +8,12 @@
 	$enddate = ($_GET['to']);
 	
 	$sql ="SELECT A.id, A.startdatetime, A.enddatetime, A.trailerid, A.driverid, 
-		   A.vehicleid, A.ordernumber, A.bookingtype, A.fromplace, A.toplace,
+		   A.vehicleid, A.ordernumber, A.bookingtype, A.fromplace, A.toplace, A.legsummary,
 		   B.name AS drivername, 
 		   C.registration AS vehiclename, C.registration, 
 		   D.registration AS trailername,
 		   E.fgcolour, E.bgcolour,
-		   F.name AS customername
+		   F.accountcode AS customername
 		   FROM {$_SESSION['DB_PREFIX']}booking A 
 		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver B 
 		   ON B.id = A.driverid 
@@ -24,9 +25,7 @@
 		   ON E.id = A.statusid
 		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer F 
 		   ON F.id = A.customerid 
-		   WHERE ((A.startdatetime >= '$startdate' AND A.startdatetime <= '$enddate') 
-		   OR (A.enddatetime >= '$startdate' AND A.enddatetime <= '$enddate'))
-		   AND A.statusid IN (3, 4, 5, 6, 7, 8, 9)";
+		   WHERE (A.startdatetime < '$enddate' AND A.enddatetime > '$startdate') ";
 	$result = mysql_query($sql);
 	$first = true;
 	$json = array();
@@ -45,43 +44,6 @@
 	//Check whether the query was successful or not
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-				
-//			$sql ="SELECT A.place, A.departuretime, A.id
-//				   FROM {$_SESSION['DB_PREFIX']}bookingleg A
-//				   WHERE A.bookingid = " . $member['id'];
-//			$itemresult = mysql_query($sql);
-//			
-//			$previousdate = $member['startdatetime'];
-//			$previousplace = str_replace(", United Kingdom", "", $member['fromplace']);
-//			
-//			//Check whether the query was successful or not
-//			if($itemresult) {
-//				while (($itemmember = mysql_fetch_assoc($itemresult))) {
-//					$place = str_replace(", United Kingdom", "", $itemmember['place']);
-//					
-//					
-//					array_push(
-//							$json, 
-//							array(
-//									"id" => "Leg:" . $itemmember['id'],
-//									"bookingid" => $member['id'],
-//									"color" => $member['bgcolour'],
-//									"textColor" => $member['fgcolour'],
-//									"start_date" => $previousdate,
-//									"end_date" => $itemmember['departuretime'],
-//									"text" => $previousplace . " -> " . $place,
-//									"section_id" => $member[$sectionid]
-//								)
-//						);
-//						
-//					$previousdate = $itemmember['departuretime'];
-//					$previousplace = $place;
-//				}
-//				
-//			} else {
-//				logError($sql . " - " . mysql_error());
-//			}
-//		
 			array_push(
 				$json, 
 				array(
@@ -91,8 +53,8 @@
 						"textColor" => $member['fgcolour'],
 						"start_date" => $member['startdatetime'],
 						"end_date" => $member['enddatetime'],
-						"text" => $member['customername'],
-						"section_id" => $member['vehicleid']
+						"text" => $member['customername'] . ": " . $member['legsummary'],
+						"section_id" => $member[$sectionid]
 					)
 			);
 			

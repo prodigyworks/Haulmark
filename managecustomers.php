@@ -13,6 +13,23 @@
 			function editDocuments(node) {
 				viewDocument(node, "addcustomerdocument.php", node, "customerdocs", "customerid");
 			}
+
+			function rateCard(node) {
+				callAjax(
+						"finddata.php",
+						{
+							sql: "SELECT documentid " +
+							"FROM <?php echo $_SESSION['DB_PREFIX'];?>customer  " +
+							"WHERE id = " + node
+						},
+						function(data) {
+							if (data.length == 1) {
+								window.open("viewdocuments.php?id=" + data[0].documentid);
+							}
+						},
+						false
+					);
+			}
 	
 			/* Derived address callback. */
 			function fullAddress(node) {
@@ -163,7 +180,7 @@
 				'name'       => 'email2',
 				'length' 	 => 70,
 				'required'	 => false,
-				'label' 	 => 'Email'
+				'label' 	 => 'Email 2'
 			),
 			array(
 				'name'       => 'telephone',
@@ -185,31 +202,33 @@
 			),
 			array(
 				'name'       => 'contact1',
-				'length' 	 => 15,
+				'length' 	 => 25,
 				'required'	 => false,
-				'label' 	 => 'Contact 1'
+				'label' 	 => 'Operations Contact'
 			),			
 			array(
 				'name'       => 'contact2',
-				'length' 	 => 15,
+				'length' 	 => 25,
 				'required'	 => false,
-				'label' 	 => 'Contact 2'
+				'label' 	 => 'Invoicing Contact'
 			),			
 			array(
 				'name'       => 'podfolder',
 				'length' 	 => 50,
 				'required'	 => false,
 				'label' 	 => 'POD Folder'
-			),			
+			),
 			array(
 				'name'       => 'nominalledgercode',
 				'length' 	 => 15,
 				'required'	 => false,
+				'showInView' => false,
 				'label' 	 => 'Nominal Ledger Code'
 			),			
 			array(
 				'name'       => 'collectionpoint',
 				'required'	 => false,
+				'showInView' => false,
 				'length' 	 => 50,
 				'type'		 => 'GEOLOCATION',
 				'label' 	 => 'Collection Point'
@@ -219,6 +238,7 @@
 				'length' 	 => 50,
 				'type'		 => 'GEOLOCATION',
 				'required'	 => false,
+				'showInView' => false,
 				'label' 	 => 'Delivery Point'
 			),			
 			array(
@@ -327,6 +347,14 @@
 				'showInView' => false,
 				'required'	 => false,
 				'label' 	 => 'Notes'
+			),
+			array(
+				'name'		 => 'documentid',
+				'type'		 => 'FILE',
+				'label'		 => 'Rate Card',
+				'length'	 => 100,
+				'required'	 => false,
+				'showInView' => false
 			)
 		);
 
@@ -345,6 +373,16 @@
 				'title'		  => 'POD',
 				'imageurl'	  => 'images/document.gif',
 				'application' => 'managecustomerpod.php'
+			),
+			array(
+				'title'		  => 'Invoices',
+				'imageurl'	  => 'images/document.gif',
+				'application' => 'invoices.php'
+			),
+			array(
+				'title'		  => 'Rate Card',
+				'imageurl'	  => 'images/document.gif',
+				'script' 	  => 'rateCard'
 			)
 		);
 		

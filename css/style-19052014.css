@@ -827,8 +827,8 @@ h4 {
 }
 
 .breadcrumb  {
-	margin-left: 80%;
-	width: 20%;
+	margin-left: 70%;
+	width: 30%;
 	text-align: right;
 	z-index: 60;
 	position: absolute;
@@ -1399,6 +1399,7 @@ h2 {
 
 .invalid {
 	border: 1px solid red ! important;
+	padding: 1px;
 }
 
 .bubble {
@@ -1474,7 +1475,7 @@ form label {
 
 iframe {
 	background-color:white ! important;
-		border: 0px solid black;
+		border: 2px solid black;
 }
 
 #documentcontainer {

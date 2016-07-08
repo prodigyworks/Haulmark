@@ -288,7 +288,11 @@ function verifyStandardForm(form) {
 			
 			if (isRequired && $(this).find("option:selected").text() == "") {
 				$(this).addClass("invalid");
-				$(this).next().css("visibility", "visible");
+				
+				if ($(this).next().className == "bubble") {
+					$(this).next().css("visibility", "visible");
+				}
+				
 				isValid = false;
 				
 				if (firstField == null) {
@@ -297,7 +301,10 @@ function verifyStandardForm(form) {
 				
 			} else {
 				$(this).removeClass("invalid");
-				$(this).next().css("visibility", "hidden");
+				
+				if ($(this).next().className == "bubble") {
+					$(this).next().css("visibility", "hidden");
+				}
 			}
 		});
 
@@ -307,7 +314,11 @@ function verifyStandardForm(form) {
 			
 			if (isRequired && $(this).val() == "") {
 				$(this).addClass("invalid");
-				$(this).next().css("visibility", "visible");
+				
+				if ($(this).next().className == "bubble") {
+					$(this).next().css("visibility", "visible");
+				}
+				
 				isValid = false;
 				
 				if (firstField == null) {
@@ -316,7 +327,10 @@ function verifyStandardForm(form) {
 				
 			} else {
 				$(this).removeClass("invalid");
-				$(this).next().css("visibility", "hidden");
+
+				if ($(this).next().className == "bubble") {
+					$(this).next().css("visibility", "hidden");
+				}
 			}
 		});
 	

@@ -24,6 +24,7 @@
 		$vatprefix = mysql_escape_string($_POST['vatprefix']);
 		$companynumber = mysql_escape_string($_POST['companynumber']);
 		$currentrhaterms = mysql_escape_string($_POST['currentrhaterms']);
+		$termsandconditions = mysql_escape_string($_POST['termsandconditions']);
 		$financialyearend = convertStringToDate($_POST['financialyearend']);
 		$rhamembershipnumber = mysql_escape_string($_POST['rhamembershipnumber']);
 		$payereference = mysql_escape_string($_POST['payereference']);
@@ -52,6 +53,7 @@
 				"vatprefix = '$vatprefix', " .
 				"companynumber = '$companynumber', " .
 				"currentrhaterms = '$currentrhaterms', " .
+				"termsandconditions = '$termsandconditions', " .
 				"financialyearend = '$financialyearend', " .
 				"rhamembershipnumber = '$rhamembershipnumber', " .
 				"payereference = '$payereference', " .
@@ -129,6 +131,9 @@
 	<label>Current RHA Terms</label>
 	<textarea id="currentrhaterms" name="currentrhaterms" rows="15" cols="60" style="height:340px;width: 340px" class="tinyMCE"></textarea>
 
+	<label>Terms And Conditions</label>
+	<textarea id="termsandconditions" name="termsandconditions" rows="15" cols="60" style="height:340px;width: 340px" class="tinyMCE"></textarea>
+
 	<label>Financial Year</label>
 	<input type="text" class="datepicker" id="financialyearend" name="financialyearend" value="<?php echo $member['financialyearend']; ?>" />
 
@@ -171,6 +176,7 @@
 			$("#emailfooter").val("<?php echo escape_notes($member['emailfooter']); ?>");
 			$("#address").val("<?php echo escape_notes($member['address']); ?>");
 			$("#currentrhaterms").val("<?php echo escape_notes($member['currentrhaterms']); ?>");
+			$("#termsandconditions").val("<?php echo escape_notes($member['termsandconditions']); ?>");
 		});
 </script>
 	<?php

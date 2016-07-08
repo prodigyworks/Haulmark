@@ -65,7 +65,7 @@
 							width: 800,
 							title: "Roles",
 							buttons: {
-								Ok: function() {
+								"Save": function() {
 									$("#rolesForm").submit();
 								},
 								Cancel: function() {

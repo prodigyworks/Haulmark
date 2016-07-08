@@ -435,7 +435,7 @@
 									
 								},
 								buttons: {
-									Ok: function() {
+									"Close": function() {
 										$(this).dialog("close");
 									}
 								}

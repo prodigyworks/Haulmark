@@ -13,7 +13,7 @@
 			
 			$this->SetDrawColor(180, 180, 180);
 			$this->Image("images/logomain.png", 10, 6);
-			$this->Image("images/report-footer.png", 55, 280);
+			$this->Image("images/report-footer.png", 75, 280);
 				
 			$y = $this->GetY() + 38;
 			$y = $this->addText(80, $y, "Delivery Note", 15, 8, 'B', 90);
@@ -23,7 +23,7 @@
 				
 			$y = 10;
 				
-			$y = $this->addText(150, $y, "Allegro Transport", 10, 4, 'B', 80);
+			$y = $this->addText(150, $y, "Allegro Transport Limited", 10, 4, 'B', 80);
 			$y = $this->addText(150, $y, "Cotes Park Industrial Estate", 10, 4, '', 80);
 			$y = $this->addText(150, $y, "Birchwood Way", 10, 4, '', 80);
 			$y = $this->addText(150, $y, "Alfreton", 10, 4, '', 80);
@@ -44,11 +44,11 @@
 			if ($member['telephone'] != "") $y = $this->addText(15, $y, "Tel : " . $member['telephone'], 10, 4, '', 80);
 			if ($member['fax'] != "") $y = $this->addText(15, $y, "Fax : " . $member['fax'], 10, 4, '', 80);
 			
-			$y += 10;
+			$y += 8;
 			$this->Line(10, $y - 5, 200, $y - 5);
 			
 			$this->addText(15, $y, "Job Ticket No", 10, 4.5, 'B', 80);
-			$y = $this->addText(60, $y, $member['id'], 10, 4.5, '', 80);
+			$y = $this->addText(60, $y, getSiteConfigData()->bookingprefix . sprintf("%06d", $member['id']), 10, 4.5, '', 80);
 				
 			$this->addText(15, $y, "Driver", 10, 4.5, 'B', 80);
 			$y = $this->addText(60, $y, $member['drivername'], 10, 4.5, '', 80);
@@ -68,7 +68,7 @@
 			$this->Line(10, $y + 5, 200, $y + 5);
 				
 			$top = $y;
-			$y = 180;
+			$y = 165;
 			$this->Line(10, $y - 2, 200, $y - 2);
 				
 			$this->addText(15, $y, "Weight", 10, 4.5, 'B', 80);
@@ -85,21 +85,26 @@
 
 			$this->addText(15, $y, "Special Instructions", 10, 4.5, 'B', 80);
 			$this->WriteHTML(60, $y - 2, $member['notes']);
-			$y = 250;
+			$y = 230;
 			
 
-			$this->addText(10, 260, "Delivery Signed In Good Condition", 10, 4.5, 'B', 80);
+			$this->addText(10, 230, "Delivery In Good Condition", 10, 4.5, 'B', 80);
+			$this->addText(60, 240, "Signed", 10, 4.5, 'B', 80);
+			$this->addText(53, 250, "Print Name", 10, 4.5, 'B', 80);
+			$this->addText(160, 240, "Date             /      /  ", 10, 4.5, 'B', 80);
+			$this->addText(160, 250, "Time                :", 10, 4.5, 'B', 80);
 			$this->Line(10, $y - 2, 200, $y - 2);
 			$this->Line(10, $y - 2, 10, 48);
 			$this->Line(200, $y - 2, 200, 48);
 			$this->SetDash(0.5, 1); //5mm on, 5mm off
-			$this->Line(75, 263.5, 150, 263.5);
-			$this->addText(160, 260, "Date             /      /  ", 10, 4.5, 'B', 80);
-			$this->Line(175, 263.5, 200, 263.5);
-				
+			$this->Line(75, 243.5, 150, 243.5);
+			$this->Line(75, 253.5, 150, 253.5);
+			$this->Line(175, 243.5, 200, 243.5);
+			$this->Line(175, 253.5, 200, 253.5);
+			
 			$this->addText(10, 270, "ALL GOODS CARRIED UNDER R.H.A. CONDITIONS OF CARRIAGE", 7, 4.5, '', 120);
 				
-			$y = $top + 10;
+			$y = $top + 8;
 		}
 		
 		function __construct($orientation, $metric, $size, $id) {
@@ -131,11 +136,6 @@
 				$first = true;
 				
 				while (($member = mysql_fetch_assoc($result))) {
-					if ($first) {
-						$this->newPage();
-						$first = false;
-					}
-					
 					$bookingid = $member['id'];
 						
 					$sql = "SELECT A.*,
@@ -146,30 +146,43 @@
 							ORDER BY A.id";
 					$itemresult = mysql_query($sql);
 										
+					$startdate = $member['startdate'];
+					$starttime = $member['starttime'];
+					$fromplace = $member['toplace'];
+					$first = true;
+					
 					if ($itemresult) {
 						while (($itemmember = mysql_fetch_assoc($itemresult))) {
+							if (! $first) {
+								$this->newPage();
+								
+								$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 80);
+								$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
+								$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $starttime, 10, 4.5, '', 80) + 4;
+								
+			 					$this->addText(15, $y, "Delivery", 10, 4.5, 'B', 80);
+			 					$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 80);
+								$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $itemmember['startdate'], 10, 4.5, '', 80);
+								$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $itemmember['starttime'], 10, 4.5, '', 80) + 5;
+							}
+							
 							$startdate = $itemmember['startdate'];
 							$starttime = $itemmember['starttime'];
 							$fromplace = $itemmember['place'];
+							
+							if ($first) {
+								$first = false;
+							}
 						}
 					
 					} else {
 						logError($sql . " - " . mysql_error());
 					}
-					
-					$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
-					$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 80);
-					$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
-					$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
-					$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
-					$y = $this->addText(60, $y, $starttime, 10, 4.5, '', 80) + 4;
-					
- 					$this->addText(15, $y, "Delivery", 10, 4.5, 'B', 80);
- 					$y = $this->addText(60, $y, $member['toplace'], 10, 4.5, '', 80);
-					$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
-					$y = $this->addText(60, $y, $member['enddate'], 10, 4.5, '', 80);
-					$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
-					$y = $this->addText(60, $y, $member['endtime'], 10, 4.5, '', 80);
 				}
 				
 			} else {

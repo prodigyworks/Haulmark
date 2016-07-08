@@ -1,6 +1,6 @@
 <?php
 	require('invoicereportlib.php');
 	
-	$pdf = new InvoiceReport( 'P', 'mm', 'A4', $_GET['id']);
+	$pdf = new InvoiceReport( 'L', 'mm', 'A4', $_GET['id']);
 	$pdf->Output();
 ?>

@@ -20,7 +20,7 @@
 	
 	$crud = new DriverBookingCrud();
 	$crud->allowAdd = false;
-	$crud->allowEdit = false;
+	$crud->allowEdit = true;
 	$crud->subapplications = array(
 			array(
 				'title'		  => 'Allocate',

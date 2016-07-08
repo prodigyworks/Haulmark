@@ -26,9 +26,6 @@
       
     fclose($fp);
 	
-    $content = mysql_escape_string($content);
-       
-	
 	$sql = "SELECT id, name
 			FROM  {$_SESSION['DB_PREFIX']}customer
 			WHERE podfolder = '$folder'";
@@ -47,10 +44,31 @@
 	if ($customerid == 0) {
 		exit(0);
 	}
+	$sql = "SELECT id
+			FROM  {$_SESSION['DB_PREFIX']}customerpod
+			WHERE customerid = $customerid
+			AND reference = '$reference'";
+				 
+	$result = mysql_query($sql);
+	
+	if ($result) {
+		while (($member = mysql_fetch_assoc($result))) {
+			if ($customerid == 444) {
+				logError("POD NOT inserted for $customername, Ref : $reference - $sql", false);
+				mysql_query("COMMIT");
+			}
+			exit(0);
+		} 
+		
+	} else {
+		logError(mysql_error() . " - $sql");
+	}
+    
 	
 	$length = strlen($content);
 	$content = gzcompress($content, 9);
-	
+    $content = mysql_escape_string($content);
+    	
 	$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}documents
 			(
 				name, filename, mimetype, size, image, compressed
@@ -61,7 +79,7 @@
 			)";
 	
 	if (! mysql_query($sql)) {
-		logError($sql . " - " . mysql_error());
+		logError(mysql_error() . " - $sql");
 	}
 	
 	$documentid = mysql_insert_id();
@@ -84,7 +102,9 @@
 		logError($sql . " - " . mysql_error());
 	}
 	
-	echo "POD inserted";
+	if ($customerid == 444) {
+		logError("POD inserted for $customername, Ref : $reference", false);
+	}
 	
 	mysql_query("COMMIT");
 ?>

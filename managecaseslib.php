@@ -1456,7 +1456,7 @@
 									
 								},
 								buttons: {
-									Ok: function() {
+									"Save": function() {
 										var pageids = "";
 										var pages = "";
 										var casetypistids = "";

@@ -29,6 +29,7 @@ class SiteConfigClass {
 	public $defaultprofitmargin;
 	public $defaultwagesmargin;
 	public $bookingprefix;
+	public $termsandconditions;
 }
 
 function start_db() {
@@ -90,6 +91,7 @@ function start_db() {
 					$data->defaultprofitmargin = $member['defaultprofitmargin'];
 					$data->defaultwagesmargin = $member['defaultwagesmargin'];
 					$data->bookingprefix = $member['bookingprefix'];
+					$data->termsandconditions = $member['termsandconditions'];
 					$data->trafficofficetelephone1 = $member['trafficofficetelephone1'];
 					$data->trafficofficetelephone2 = $member['trafficofficetelephone2'];
 					$data->fax = $member['fax'];
@@ -347,7 +349,8 @@ function smtpmailer($to, $from, $from_name, $subject, $body, $attachments = arra
 		if(!$mail->Send()) {
 			$error = 'Mail error: '.$mail->ErrorInfo; 
 			logError($error, false);
-			return false;
+			
+			throw new Exception($error);
 			
 		} else {
 			$error = 'Message sent!';
@@ -356,9 +359,13 @@ function smtpmailer($to, $from, $from_name, $subject, $body, $attachments = arra
 	
 	} catch (phpmailerException $e) {
 		logError($e->errorMessage(), false);
-			
+		
+		throw($e);
+					
 	} catch (Exception $e) {
 		logError($e->getMessage(), false);
+		
+		throw($e);
 	}
 }
 
@@ -942,7 +949,7 @@ function createUserCombo($id, $where = " ", $required = true, $isarray = false, 
 	<?php
 }
 
-function createTypistCombo($id, $where = " ", $required = true, $isarray = false, $uniqueclass = "") {
+function createBookingCombo($id, $where = " ", $required = true, $isarray = false, $uniqueclass = "") {
 	$qry = "";
 	
 	if (! $isarray) {
@@ -952,38 +959,31 @@ function createTypistCombo($id, $where = " ", $required = true, $isarray = false
 		echo "<select class='$uniqueclass' " . ($required == true ? "required='true'" : "") . " id='" . $id . "'  name='" . $id . "[]'>";
 	}
 	
+	createBookingComboOptions($where);
+
+	echo "</select>";
+}
+
+function createBookingComboOptions($where) {
 	echo "<option value='0'></option>";
 		
-	if (trim($where) != "") {
-		$qry = "SELECT A.member_id, A.firstname, A.lastname " .
-				"FROM {$_SESSION['DB_PREFIX']}members A " .
-				$where . " " .
-				"AND A.status = 'Y' " .
-				"AND A.member_id in (SELECT AA.memberid FROM {$_SESSION['DB_PREFIX']}userroles AA WHERE AA.roleid = 'TYPIST') " . 
-				"ORDER BY A.firstname, A.lastname";
-		
-	} else {
-		$qry = "SELECT A.member_id, A.firstname, A.lastname " .
-				"FROM {$_SESSION['DB_PREFIX']}members A " .
-				"WHERE A.status = 'Y' " . 
-				"AND A.member_id in (SELECT AA.memberid FROM {$_SESSION['DB_PREFIX']}userroles AA WHERE AA.roleid = 'TYPIST') " . 
-				"ORDER BY A.firstname, A.lastname";
-	}
-	
+	$qry = "SELECT A.id, B.name
+			FROM {$_SESSION['DB_PREFIX']}booking A
+			INNER JOIN {$_SESSION['DB_PREFIX']}customer B
+			ON B.id = A.customerid
+			$where
+			ORDER BY A.id DESC";
+
 	$result = mysql_query($qry );
 	
 	if ($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			echo "<option value=" . $member['member_id'] . ">" . $member['firstname'] . " " . $member['lastname'] . "</option>";
+			echo "<option value=" . $member['id'] . ">" . getSiteConfigData()->bookingprefix .  sprintf("%06d", $member['id'] , 6)  . " - " . $member['name'] . "</option>";
 		}
 		
 	} else {
 		logError($qry  . " - " . mysql_error());
 	}
-	?>
-	
-	</select>
-	<?php
 }
 
 function createContactCombo($id, $where = " ", $required = true, $isarray = false, $uniqueclass = "") {

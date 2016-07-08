@@ -563,7 +563,7 @@
 									
 								},
 								buttons: {
-									Ok: function() {
+									"Refund": function() {
 										$(this).dialog("close");
 									},
 									Cancel: function() {
@@ -615,7 +615,7 @@
 									
 								},
 								buttons: {
-									Ok: function() {
+									"Close": function() {
 										$(this).dialog("close");
 									}
 								}

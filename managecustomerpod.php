@@ -11,6 +11,16 @@
 		
 		public function postScriptEvent() {
 ?>
+			function emailPOD(id) {
+				post("editform", "emailPOD", "submitframe", 
+						{ 
+							podid: id 
+						}
+					);
+					
+				pwAlert("Sending POD to customer");
+			}
+			
 			function fileName(node) {
 				return "<a class='shortcut' href='viewdocuments.php?id=" + node.documentid + "'>" + node.filename + "</a>";
 			}
@@ -108,6 +118,21 @@
 				'label' 	 => 'Document'
 			)
 		);
+		
+	if (! isUserInRole("CUSTOMER")) {
+		$crud->subapplications = array(
+				array(
+					'title'		  => 'Email',
+					'imageurl'	  => 'images/email.gif',
+					'script' 	  => 'emailPOD'
+				)
+			);
+		
+
+		$crud->messages = array(
+			array('id'		  => 'podid')
+		);
+	}
 		
 	$crud->run();
 ?>
