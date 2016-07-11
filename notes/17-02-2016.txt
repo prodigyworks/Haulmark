@@ -73,13 +73,28 @@ Auto invoice should auto email
 Email button on invoice
 Emailed and emailed date columns on invoice table
 
+
+DONE SINCE
+booking - Boxes disappear 04/07 ACIANA
+Add email button to the POD screen and use email1 from customer table
+Reduce info for customer on invoices. E.g. can't edit, don't see export etc
+driver selecting preferred wagon when not on vehicle type list. ?
+Warning for trailer in use is pointless for N/A
+When completing job (booking) Prompt for Price Agreed (Yes/No) Show Agreed by (name of user). Do you want to continue
+New role for completion of jobs only
+56 mph calc between destinations. Currently doesn't show
+Exception report for completed jobs with 0 charge. Allow change and auto invoice
+booking - Got some anomolies with IE 11
+Change password in Manage Users
+Disable email for auto invoicing for now
+
+
  
 TODO
 
 Check costing. Originally quoted at 300, so could be 350
 
 X Once status gone past In Progress or above, can’t go back a level
-Exception report for completed jobs with 0 charge. Allow change and auto invoice
 Exception report for no POD for invoiced jobs - sorted by customer
 X Link booking to POD. Naming convention for files
 
@@ -96,19 +111,9 @@ Quote system to be available link on web site
 
 
 
-booking - Got some anomolies with IE 11
-booking - Boxes disappear 04/07 ACIANA
 Login screen show browser not supported if not supported
 Validation across the board for numerical input boxes. Improve crud
-56 mph calc between destinations. Currently doesn't show
-Warning for trailer in use is pointless for N/A
-driver selecting preferred wagon when not on vehicle type list. ?
 Rules for status (what should you be able to change etc)
 Key press on crud should scroll to first column match, E.g. GU goes to Guildford
-Add email button to the POD screen and use email1 from customer table
-Reduce info for customer on invoices. E.g. can't edit, don't see export etc
-When completing job (booking) Prompt for Price Agreed (Yes/No) Show Agreed by (name of user). Do you want to continue
-New role for completion of jobs only
-
 
 

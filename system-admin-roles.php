@@ -44,7 +44,7 @@
 					<input type="hidden" id="roleid" name="roleid" />
 					<input type="hidden" id="rolecmd" name="rolecmd" value="X" />
 					<select class="listpicker" name="members[]" multiple="true" id="members" >
-						<?php createComboOptions("member_id", "login", "{$_SESSION['DB_PREFIX']}members", "", false); ?>
+						<?php createComboOptions("member_id", "fullname", "{$_SESSION['DB_PREFIX']}members", "", false); ?>
 					</select>
 				</form>
 			</div>

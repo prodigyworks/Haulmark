@@ -578,6 +578,11 @@
 			'name'       => 'revision',
 			'length' 	 => 10,
 			'readonly'	 => true,
+			'role'		 => 
+				array(
+					'ADMIN', 
+					'ALLEGRO'
+				),
 			'label' 	 => 'Revision'
 		),
 		array(
@@ -594,6 +599,11 @@
 		array(
 			'name'       => 'exported',
 			'length' 	 => 10,
+			'role'		 => 
+				array(
+					'ADMIN', 
+					'ALLEGRO'
+				),
 			'label' 	 => 'Exported',
 			'type'       => 'COMBO',
 			'options'    => array(
@@ -612,6 +622,11 @@
 			'length' 	 => 10,
 			'label' 	 => 'Emailed',
 			'type'       => 'COMBO',
+			'role'		 => 
+				array(
+					'ADMIN', 
+					'ALLEGRO'
+				),
 			'options'    => array(
 					array(
 						'value'		=> "N",
@@ -627,11 +642,21 @@
 			'name'       => 'emaileddate',
 			'datatype'	 => 'datetime',
 			'length' 	 => 18,
+			'role'		 => 
+				array(
+					'ADMIN', 
+					'ALLEGRO'
+				),
 			'label' 	 => 'Emailed Date'
 		),
 		array(
 			'name'       => 'emailfailedreason',
 			'length' 	 => 58,
+			'role'		 => 
+				array(
+					'ADMIN', 
+					'ALLEGRO'
+				),
 			'label' 	 => 'Emailed Failure Reason'
 		),
 		array(
@@ -646,6 +671,11 @@
 			'length' 	 => 18,
 			'label' 	 => 'Taken By',
 			'table'		 => 'members',
+			'role'		 => 
+				array(
+					'ADMIN', 
+					'ALLEGRO'
+				),
 			'required'	 => true,
 			'table_id'	 => 'member_id',
 			'alias'		 => 'takenbyname',
@@ -653,25 +683,25 @@
 		)
 	);
 
-	$crud->subapplications = array(
-		array(
-			'title'		  => 'Documents',
-			'imageurl'	  => 'images/document.gif',
-			'script' 	  => 'editDocuments'
-		),
-		array(
-			'title'		  => 'Print',
-			'imageurl'	  => 'images/print.png',
-			'script' 	  => 'printInvoice'
-		),
-		array(
-			'title'		  => 'Email',
-			'imageurl'	  => 'images/email.gif',
-			'script' 	  => 'emailInvoice'
-		)
-	);
-	
 	if (! isUserInRole("CUSTOMER")) {
+		$crud->subapplications = array(
+			array(
+				'title'		  => 'Documents',
+				'imageurl'	  => 'images/document.gif',
+				'script' 	  => 'editDocuments'
+			),
+			array(
+				'title'		  => 'Print',
+				'imageurl'	  => 'images/print.png',
+				'script' 	  => 'printInvoice'
+			),
+			array(
+				'title'		  => 'Email',
+				'imageurl'	  => 'images/email.gif',
+				'script' 	  => 'emailInvoice'
+			)
+		);
+		
 		$crud->applications = array(
 				array(
 					'title'		  => 'Export',
@@ -679,6 +709,15 @@
 					'script' 	  => 'exportInvoices'
 				)
 			);
+		
+	} else {
+		$crud->subapplications = array(
+			array(
+				'title'		  => 'Print',
+				'imageurl'	  => 'images/print.png',
+				'script' 	  => 'printInvoice'
+			)
+		);
 	}
 
 	$crud->messages = array(

@@ -57,14 +57,14 @@ function invoiceEmail($id) {
 			$pdf->Output($filename);
 			
 			try {
-				smtpmailer(
-						$email, 
-						"info@allegrotransport.co.uk", 
-						"Allegro Transport Limited", 
-						"Invoice : $invoice", 
-						"Please find the attached PDF for invoice $invoice.", 
-						array($filename)
-					);
+//				smtpmailer(
+//						$email, 
+//						"info@allegrotransport.co.uk", 
+//						"Allegro Transport Limited", 
+//						"Invoice : $invoice", 
+//						"Please find the attached PDF for invoice $invoice.", 
+//						array($filename)
+//					);
 					
 			} catch (Exception $e) {
 				throw failureInvoiceEmail($id, $e->getMessage());

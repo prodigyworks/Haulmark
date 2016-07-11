@@ -8,26 +8,24 @@
 	$json = array();
 	
 	if (isset($_GET['memberid'])) {
-		$memberid = $_GET['memberid'];
-		$qry = "SELECT DISTINCT A.memberid, A.roleid, 'X' AS login " .
-				"FROM {$_SESSION['DB_PREFIX']}userroles A " .
-				"INNER JOIN {$_SESSION['DB_PREFIX']}roles D " .
-				"ON D.roleid = A.roleid " .
-				"INNER JOIN {$_SESSION['DB_PREFIX']}members B " .
-				"ON B.member_id = A.memberid " .
-				"WHERE A.memberid = $memberid " .
-				"ORDER BY B.login";
+		$qry = "SELECT DISTINCT A.memberid, A.roleid, 'X' AS fullname
+				FROM {$_SESSION['DB_PREFIX']}userroles A
+				INNER JOIN {$_SESSION['DB_PREFIX']}roles D 
+				ON D.roleid = A.roleid 
+				INNER JOIN {$_SESSION['DB_PREFIX']}members B 
+				ON B.member_id = A.memberid 
+				WHERE A.memberid = {$_GET['memberid']} 
+				ORDER BY B.fullname";
 		
 	} else {
-		$roleid = $_GET['id'];
-		$qry = "SELECT DISTINCT A.memberid, B.login, A.roleid " .
-				"FROM {$_SESSION['DB_PREFIX']}userroles A " .
-				"INNER JOIN {$_SESSION['DB_PREFIX']}roles D " .
-				"ON D.roleid = A.roleid " .
-				"INNER JOIN {$_SESSION['DB_PREFIX']}members B " .
-				"ON B.member_id = A.memberid " .
-				"WHERE D.id = $roleid " .
-				"ORDER BY B.login";
+		$qry = "SELECT DISTINCT A.memberid, B.fullname, A.roleid
+				FROM {$_SESSION['DB_PREFIX']}userroles A 
+				INNER JOIN {$_SESSION['DB_PREFIX']}roles D 
+				ON D.roleid = A.roleid 
+				INNER JOIN {$_SESSION['DB_PREFIX']}members B 
+				ON B.member_id = A.memberid 
+				WHERE D.id = {$_GET['id']} 
+				ORDER BY B.fullname";
 	}
 	
 	$result = mysql_query($qry);
@@ -36,7 +34,7 @@
 		while (($member = mysql_fetch_assoc($result))) {
 			$line = array(
 					"id" => $member['memberid'], 
-					"name" => $member['login'],
+					"name" => $member['fullname'],
 					"roleid" => $member['roleid']
 				);  
 			

@@ -32,7 +32,7 @@
 	<link rel='STYLESHEET' type='text/css' href='./codebase/dhtmlxscheduler_glossy.css'>
 	<link rel="stylesheet" href="./codebase/ext/dhtmlxscheduler_ext.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	<link href="bookingform.css" rel="stylesheet" type="text/css" />
-	<script src='bookingscriptlibrary.js' type="text/javascript" charset="utf-8"></script>
+	<script src='bookingscriptlibrary-20160710.js' type="text/javascript" charset="utf-8"></script>
 	
 	<style type="text/css" media="screen">
 		.keyblock {
@@ -109,7 +109,7 @@
 
 					    for(var i=0; i < legs.length; ++i) {
 					        totalDistance += legs[i].distance.value;
-					        totalDuration += legs[i].duration.value / 0.9;
+					        totalDuration += legs[i].duration.value / 0.8;
 					        totalDuration += <?php echo getSiteConfigData()->averagewaittime * 60; ?> * 60;
 					    }
 					    
@@ -129,7 +129,7 @@
 	    					    						prevTime.val(), 
 	    					    						prevDate.val(), 
 	    					    						startdate.attr("id"), 
-	    					    						(legs[cnt].duration.value / 0.9) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
+	    					    						(legs[cnt].duration.value / 0.8) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
 	    					    					)
 	    					    			);
 									}
@@ -147,7 +147,7 @@
 			    						prevTime.val(), 
 			    						prevDate.val(), 
 			    						"enddatetime", 
-			    						(legs[legs.length - 1].duration.value / 0.9)
+			    						(legs[legs.length - 1].duration.value / 0.8)
 			    					)
 			    			);
 						
@@ -270,69 +270,29 @@
 									if (! verifyStandardForm("#bookinginnerform")) {
 										return;
 									}
-									
-									var legs = new Array();
-									var pointIndex = 0;
-									
-									$(".pointcontainer").each(
-											function() {
-												legs[pointIndex++] = {
-														place: $(this).find(".point").val(),
-														date: $(this).find(".datepicker").val(),
-														time: $(this).find(".timepicker").val(),
-														reference: $(this).find(".reference").val(),
-														phone: $(this).find(".phone").val()
-													};
-											}
-										);
 
-									
-									callAjax(
-											"updatebooking.php", 
-											{ 
-												id: $("#bookingid").val(),
-												legs: legs,
-												toplace_phone: $("#toplace_phone").val(),
-												fromplace_phone: $("#fromplace_phone").val(),
-												toplace_ref: $("#toplace_ref").val(),
-												fromplace_ref: $("#fromplace_ref").val(),
-												customerid: $("#customerid").val(),
-												statusid: $("#statusid").val(),
-												memberid: $("#memberid").val(),
-												driverid: $("#driverid").val(),
-												agencydriver: $("#agencydriver").val(),
-												vehicleid: $("#vehicleid").val(),
-												vehicletypeid: $("#vehicletypeid").val(),
-												trailerid: $("#trailerid").val(),
-												drivername: $("#drivername").val(),
-												driverphone: $("#driverphone").val(),
-												worktypeid: $("#worktypeid").val(),
-												loadtypeid: $("#loadtypeid").val(),
-												ordernumber: $("#ordernumber").val(),
-												ordernumber2: $("#ordernumber2").val(),
-												miles: $("#miles").val(),
-												duration: $("#duration").val(),
-												pallets: $("#pallets").val(),
-												weight: $("#weight").val(),
-												rate: $("#rate").val(),
-												charge: $("#charge").val(),
-												notes: $("#notes").val(),
-												startdatetime: $("#startdatetime").val(),
-												startdatetime_time: $("#startdatetime_time").val(),
-												fromplace: $("#fromplace").val(),
-												enddatetime: $("#enddatetime").val(),
-												enddatetime_time: $("#enddatetime_time").val(),
-												toplace: $("#toplace").val()
-											},
-											function(data) {
-											},
-											false
-										);
-	
-									scheduler.clearAll();
-									scheduler.setCurrentView(null, "timeline");
-									
-									$("#bookingdialog").dialog("close");
+									if ($("#statusid").val() == 7 && 
+										$("#statusid").val() != $("#originalstatusid").val()) {
+										
+<?php
+										if (! isUserInRole("COMPLETED")) {
+?>
+										pwAlert("You do not have permission to complete this job.");
+<?php
+										} else {
+?>
+										/* Move to complete. */
+										$("#priceagreed").val("Y");
+										$("#agreedby").val("<?php echo GetUserName(); ?>");
+										$("#completedialog").dialog("open");
+<?php
+										}
+?>
+									} else {
+										updateBooking();
+										
+										$("#bookingdialog").dialog("close");
+									}
 								},
 								"Remove": function() {
 									callAjax(
@@ -356,6 +316,26 @@
 							}
 						});
 
+					$("#completedialog").dialog({
+							modal: true,
+							autoOpen: false,
+							width: 380,
+							opacity: 0.4,
+							overlay: { opacity: 0.3, background: "white" },
+							title: "Completion Confirmation",
+							buttons: {
+								"Continue": function() {
+									updateBooking();
+									
+									$("#bookingdialog").dialog("close");
+									$(this).dialog("close");
+								},
+								Cancel: function() {
+									$(this).dialog("close");
+								}
+							}
+						});
+
 					$("#customerid").change(customerid_onchange);
 					$("#vehicleid").change(vehicleid_onchange);
 					$("#vehicletypeid").change(vehicletypeid_onchange);
@@ -368,6 +348,69 @@
 					$("#driverid").change(driverid_onchange);
 				}
 			);
+
+		function updateBooking() {
+			var legs = new Array();
+			var pointIndex = 0;
+			
+			$(".pointcontainer").each(
+					function() {
+						legs[pointIndex++] = {
+								place: $(this).find(".point").val(),
+								date: $(this).find(".datepicker").val(),
+								time: $(this).find(".timepicker").val(),
+								reference: $(this).find(".reference").val(),
+								phone: $(this).find(".phone").val()
+							};
+					}
+				);
+
+			
+			callAjax(
+					"updatebooking.php", 
+					{ 
+						id: $("#bookingid").val(),
+						legs: legs,
+						toplace_phone: $("#toplace_phone").val(),
+						fromplace_phone: $("#fromplace_phone").val(),
+						toplace_ref: $("#toplace_ref").val(),
+						fromplace_ref: $("#fromplace_ref").val(),
+						customerid: $("#customerid").val(),
+						statusid: $("#statusid").val(),
+						memberid: $("#memberid").val(),
+						driverid: $("#driverid").val(),
+						agencydriver: $("#agencydriver").val(),
+						vehicleid: $("#vehicleid").val(),
+						vehicletypeid: $("#vehicletypeid").val(),
+						trailerid: $("#trailerid").val(),
+						drivername: $("#drivername").val(),
+						driverphone: $("#driverphone").val(),
+						worktypeid: $("#worktypeid").val(),
+						loadtypeid: $("#loadtypeid").val(),
+						ordernumber: $("#ordernumber").val(),
+						ordernumber2: $("#ordernumber2").val(),
+						miles: $("#miles").val(),
+						duration: $("#duration").val(),
+						pallets: $("#pallets").val(),
+						weight: $("#weight").val(),
+						rate: $("#rate").val(),
+						charge: $("#charge").val(),
+						notes: $("#notes").val(),
+						startdatetime: $("#startdatetime").val(),
+						startdatetime_time: $("#startdatetime_time").val(),
+						fromplace: $("#fromplace").val(),
+						enddatetime: $("#enddatetime").val(),
+						enddatetime_time: $("#enddatetime_time").val(),
+						toplace: $("#toplace").val()
+					},
+					function(data) {
+					},
+					false
+				);
+
+			scheduler.clearAll();
+			scheduler.setCurrentView(null, "timeline");
+		}
 		
   	    function calculateRate2() {
   	    	calculateRate(
@@ -463,6 +506,7 @@
 								$("#bookingid").val(parentnode);
 								$("#customerid").val(node.customerid);
 								$("#statusid").val(node.statusid);
+								$("#originalstatusid").val(node.statusid);
 								$("#memberid").val(node.memberid);
 								
 								$("#toplace_phone").val(node.toplace_phone);
@@ -638,6 +682,25 @@
 		<div id="bookinginnerform">
 			<?php include("bookingform.php"); ?>
 		</div>
+	</div>
+	<div id="completedialog" class="modal">
+		<table cellspacing=10>
+			<tr>
+				<td>Price Agreed</td>
+				<td>
+					<SELECT id="priceagreed">
+						<OPTION value="Y">Yes</OPTION>
+						<OPTION value="N">No</OPTION>
+					</SELECT>
+				</td>
+			</tr>
+			<tr>
+				<td>Agreed By</td>
+				<td>
+					<input readonly type="text" style='width:250px' id="agreedby" />
+				</td>
+			</tr>
+		</table>
 	</div>
 	<div style="position:absolute; left:210px; top:60px; z-index:100">
 		<input type="text" id="bookingdate" class="modal"></span>

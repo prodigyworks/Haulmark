@@ -1053,7 +1053,8 @@ function login($login, $password, $redirect = true) {
 		    ON B.id = A.customerid 
 		    WHERE A.login = '$login' 
 		    AND A.passwd = '$md5password' 
-		   	AND A.accepted = 'Y'";
+		   	AND A.accepted = 'Y'
+		   	AND A.status = 'Y'";
 	$result = mysql_query($qry);
 	
 	//Check whether the query was successful or not

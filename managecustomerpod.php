@@ -1,7 +1,17 @@
 <?php
 	require_once("system-db.php");
+	require_once("podemail.php");
 	require_once("crud.php");
 	
+	function emailPOD() {
+		try {
+			PODEmail($_POST['podid']);
+							
+		} catch (Exception $e) {
+			throw $e;
+		}
+	}
+
 	class CustomerCrud extends Crud {
 		
 		/* Post header event. */
@@ -12,13 +22,13 @@
 		public function postScriptEvent() {
 ?>
 			function emailPOD(id) {
+				pwAlert("Sending POD to customer");
+				
 				post("editform", "emailPOD", "submitframe", 
 						{ 
-							podid: id 
+							podid: id
 						}
 					);
-					
-				pwAlert("Sending POD to customer");
 			}
 			
 			function fileName(node) {

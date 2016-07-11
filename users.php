@@ -1,6 +1,21 @@
 <?php
 	require_once("crud.php");
 	
+	function confirmPasswordChange() {
+		$memberid = getLoggedOnMemberID();
+		$password = mysql_escape_string(md5($_POST['postednewpassword']));
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET 
+				passwd = '$password', 
+				metamodifieddate = NOW(), 
+				metamodifieduserid = $memberid 
+				WHERE member_id = {$_POST['expiredmemberid']}";
+		$result = mysql_query($qry);
+		
+		if (! $result) {
+			logError($qry . " = " . mysql_error());
+		}
+	}
+	
 	function expire() {
 		$memberid = getLoggedOnMemberID();
 		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET 
@@ -16,7 +31,12 @@
 	}
 	
 	function live() {
-		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET status = 'Y', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " WHERE member_id = " . $_POST['expiredmemberid'];
+		$memberid = getLoggedOnMemberID();
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET 
+				status = 'Y', 
+				metamodifieddate = NOW(), 
+				metamodifieduserid = $memberid 
+				WHERE member_id = {$_POST['expiredmemberid']}";
 		$result = mysql_query($qry);
 		
 		if (! $result) {
@@ -83,6 +103,26 @@
 ?>
 			<script src='js/jquery.picklists.js' type='text/javascript'></script>
 			
+			<div id="pwdDialog" class="modal">
+				<table cellspacing=10>
+					<tr>
+						<td>
+							<label>New Password</label>
+						</td>
+						<td>
+							<input type="password" id="newpassword" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>Confirm Password</label>
+						</td>
+						<td>
+							<input type="password" id="confirmnewpassword" />
+						</td>
+					</tr>
+				</table>
+			</div>
 			<div id="roleDialog" class="modal">
 				<form id="rolesForm" name="rolesForm" method="post">
 					<input type="hidden" id="memberid" name="memberid" />
@@ -99,6 +139,7 @@
 		public function postScriptEvent() {
 ?>
 			var currentRole = null;
+			var currentID = null;
 			
 			function fullName(node) {
 				return (node.firstname + " " + node.lastname);
@@ -163,6 +204,32 @@
 							testMode: false
 						});
 					
+					$("#pwdDialog").dialog({
+							autoOpen: false,
+							modal: true,
+							title: "Password",
+							buttons: {
+								Ok: function() {
+									if ($("#newpassword").val() != $("#confirmnewpassword").val()) {
+										pwAlert("Passwords do not match");
+										return;
+									}
+									
+									post("editform", "confirmPasswordChange", "submitframe", 
+											{ 
+												expiredmemberid: currentID,
+												postednewpassword: $("#newpassword").val() 
+											}
+										);
+									
+									$(this).dialog("close");
+								},
+								Cancel: function() {
+									$(this).dialog("close");
+								}
+							}
+						});
+						
 					$("#roleDialog").dialog({
 							autoOpen: false,
 							modal: true,
@@ -184,6 +251,12 @@
 					$("#memberid").val(memberid);
 					$("#roleDialog").dialog("open");
 				});
+			}
+			
+			function changePassword(memberid) {
+				currentID = memberid;
+				
+				$("#pwdDialog").dialog("open");
 			}
 				
 			function expire(memberid) {
@@ -207,7 +280,8 @@
 
 	$crud = new UserCrud();
 	$crud->messages = array(
-			array('id'		  => 'expiredmemberid')
+			array('id'		  => 'expiredmemberid'),
+			array('id'		  => 'postednewpassword')
 		);
 	$crud->subapplications = array(
 			array(
@@ -224,34 +298,14 @@
 				'title'		  => 'Live',
 				'imageurl'	  => 'images/heart.png',
 				'script' 	  => 'live'
+			),
+			array(
+				'title'		  => 'Change Password',
+				'imageurl'	  => 'images/lock.png',
+				'script' 	  => 'changePassword'
 			)
 		);
-	$crud->checkconstraints = array(
-			array(
-				'table'      => 'applicationtables',
-				'column' 	 => 'memberid'
-			),
-			array(
-				'table'      => 'applicationtables',
-				'column' 	 => 'memberid'
-			),
-			array(
-				'table'      => 'errors',
-				'column' 	 => 'memberid'
-			),
-			array(
-				'table'      => 'filter',
-				'column' 	 => 'memberid'
-			),
-			array(
-				'table'      => 'loginaudit',
-				'column' 	 => 'memberid'
-			),
-			array(
-				'table'      => 'userroles',
-				'column' 	 => 'memberid'
-			)
-		);
+
 	$crud->allowAdd = false;
 	$crud->dialogwidth = 950;
 	$crud->title = "Users";
@@ -318,6 +372,22 @@
 				'required'	 => false,
 				'length' 	 => 13,
 				'label' 	 => 'Cell phone'
+			),
+			array(
+				'name'       => 'status',
+				'length' 	 => 20,
+				'label' 	 => 'Status',
+				'type'       => 'COMBO',
+				'options'    => array(
+						array(
+							'value'		=> 'Y',
+							'text'		=> 'Live'
+						),
+						array(
+							'value'		=> 'N',
+							'text'		=> 'Expired'
+						),
+					)
 			),
 			array(
 				'name'       => 'address',

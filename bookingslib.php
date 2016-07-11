@@ -525,7 +525,7 @@
 			createDocumentLink();
 ?>
 			<script type="text/javascript" src="js/html2canvas.js"></script>
-			<script type="text/javascript" src="bookingscriptlibrary.js"></script>
+			<script type="text/javascript" src="bookingscriptlibrary-20160710.js"></script>
 			<link href="bookingform.css" rel="stylesheet" type="text/css" />
 			<style>
 				#dateswitch {
@@ -542,7 +542,7 @@
 			</style>
 			<div id="dateswitch">
 				<span>Date</span>
-				<input class="datepicker" id="switchdate" name="switchdate" value="<?php if (isset($_GET['date'])) echo $_GET['date']; ?>" />
+				<input class="datepicker" id="switchdate" name="switchdate" value="<?php if (isset($_GET['date'])) echo str_replace("-", "/", $_GET['date']); ?>" />
 				<span id="cleardate"><img src='images/delete.png' /></span>
 			</div>
 			<div id="prevPriceDialog" class="modal">
@@ -741,7 +741,7 @@
 							
 						    for(var i=0; i < legs.length; ++i) {
 						        totalDistance += legs[i].distance.value;
-						        totalDuration += legs[i].duration.value / 0.9;
+						        totalDuration += legs[i].duration.value / 0.8;
 						        totalDuration += <?php echo getSiteConfigData()->averagewaittime * 60; ?>;
 						    }
 						    
@@ -761,7 +761,7 @@
 		    					    						prevTime.val(), 
 		    					    						prevDate.val(), 
 		    					    						startdate.attr("id"), 
-		    					    						(legs[cnt].duration.value / 0.9) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
+		    					    						(legs[cnt].duration.value / 0.8) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
 		    					    					)
 		    					    			);
 										}
@@ -779,7 +779,7 @@
     			    						prevTime.val(), 
     			    						prevDate.val(), 
     			    						"enddatetime", 
-    			    						(legs[legs.length - 1].duration.value / 0.9)
+    			    						(legs[legs.length - 1].duration.value / 0.8)
     			    					)
     			    			);
 							
@@ -794,7 +794,6 @@
 		      		});
 		      		
       	    }			
-      	    
       	    
       	    function calculateRate2() {
       	    	calculateRate(
@@ -819,7 +818,7 @@
 					
 					$("#switchdate").change(
 							function() {
-								navigate("<?php echo $_SERVER['PHP_SELF']; ?>?date=" + $(this).val());
+								navigate("<?php echo $_SERVER['PHP_SELF']; ?>?date=" + $(this).val().replace(/\//g, '-'));
 							}
 						);
 						

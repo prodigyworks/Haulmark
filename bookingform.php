@@ -24,6 +24,7 @@
 				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver", "", false, false, array(), true, "agencydriver, name"); ?>
 				<input type="hidden" id="agencydriver" name="agencydriver">
 				<input type="hidden" id="bookingid" name="bookingid">
+				<input type="hidden" id="originalstatusid" name="originalstatusid">
 			</td>
 		</tr>
 		<tr valign="center">

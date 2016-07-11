@@ -2,6 +2,9 @@
 	require_once("bookingslib.php");
 	
 	$crud = new BookingCrud();
+	$crud->title = "Completed Jobs (No Charge)";
+	$crud->allowView = false;
+	$crud->allowAdd = false;
 	$crud->sql = 
 		   "SELECT A.*, B.registration AS trailername, C.name AS driversname, D.name AS customername, 
 		    E.registration AS vehiclename, F.name AS vehicletypename, 
@@ -27,7 +30,7 @@
 			ON K.id = A.loadtypeid
 			WHERE A.statusid = 7
 			AND A.charge = 0
+			$and
 			ORDER BY A.id DESC";
-	$crud->allowAdd = false;
 	$crud->run();
 ?>
