@@ -27,14 +27,13 @@
 			<?php
 		}
 		
-		public function postInsertEvent() {
-			$id = mysql_insert_id();
-			$qry = "SELECT A.memberid, A.daystaken, B.name,
+		public function postInsertEvent($id) {
+			$qry = "SELECT A.memberid, A.daystaken, B.fullname,
 					DATE_FORMAT(A.startdate, '%d/%m/%Y') AS startdate, 
 					DATE_FORMAT(A.enddate, '%d/%m/%Y') AS enddate 
 					FROM {$_SESSION['DB_PREFIX']}holiday A 
-					INNER JOIN {$_SESSION['DB_PREFIX']}driver B 
-					ON B.id = A.memberid
+					INNER JOIN {$_SESSION['DB_PREFIX']}members B 
+					ON B.member_id = A.memberid
 					WHERE A.id = $id";
 			$result = mysql_query($qry);
 			
@@ -44,7 +43,7 @@
 							"MANAGEMENT",
 							"Holiday request created", 
 							"<h4>A holiday request has been created for " 
-							. $member['name'] 
+							. $member['fullname'] 
 							. "</h4><p>Date range of holiday " 
 							. $member['startdate'] 
 							. " - " 
@@ -264,10 +263,10 @@
 				$this->sql = 
 					"SELECT A.*, " .
 					"B.prorataholidayentitlement," .
-					"B.name, " .
+					"B.fullname, " .
 					"(SELECT SUM(D.daystaken) FROM {$_SESSION['DB_PREFIX']}holiday D WHERE YEAR(D.startdate) = YEAR(A.startdate) AND D.memberid = A.memberid AND D.acceptedby IS NOT NULL) AS daysremaining " .
 					"FROM {$_SESSION['DB_PREFIX']}holiday A " .
-					"INNER JOIN {$_SESSION['DB_PREFIX']}driver B " .
+					"INNER JOIN {$_SESSION['DB_PREFIX']}members B " .
 					"ON B.member_id = A.memberid " .
 					"WHERE B.id = " . $_GET['id'];
 				
@@ -275,11 +274,11 @@
 				$this->sql = 
 					"SELECT A.*, " .
 					"B.prorataholidayentitlement," .
-					"B.name, " .
+					"B.fullname, " .
 					"(SELECT SUM(D.daystaken) FROM {$_SESSION['DB_PREFIX']}holiday D WHERE YEAR(D.startdate) = YEAR(A.startdate) AND D.memberid = A.memberid AND D.acceptedby IS NOT NULL) AS daysremaining " .
 					"FROM {$_SESSION['DB_PREFIX']}holiday A " .
-					"INNER JOIN {$_SESSION['DB_PREFIX']}driver B " .
-					"ON B.id = A.memberid";
+					"INNER JOIN {$_SESSION['DB_PREFIX']}members B " .
+					"ON B.member_id = A.memberid";
 			}
 			
 			$this->sql = ($this->sql);
@@ -318,12 +317,12 @@
 						'name'       => 'memberid',
 						'type'       => 'DATACOMBO',
 						'length' 	 => 40,
-						'label' 	 => 'Driver',
-						'table'		 => 'driver',
+						'label' 	 => 'Staff Member',
+						'table'		 => 'members',
 						'required'	 => true,
-						'table_id'	 => 'id',
-						'alias'		 => 'name',
-						'table_name' => 'name'
+						'table_id'	 => 'member_id',
+						'alias'		 => 'fullname',
+						'table_name' => 'fullname'
 					),
 					array(
 						'name'       => 'remaining',

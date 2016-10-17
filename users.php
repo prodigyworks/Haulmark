@@ -147,15 +147,10 @@
 			
 			function holidayentitlement_onchange() {
 				var startDateStr = $("#startdate").val();
-				var lastWorkingDateStr = $("#lastworkingdate").val();
 				
 				if (isDate(startDateStr)) {
 					var startDate = new Date(startDateStr.substring(6, 10), (parseFloat(startDateStr.substring(3, 5)) - 1), startDateStr.substring(0, 2));
 					var lastWorkingDate = null;
-					
-					if (isDate(lastWorkingDateStr)) {
-						lastWorkingDate = new Date(lastWorkingDateStr.substring(6, 10), (parseFloat(lastWorkingDateStr.substring(3, 5)) - 1), lastWorkingDateStr.substring(0, 2));
-					}
 					
 					if (startDate.getFullYear() == <?php echo date("Y"); ?>) {
 						var week = getWeek(startDate);
@@ -365,6 +360,7 @@
 			array(
 				'name'       => 'email',
 				'length' 	 => 60,
+				'datatype'	 => 'email',
 				'label' 	 => 'Email'
 			),
 			array(
@@ -390,6 +386,29 @@
 					)
 			),
 			array(
+				'name'       => 'startdate',
+				'datatype'	 => 'date',
+				'length' 	 => 12,
+				'onchange'	 => 'holidayentitlement_onchange',
+				'label' 	 => 'Start Date'
+			),
+			array(
+				'name'       => 'holidayentitlement',
+				'required'	 => false,
+				'length' 	 => 13,
+				'onchange'	 => 'holidayentitlement_onchange',
+				'align'		 => 'center',
+				'label' 	 => 'Holidays'
+			),
+			array(
+				'name'       => 'prorataholidayentitlement',
+				'required'	 => false,
+				'length' 	 => 13,
+				'align'		 => 'center',
+				'readonly'	 => true,
+				'label' 	 => 'Holidays (Pro Rata)'
+			),
+			array(
 				'name'       => 'address',
 				'type'		 => 'TEXTAREA',
 				'required'	 => false,
@@ -404,21 +423,6 @@
 				'showInView' => false,
 				'filter'     => false,
 				'label' 	 => 'Details'
-			),
-			array(
-				'name'       => 'passwd',
-				'type'		 => 'PASSWORD',
-				'length' 	 => 30,
-				'showInView' => false,
-				'label' 	 => 'Password'
-			),
-			array(
-				'name'       => 'cpassword',
-				'type'		 => 'PASSWORD',
-				'length' 	 => 30,
-				'bind' 	 	 => false,
-				'showInView' => false,
-				'label' 	 => 'Confirm Password'
 			)
 		);
 		

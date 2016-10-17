@@ -267,7 +267,7 @@ div.dhx_modal_cover {
 	text-decoration: underline;
 }
 
-.dhx_cal_tab {
+.dhx_cal_tab, .dhx_cal_tab2 {
 	width: 59px;
 	height: 19px;
 	text-align: center;
@@ -283,7 +283,7 @@ div.dhx_modal_cover {
 	border-top-right-radius: 4px;
 }
 
-.dhx_cal_tab.active {
+.dhx_cal_tab.active, .dhx_cal_tab2:active {
 	text-decoration: none;
 	cursor: default;
 	font-weight: bold;
@@ -1721,7 +1721,7 @@ input.dhx_repeat_checkbox {
 	width: 808px;
 }
 
-.dhx_cal_tab.active {
+.dhx_cal_tab.active, .dhx_cal_tab2.active {
 	border: none;
 }
 
@@ -1771,7 +1771,7 @@ input.dhx_repeat_checkbox {
 	left: 230px;
 }
 
-.dhx_cal_tab {
+.dhx_cal_tab, .dhx_cal_tab2 {
 	background-image: url(imgs_glossy/white_tab.png);
 	width: 60px;
 	height: 15px;
@@ -1780,7 +1780,7 @@ input.dhx_repeat_checkbox {
 	margin-top: 4px;
 }
 
-.dhx_cal_tab.active {
+.dhx_cal_tab.active, dhx_cal_tab2.active {
 	background-image: url(imgs_glossy/blue_tab.png);
 	height: 18px;
 	width: 60px;

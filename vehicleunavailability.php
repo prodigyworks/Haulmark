@@ -4,22 +4,6 @@
 	
 	class HolidayCrud extends Crud {
 		
-		public function postAddScriptEvent() {
-		}
-		
-		/* Pre script event. */
-		public function preScriptEvent() {
-		}
-		
-		public function postInsertEvent() {
-		}
-		
-		public function postHeaderEvent() {
-		}
-		
-		public function postScriptEvent() {
-		}
-		
 		function __construct() {
 			parent::__construct();
 			

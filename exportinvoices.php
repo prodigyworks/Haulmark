@@ -64,7 +64,9 @@
 	if (! $result) {
 		logError($qry . " - " . mysql_error());
 	}
-    
+
+    mysql_query("COMMIT");
+
     // Open the output stream
     $fh = fopen('php://output', 'w');
 

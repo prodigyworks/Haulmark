@@ -1,7 +1,7 @@
 <?php
 require_once("system-db.php");
 
-function PODEmail($id) {
+function PODEmail($id, $emailaddress) {
 	start_db();
 	
 	$sql = "SELECT A.documentid, B.email, B.name, C.filename, C.compressed, C.mimetype, C.image
@@ -15,14 +15,25 @@ function PODEmail($id) {
 	
 	if ($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			$email = $member['email'];
 			$name = $member['name'];
 			$documentid = $member['documentid'];
 			$mimetype = $member['mimetype'];
 			$filename = $member['filename'];
 			$compressed = $member['compressed'];
 			$image = $member['image'];
-			
+
+			if ($emailaddress != null) {
+				$email = $emailaddress;
+				$fromname = $name;
+				$fromemail = $email;
+
+			} else {
+				$email = $member['email'];
+				$fromname = "Allegro Transport Limited";
+				$fromemail = "info@allegrotransport.co.uk";
+			}
+
+
 			if ($compressed == 1) {
 				$image = gzuncompress($image);
 			}
@@ -40,9 +51,9 @@ function PODEmail($id) {
 			
 			try {
 				smtpmailer(
-						$email, 
-						"info@allegrotransport.co.uk", 
-						"Allegro Transport Limited", 
+						$email,
+						$fromemail,
+						$fromname,
 						"POD : $pod", 
 						"Please find the attached POD $pod.", 
 						array($filename)

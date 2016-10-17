@@ -19,17 +19,12 @@
 		
 		/* Post header event. */
 		public function postHeaderEvent() {
-			createDocumentLink();
-
 			createConfirmDialog("disabledialog", "Disable Vehicle ?", "confirmDisableVehicle");
 			createConfirmDialog("enabledialog", "Enable Vehicle ?", "confirmEnableVehicle");
 		}
 		
 		public function postScriptEvent() {
 ?>
-			function editDocuments(node) {
-				viewDocument(node, "addvehicledocument.php", node, "vehicledocs", "vehicleid");
-			}
 			
 			function disableVehicle(id) {
 				currentID = id;
@@ -82,6 +77,10 @@
 	$crud = new ContactCrud();
 	$crud->title = "Vehicles";
 	$crud->allowRemove = false;
+	$crud->document = array(
+			'primaryidname'	 => 	"vehicleid",
+			'tablename'		 =>		"vehicledocs"
+		);
 	$crud->onClickCallback = "checkClick";
 	$crud->table = "{$_SESSION['DB_PREFIX']}vehicle";
 	$crud->dialogwidth = 970;
@@ -145,7 +144,7 @@
 			),
 			array(
 				'name'       => 'purchaseprice',
-				'datatype'	 => 'money',
+				'datatype'	 => 'float',
 				'align'		 => 'right',
 				'required'	 => false,
 				'length' 	 => 12,
@@ -153,7 +152,7 @@
 			),
 			array(
 				'name'       => 'mpg',
-				'datatype'	 => 'money',
+				'datatype'	 => 'float',
 				'required'	 => false,
 				'align'		 => 'right',
 				'length' 	 => 12,
@@ -161,7 +160,7 @@
 			),
 			array(
 				'name'       => 'presentprice',
-				'datatype'	 => 'money',
+				'datatype'	 => 'float',
 				'align'		 => 'right',
 				'required'	 => false,
 				'length' 	 => 12,
@@ -178,6 +177,7 @@
 			array(
 				'name'       => 'ystachometer',
 				'length' 	 => 10,
+				'datatype'	 => 'integer',
 				'required'	 => false,
 				'align'		 => 'right',
 				'label' 	 => 'YS Tachometer'
@@ -279,11 +279,6 @@
 				'title'		  => 'Activate',
 				'imageurl'	  => 'images/thumbs_up.gif',
 				'script' 	  => 'enableVehicle'
-			),
-			array(
-				'title'		  => 'Documents',
-				'imageurl'	  => 'images/document.gif',
-				'script' 	  => 'editDocuments'
 			)
 		);
 				

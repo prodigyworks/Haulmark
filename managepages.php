@@ -169,8 +169,7 @@
 	
 	class PageEdit extends Crud {
 		/* Post insert event. */
-		public function postInsertEvent() {
-			$pageid = mysql_insert_id();
+		public function postInsertEvent($pageid) {
 			$parentpageid = 1;
 			$memberid = getLoggedOnMemberID();
 			

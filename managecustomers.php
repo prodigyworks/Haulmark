@@ -3,17 +3,8 @@
 	
 	class CustomerCrud extends Crud {
 		
-		/* Post header event. */
-		public function postHeaderEvent() {
-			createDocumentLink();
-		}
-		
 		public function postScriptEvent() {
 ?>
-			function editDocuments(node) {
-				viewDocument(node, "addcustomerdocument.php", node, "customerdocs", "customerid");
-			}
-
 			function rateCard(node) {
 				callAjax(
 						"finddata.php",
@@ -88,6 +79,10 @@
 	$crud = new CustomerCrud();
 	$crud->dialogwidth = 970;
 	$crud->title = "Customers";
+	$crud->document = array(
+			'primaryidname'	 => 	"customerid",
+			'tablename'		 =>		"customerdocs"
+		);
 	$crud->table = "{$_SESSION['DB_PREFIX']}customer";
 	$crud->sql = "SELECT A.*, B.name AS taxcodename, C.name AS accountstatusname
 				  FROM  {$_SESSION['DB_PREFIX']}customer A
@@ -162,7 +157,7 @@
 			),
 			array(
 				'name'       => 'address',
-				'length' 	 => 70,
+				'length' 	 => 80,
 				'editable'   => false,
 				'required'	 => false,
 				'bind'		 => false,
@@ -173,30 +168,37 @@
 			array(
 				'name'       => 'email',
 				'required'	 => false,
-				'length' 	 => 70,
-				'label' 	 => 'Email'
+				'length' 	 => 40,
+				'datatype'	 => 'email',
+				'label' 	 => 'Accounts Email'
 			),
 			array(
 				'name'       => 'email2',
-				'length' 	 => 70,
+				'length' 	 => 40,
 				'required'	 => false,
+				'datatype'	 => 'email',
+				'showInView' => false,
 				'label' 	 => 'Email 2'
 			),
 			array(
 				'name'       => 'telephone',
-				'length' 	 => 12,
+				'length' 	 => 17,
 				'required'	 => false,
+				'datatype'	 => 'tel',
 				'label' 	 => 'Telephone'
 			),
 			array(
 				'name'       => 'telephone2',
 				'length' 	 => 12,
 				'required'	 => false,
+				'showInView' => false,
+				'datatype'	 => 'tel',
 				'label' 	 => 'Telephone 2'
 			),
 			array(
 				'name'       => 'fax',
 				'length' 	 => 12,
+				'showInView' => false,
 				'required'	 => false,
 				'label' 	 => 'Fax'
 			),
@@ -204,18 +206,21 @@
 				'name'       => 'contact1',
 				'length' 	 => 25,
 				'required'	 => false,
+				'showInView' => false,
 				'label' 	 => 'Operations Contact'
 			),			
 			array(
 				'name'       => 'contact2',
 				'length' 	 => 25,
+				'showInView' => false,
 				'required'	 => false,
 				'label' 	 => 'Invoicing Contact'
 			),			
 			array(
 				'name'       => 'podfolder',
-				'length' 	 => 50,
+				'length' 	 => 40,
 				'required'	 => false,
+				'showInView' => false,
 				'label' 	 => 'POD Folder'
 			),
 			array(
@@ -245,6 +250,7 @@
 				'name'       => 'selfbilledinvoices',
 				'length' 	 => 20,
 				'required'	 => false,
+				'showInView' => false,
 				'label' 	 => 'Self Billed Invoices',
 				'type'       => 'COMBO',
 				'options'    => array(
@@ -259,10 +265,11 @@
 					)
 			),
 			array(
-				'name'       => 'vatregistered',
-				'length' 	 => 13,
-				'label' 	 => 'VAT Registered',
+				'name'       => 'mobileautoinvoice',
+				'length' 	 => 20,
 				'required'	 => false,
+				'showInView' => false,
+				'label' 	 => 'Auto Invoice (Mobile)',
 				'type'       => 'COMBO',
 				'options'    => array(
 						array(
@@ -280,19 +287,22 @@
 				'length' 	 => 10,
 				'required'	 => false,
 				'datatype'	 => 'integer',
+				'showInView' => false,
 				'label' 	 => 'Due Days'
 			),			
 			array(
 				'name'       => 'creditlimit',
 				'length' 	 => 15,
 				'required'	 => false,
-				'datatype'	 => 'double',
+				'showInView' => false,
+				'datatype'	 => 'float',
 				'label' 	 => 'Credit Limit'
 			),			
 			array(
 				'name'       => 'standardratepermile',
 				'length' 	 => 17,
-				'datatype'	 => 'double',
+				'datatype'	 => 'float',
+				'showInView' => false,
 				'required'	 => false,
 				'label' 	 => 'Standard Rate Per Mile'
 			),			
@@ -303,6 +313,7 @@
 				'label' 	 => 'Account Status',
 				'table'		 => 'accountstatus',
 				'required'	 => false,
+				'showInView' => false,
 				'table_id'	 => 'id',
 				'alias'		 => 'accountstatusname',
 				'table_name' => 'name'
@@ -310,6 +321,7 @@
 			array(
 				'name'       => 'sagecustomerref',
 				'required'	 => false,
+				'showInView' => false,
 				'length' 	 => 40,
 				'label' 	 => 'Sage Customer Reference'
 			),			
@@ -320,6 +332,7 @@
 				'label' 	 => 'Tax Code',
 				'required'	 => false,
 				'table'		 => 'taxcode',
+				'showInView' => false,
 				'table_id'	 => 'id',
 				'alias'		 => 'taxcodename',
 				'table_name' => 'name'
@@ -355,15 +368,19 @@
 				'length'	 => 100,
 				'required'	 => false,
 				'showInView' => false
+			),
+			array(
+				'name'       => 'imageid',
+				'type'		 => 'IMAGE',
+				'length' 	 => 64,
+				'required'	 => false,
+				'showInView' => false,
+				'filter'	 => false,
+				'label' 	 => 'Logo'
 			)
 		);
 
 	$crud->subapplications = array(
-			array(
-				'title'		  => 'Documents',
-				'imageurl'	  => 'images/document.gif',
-				'script' 	  => 'editDocuments'
-			),
 			array(
 				'title'		  => 'Contacts',
 				'imageurl'	  => 'images/user.png',

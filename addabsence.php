@@ -153,43 +153,6 @@
 		} else {
 			logError($sql . " - " . mysql_error());
 		}
-		
-		if ($absencetype == "Leaver") {
-			$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET " .
-					"lastworkingdate = DATE_ADD(NOW(), INTERVAL + 30 DAY) " .
-					"WHERE member_id = $memberid";
-			$result = mysql_query($qry);
-			
-			if (! $result) {
-				logError($qry . " = " . mysql_error());
-			}
-			
-			$sql = "SELECT DATEDIFF(lastworkingdate, startdate) AS timeworked, holidayentitlement " .
-					"FROM {$_SESSION['DB_PREFIX']}members A " .
-					"WHERE member_id = $memberid";
-			$result = mysql_query($sql);
-			
-			if ($result) {
-				while (($member = mysql_fetch_assoc($result))) {
-					$holidayentitlement = $member['holidayentitlement'];
-					$timeworked = $member['timeworked'];
-					$prorataHolidayEntitlement = ($holidayentitlement / 52) * ($timeworked / 7);
-					
-					$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET " .
-							"prorataholidayentitlement = $prorataHolidayEntitlement " .
-							"WHERE member_id = $memberid";
-					$result = mysql_query($qry);
-					
-					if (! $result) {
-						logError($qry . " = " . mysql_error());
-					}
-					
-				}
-				
-			} else {
-				logError($qry . " = " . mysql_error());
-			}
-		}
 
 		header("location: absenceconfirm.php");	
 	}

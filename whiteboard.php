@@ -2,10 +2,15 @@
 	include("system-embeddedheader.php");
 	include("tinymce.php");
 ?>
+<style>
+	iframe {
+		font-size:2px;
+	}
+</style>
 <table width='100%' height='100%' border=1 >
 	<tr valign="top">
 		<td width='60%' height='100%'>
-			<iframe width='100%' height='100%' src='https://webfleet.business.tomtom.com/swf/index.html?clientid=__ttt_cli_3fedea12141251a9&locale=en_GB'></iframe>
+			<iframe width='100%' height='100%' src='http://www.haulageplanner.co.uk'></iframe>
 		</td>
 		<td width='40%' style="padding:5px">
 			<div id="chatcontainer">

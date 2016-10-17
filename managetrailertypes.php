@@ -41,7 +41,7 @@
 				'length' 	 => 12,
 				'datatype'	 => 'double',
 				'align'		 => 'right',
-				'label' 	 => 'Allegro Day Rate'
+				'label' 	 => 'Our Day Rate'
 			),
 			array(
 				'name'       => 'agencydayrate',

@@ -13,10 +13,6 @@
 					</TD>
 					</TD>
 				</tr>
-				<tr>
-					<td>
-					</td>
-				</tr>
 			</table>
 <div class="modal" id="alertdialog">
 	<table>

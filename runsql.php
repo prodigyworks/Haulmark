@@ -43,9 +43,9 @@
 	}
 </script>
 <button onclick='run()'>Run</button><br><br>
-<textarea id="sql" name="sql" style='width:100%; height:250px'><?php if (isset($_POST['pk1'])) echo $_POST['pk1']; ?></textarea>
+<textarea id="sql" name="sql" style='width:100%; height:200px'><?php if (isset($_POST['pk1'])) echo $_POST['pk1']; ?></textarea>
 <br><br>
-<textarea id="sqlresults" name="sqlresults" style='width:100%; height:250px'></textarea>
+<textarea id="sqlresults" name="sqlresults" style='width:100%; height:200px'></textarea>
 <?php	
 	require_once("system-footer.php");
 ?>

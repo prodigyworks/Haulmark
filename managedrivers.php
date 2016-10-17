@@ -2,70 +2,9 @@
 	require_once("crud.php");
 	
 	class AddressCrud extends Crud {
-			
-		/* Post header event. */
-		public function postHeaderEvent() {
-			createDocumentLink();
-		}
 		
 		public function postScriptEvent() {
 ?>
-			function editDocuments(node) {
-				viewDocument(node, "adddriverdocument.php", node, "driverdocs", "driverid");
-			}
-			
-			function holidayentitlement_onchange() {
-				var startDateStr = $("#startdate").val();
-				var lastWorkingDateStr = "";
-				
-				if (isDate(startDateStr)) {
-					var startDate = new Date(startDateStr.substring(6, 10), (parseFloat(startDateStr.substring(3, 5)) - 1), startDateStr.substring(0, 2));
-					var lastWorkingDate = null;
-					
-					if (isDate(lastWorkingDateStr)) {
-						lastWorkingDate = new Date(lastWorkingDateStr.substring(6, 10), (parseFloat(lastWorkingDateStr.substring(3, 5)) - 1), lastWorkingDateStr.substring(0, 2));
-					}
-					
-					if (startDate.getFullYear() == <?php echo date("Y"); ?>) {
-						var week = getWeek(startDate);
-						var prorataHolidayEntitlement = 0;
-						
-						if (lastWorkingDate != null) {
-							var weeks = parseInt(daysBetween(startDate, lastWorkingDate) / 7);
-							prorataHolidayEntitlement = ($("#holidayentitlement").val() / 52) * (weeks);
-							
-						} else {
-							prorataHolidayEntitlement = ($("#holidayentitlement").val() / 52) * (52 - week);
-						}
-						
-						$("#prorataholidayentitlement").val(parseInt(prorataHolidayEntitlement));
-
-					} else {
-						$("#prorataholidayentitlement").val($("#holidayentitlement").val());
-					}
-				}
-			}
-			
-			function daysBetween(first, second) {
-			    // Copy date parts of the timestamps, discarding the time parts.
-			    var one = new Date(first.getFullYear(), first.getMonth(), first.getDate());
-			    var two = new Date(second.getFullYear(), second.getMonth(), second.getDate());
-			
-			    // Do the math.
-			    var millisecondsPerDay = 1000 * 60 * 60 * 24;
-			    var millisBetween = two.getTime() - one.getTime();
-			    var days = millisBetween / millisecondsPerDay;
-			
-			    // Round down.
-			    return Math.floor(days);
-			}
-			
-			function getWeek(date) {
-				var onejan = new Date(date.getFullYear(),0,1);
-				
-				return Math.ceil((((date - onejan) / 86400000) + onejan.getDay()+1)/7);
-			}
-						
 			/* Derived address callback. */
 			function fullAddress(node) {
 				var address = "";
@@ -123,6 +62,10 @@
 	$crud = new AddressCrud();
 	$crud->dialogwidth = 980;
 	$crud->title = "Drivers";
+	$crud->document = array(
+			'primaryidname'	 => 	"driverid",
+			'tablename'		 =>		"driverdocs"
+		);
 	$crud->table = "{$_SESSION['DB_PREFIX']}driver";
 	$crud->sql = "SELECT A.*, D.registration AS vehiclename, E.registration AS trailername 
 				  FROM  {$_SESSION['DB_PREFIX']}driver A 
@@ -201,19 +144,22 @@
 			array(
 				'name'       => 'email',
 				'length' 	 => 70,
+				'datatype'	 => 'email',
 				'required'	 => false,
 				'label' 	 => 'Email'
 			),
 			array(
 				'name'       => 'telephone',
 				'length' 	 => 12,
-				'label' 	 => 'Telephone'
+				'datatype'	 => 'tel',
+				'label' 	 => 'Home Telephone'
 			),
 			array(
 				'name'       => 'fax',
 				'length' 	 => 12,
+				'datatype'	 => 'tel',
 				'required'	 => false,
-				'label' 	 => 'Fax'
+				'label' 	 => 'Mobile'
 			),
 			array(
 				'name'       => 'usualvehicleid',
@@ -242,24 +188,7 @@
 				'datatype'	 => 'date',
 				'length' 	 => 12,
 				'required'	 => false,
-				'onchange'	 => 'holidayentitlement_onchange',
 				'label' 	 => 'Start Date'
-			),
-			array(
-				'name'       => 'holidayentitlement',
-				'length' 	 => 10,
-				'onchange'	 => 'holidayentitlement_onchange',
-				'required'	 => false,
-				'align' 	 => 'center',
-				'label' 	 => 'Entitlement'
-			),
-			array(
-				'name'       => 'prorataholidayentitlement',
-				'length' 	 => 10,
-				'readonly'	 => true,
-				'required'	 => false,
-				'align' 	 => 'center',
-				'label' 	 => 'Entitlement (Pro Rata)'
 			),
 			array(
 				'name'       => 'qualifications',
@@ -321,14 +250,6 @@
 							'text'		=> "Special"
 						)
 					)
-			)
-		);
-		
-	$crud->subapplications = array(
-			array(
-				'title'		  => 'Documents',
-				'imageurl'	  => 'images/document.gif',
-				'script' 	  => 'editDocuments'
 			)
 		);
 		

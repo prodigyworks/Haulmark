@@ -121,6 +121,10 @@
 	
 	$crud = new SupplierCrud();
 	$crud->dialogwidth = 650;
+	$crud->document = array(
+			'primaryidname'	 => 	"supplierid",
+			'tablename'		 =>		"supplierdocs"
+		);
 	$crud->title = "Suppliers";
 	$crud->table = "{$_SESSION['DB_PREFIX']}supplier";
 	$crud->sql = "SELECT A.*, B.name AS deliverymethodname, D.name AS discountbandname
@@ -303,14 +307,6 @@
 				'length' 	 => 12,
 				'required'	 => false,
 				'label' 	 => 'Delivery Telephone'
-			)
-		);
-
-	$crud->subapplications = array(
-			array(
-				'title'		  => 'Documents',
-				'imageurl'	  => 'images/document.gif',
-				'script' 	  => 'editDocuments'
 			)
 		);
 		

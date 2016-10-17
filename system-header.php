@@ -22,12 +22,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>Allegro Transport</title>
+<title>Haulage Planner</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <link rel="shortcut icon" href="favicon.ico">
 
-<link href="css/style-19052014.css" rel="stylesheet" type="text/css" />
+<link href="css/style-13102016.css" rel="stylesheet" type="text/css" />
 <link href="css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
 <link href="css/dcmegamenu.css" rel="stylesheet" type="text/css" />
 <link href="css/skins/white.css" rel="stylesheet" type="text/css" />
@@ -38,7 +38,7 @@
 <script src="js/jquery-ui.min.js" type="text/javascript"></script>
 <script src='js/jquery.hoverIntent.minified.js' type='text/javascript'></script>
 <script src='js/jquery.dcmegamenu.1.3.3.js' type='text/javascript'></script>
-<script src="js/prodigyworks-20160710.js" language="javascript" ></script>
+<script src="js/prodigyworks-20161013.js" language="javascript" ></script>
 <!--[if lt IE 7]>
 <script type="text/javascript" src="js/ie_png.js"></script>
 <script type="text/javascript">
@@ -82,21 +82,26 @@
 									$result = mysql_query($qry);
 								?>
 								<div id="toppanel">
-									<label class="prefix">logged on: </label>
-									<label>
-									<a href='profile.php'>
-										<?php 
-											echo $_SESSION['SESS_FIRST_NAME'] . " " . $_SESSION['SESS_LAST_NAME']; 
-											
-											if (isUserInRole("CUSTOMER")) {
-												echo "&nbsp;&nbsp;( " . $_SESSION['SESS_CUSTOMER_NAME'] . " )"; 
-											}
-										?>
-									</a>
-									<span>
-									&nbsp;|&nbsp;<a href='system-logout.php'>logout</a>
-									</span> 
-									</label>
+									<div class="profileimage">
+									<?php 
+										if (getLoggedOnImageID() != null && getLoggedOnImageID() != 0) {
+?>	  
+											<img id="profileimage_img" src='system-imageviewer.php?id=<?php echo getLoggedOnImageID(); ?>' />
+<?php 
+										} else {
+?>	  
+											<img id="profileimage_img" src='images/noprofile.png'  />
+<?php 
+										}
+?>									
+										<div class='profileimageselector'>
+											<img src='images/minimize.gif' />
+										</div>
+										<ul id="profileimageselectormenu" class="submenu">
+											<li onclick='navigate("profile.php");'>&nbsp;&nbsp;<img src='images/edit.png' />&nbsp;Edit Profile&nbsp;&nbsp;</a></li>
+											<li onclick='navigate("system-logout.php");'>&nbsp;&nbsp;<img src='images/logout2.png' />&nbsp;Log Out&nbsp;&nbsp;</a></li>
+										</ul>
+									</div>
 								</div>
 							</div>
 						<?php		

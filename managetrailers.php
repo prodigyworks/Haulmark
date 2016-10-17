@@ -1,26 +1,14 @@
 <?php
 	require_once("crud.php");
 	
-	class ContactCrud extends Crud {
-		
-		/* Post header event. */
-		public function postHeaderEvent() {
-			createDocumentLink();
-		}
-		
-		public function postScriptEvent() {
-?>
-			function editDocuments(node) {
-				viewDocument(node, "addtrailerdocument.php", node, "trailerdocs", "trailerid");
-			}
-<?php			
-		}
-	}
-
-	$crud = new ContactCrud();
+	$crud = new Crud();
 	$crud->title = "Trailers";
 	$crud->table = "{$_SESSION['DB_PREFIX']}trailer";
 	$crud->dialogwidth = 950;
+	$crud->document = array(
+			'primaryidname'	 => 	"trailerid",
+			'tablename'		 =>		"trailerdocs"
+		);
 	$crud->sql = 
 			"SELECT A.*, C.name AS drivername, D.name AS trailertypename " .
 			"FROM {$_SESSION['DB_PREFIX']}trailer A " .
@@ -76,7 +64,7 @@
 			),
 			array(
 				'name'       => 'purchaseprice',
-				'datatype'	 => 'money',
+				'datatype'	 => 'float',
 				'required'	 => false,
 				'align'		 => 'right',
 				'length' 	 => 12,
@@ -84,7 +72,7 @@
 			),
 			array(
 				'name'       => 'mpg',
-				'datatype'	 => 'money',
+				'datatype'	 => 'float',
 				'align'		 => 'right',
 				'required'	 => false,
 				'length' 	 => 12,
@@ -92,7 +80,7 @@
 			),
 			array(
 				'name'       => 'presentprice',
-				'datatype'	 => 'money',
+				'datatype'	 => 'float',
 				'align'		 => 'right',
 				'required'	 => false,
 				'length' 	 => 12,
@@ -109,6 +97,7 @@
 			array(
 				'name'       => 'ystachometer',
 				'length' 	 => 10,
+				'datatype'	 => 'integer',
 				'align'		 => 'right',
 				'required'	 => false,
 				'label' 	 => 'YS Tachometer'
@@ -158,14 +147,6 @@
 				'type'		 => 'TEXTAREA',
 				'showInView' => false,
 				'label' 	 => 'Notes'
-			)
-		);
-
-	$crud->subapplications = array(
-			array(
-				'title'		  => 'Documents',
-				'imageurl'	  => 'images/document.gif',
-				'script' 	  => 'editDocuments'
 			)
 		);
 				

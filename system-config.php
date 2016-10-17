@@ -167,17 +167,25 @@
 	    }
 	    
         public static function initialisePageData() {
-			$qry = "SELECT DISTINCT A.* FROM {$_SESSION['DB_PREFIX']}pages A " .
-					"INNER JOIN {$_SESSION['DB_PREFIX']}pageroles B " .
-					"ON B.pageid = A.pageid " .
-					"WHERE A.pagename = '" . $_SESSION['pagename'] . "' " .
-					"AND B.roleid IN (" . ArrayToInClause($_SESSION['ROLES']) . ")";
+			$qry = "SELECT DISTINCT A.* FROM {$_SESSION['DB_PREFIX']}pages A 
+					INNER JOIN {$_SESSION['DB_PREFIX']}pageroles B 
+					ON B.pageid = A.pageid 
+					WHERE A.pagename = '{$_SESSION['pagename']}' 
+					AND B.roleid IN (" . ArrayToInClause($_SESSION['ROLES']) . ")";
 			$result = mysql_query($qry);
 
 			//Check whether the query was successful or not
 			if ($result) {
 				if (mysql_num_rows($result) == 1) {
 					$member = mysql_fetch_assoc($result);
+					
+					if ($member['mobilepagename'] != null && $member['mobilepagename'] != "") {
+						if (isMobileUserAgent()) {
+							header("location: {$member['mobilepagename']}");
+							
+							return;	
+						}
+					}
 					
 					$_SESSION['pageid'] = $member['pageid'];
 					$_SESSION['title'] = $member['label'];
@@ -192,7 +200,6 @@
 				header("location: system-access-denied.php");
 			}
 	    }
-	    
 	}
 
     SessionManagerClass::initialise();
@@ -210,15 +217,17 @@
     
     function showSubMenu($id) {
     	$menuHTML = "";
-		$qry = "SELECT DISTINCT B.pagename, B.label, A.target, A.title FROM {$_SESSION['DB_PREFIX']}pagenavigation A " .
-				"INNER JOIN {$_SESSION['DB_PREFIX']}pages B " .
-				"ON A.childpageid = B.pageid " .
-				"INNER JOIN {$_SESSION['DB_PREFIX']}pageroles C " .
-				"ON C.pageid = B.pageid " .
-				"WHERE A.pageid = " . $id . " " .
-				"AND A.pagetype ='M' " .
-				"AND C.roleid IN (" . ArrayToInClause($_SESSION['ROLES']) . ") " .
-				"ORDER BY A.sequence";
+    	$roles = ArrayToInClause($_SESSION['ROLES']);
+		$qry = "SELECT DISTINCT B.pagename, A.sequence, B.label, A.target, A.title 
+				FROM {$_SESSION['DB_PREFIX']}pagenavigation A 
+				INNER JOIN {$_SESSION['DB_PREFIX']}pages B 
+				ON A.childpageid = B.pageid 
+				INNER JOIN {$_SESSION['DB_PREFIX']}pageroles C 
+				ON C.pageid = B.pageid 
+				WHERE A.pageid = $id
+				AND A.pagetype ='M' 
+				AND C.roleid IN ($roles)
+				ORDER BY A.sequence";
 		$result=mysql_query($qry);
 
 		//Check whether the query was successful or not
@@ -262,6 +271,9 @@
 		
 				$menuHTML = $menuHTML .  "</ul>\n";
 			}
+			
+		} else {
+			logError("$qry - " . mysql_error());
 		}
 		
 		return $menuHTML;
@@ -397,17 +409,17 @@
 		return $menuHTML;
     }
 	
-	function createDocumentLink() {
+		function createDocumentLink() {
 		?>
 		<div class='modal documentmodal' id='documentDialog'>
-		<iframe width=100% height=100% src='' frameborder='0' scrolling='no' src='' ></iframe>
+		<iframe width=100% height=100% src='' id='documentiframe' frameborder='0' scrolling='no' src='' ></iframe>
 		</div>
 		<script>
 		$(document).ready(function() {
 			$('#documentDialog').dialog({
 					autoOpen: false,
 					modal: true,
-					width: 750,
+					width: 1050,
 					height: 600,
 					title: 'Documents',
 					show:'fade',
@@ -428,17 +440,25 @@
 				try {resetRefresh(); } catch(e) {}
 				
 				if (callback) {
-					parameters = "&documentcallback=" + callback + "&identifier=" + id ;
+					parameters = "&documentcallback=" + callback;
 				}
 				
-				if (table) {
-					parameters += "&table=" + table + "&key=" + key;
+				if (id) {
+					parameters += "&identifier=" + id ;
 					
 				} else {
-					parameters += "&table=casedocs&key=caseid";
+					parameters += "&identifier=";
 				}
 				
-				$('#documentDialog iframe').attr('src', 'documents.php?sessionid=<?php echo session_id(); ?>&id=' + headerid + parameters);
+				parameters += "&table=" + table + "&key=" + key;
+
+				if (headerid == null) {
+					$('#documentiframe').attr('src', 'documents.php?sessionid=<?php echo session_id(); ?>' + parameters);
+
+				} else {
+					$('#documentiframe').attr('src', 'documents.php?sessionid=<?php echo session_id(); ?>&id=' + headerid + parameters);
+				}
+				
 				$('#documentDialog').dialog('open');
 			}
 			
@@ -450,7 +470,7 @@
 					parameters = "&documentcallback=" + callback + "&identifier=" + id;
 				}
 				
-				$('iframe').attr('src', 'documents.php?sessionid=' + sessionid + parameters);
+				$('#documentiframe').attr('src', 'documents.php?sessionid=' + sessionid + parameters);
 				$('#documentDialog').dialog('open');
 			}
 		</script>

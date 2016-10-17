@@ -36,7 +36,6 @@ error_reporting(E_ALL);
 			createConfirmDialog("confirmacceptdialog", "Confirm acceptance ?", "confirmaccept");
 			createConfirmDialog("confirmundodialog", "Confirm undo ?", "confirmundo");
 			createConfirmDialog("confirmRemoveDialog", "Confirm removal ?", "confirmRemoval");
-			createDocumentLink();
 		}
 		
 		public function afterInsertRow() {
@@ -86,8 +85,7 @@ error_reporting(E_ALL);
 			}
 		}
 		
-		public function postInsertEvent() {
-			$proformaid = mysql_insert_id();
+		public function postInsertEvent($proformaid) {
 			$items = json_decode($_POST['item_serial'], true);
 			$memberid = getLoggedOnMemberID();
 			
@@ -563,10 +561,6 @@ error_reporting(E_ALL);
 					$("#undobutton").show();
 				}
 			}
-
-			function editDocuments(node) {
-				viewDocument(node, "addproformadocument.php", node, "proformadocs", "proformaid");
-			}
 	
 <?php			
 		}
@@ -575,6 +569,10 @@ error_reporting(E_ALL);
 	$crud = new ProFormaCrud();
 	$crud->dialogwidth = 840;
 	$crud->title = "Purchase Orders";
+	$crud->document = array(
+			'primaryidname'	 => 	"proformaid",
+			'tablename'		 =>		"proformadocs"
+		);
 	$crud->onClickCallback = "checkStatus";
 	$crud->table = "{$_SESSION['DB_PREFIX']}proforma";
 	$crud->sql = "SELECT A.*, B.name AS suppliername, C.fullname AS takenbyname
@@ -683,11 +681,6 @@ error_reporting(E_ALL);
 		);
 
 	$crud->subapplications = array(
-			array(
-				'title'		  => 'Documents',
-				'imageurl'	  => 'images/document.gif',
-				'script' 	  => 'editDocuments'
-			),
 			array(
 				'title'		  => 'Paid',
 				'id'		  => 'acceptbutton',

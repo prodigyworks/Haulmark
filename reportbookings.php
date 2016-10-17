@@ -2,6 +2,7 @@
 	require_once("system-header.php");
 ?>
 <form id="reportform" class="reportform" name="reportform" method="POST" action="bookingsreportsummary.php" target="_new">
+	<h4><?php echo $_SESSION['title']; ?></h4>
 	<table>
 		<tr>
 			<td>

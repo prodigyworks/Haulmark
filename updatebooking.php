@@ -17,9 +17,11 @@
 	$vehicleid = $_POST['vehicleid'];
 	$vehicletypeid = $_POST['vehicletypeid'];
 	$trailerid = $_POST['trailerid'];
-	$drivername = $_POST['drivername'];
-	$driverphone = $_POST['driverphone'];
+	$drivername = mysql_escape_string($_POST['drivername']);
+	$agencyvehicleregistration = mysql_escape_string($_POST['agencyvehicleregistration']);
+	$driverphone = mysql_escape_string($_POST['driverphone']);
 	$worktypeid = $_POST['worktypeid'];
+	$nominalledgercodeid = $_POST['nominalledgercodeid'];
 	$loadtypeid = $_POST['loadtypeid'];
 	$ordernumber = mysql_escape_string($_POST['ordernumber']);
 	$ordernumber2 = mysql_escape_string($_POST['ordernumber2']);
@@ -55,7 +57,7 @@
 	if (($statusid == 7 && $currentstatusid < 7 && $charge != 0) ||
 	    ($statusid == 7 && $currentcharge == 0 && $charge != 0)) {
 		/* Completed. */
-		$sql = "SELECT A.selfbilledinvoices 
+		$sql = "SELECT A.selfbilledinvoices, A.taxcodeid
 				FROM {$_SESSION['DB_PREFIX']}customer A 
 				WHERE A.id = $customerid";
 		$result = mysql_query($sql);
@@ -95,12 +97,12 @@
 					$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}invoiceitem	
 							(
 								invoiceid, productid, description, priceeach,
-								quantity, linetotal, vat, vatrate
+								quantity, linetotal, vat, vatrate, nominalledgercodeid
 							)
 							VALUES
 							(
 								$invoiceid, $id, '$legsummary', $charge,
-								1, $linetotal, $vat, $vatrate
+								1, $linetotal, $vat, $vatrate, '$nominalledgercodeid'
 							)";
 								
 					if (! mysql_query($sql)) {
@@ -133,8 +135,10 @@
 			vehicletypeid = '$vehicletypeid',
 			trailerid = '$trailerid',
 			drivername = '$drivername',
+			agencyvehicleregistration = '$agencyvehicleregistration',
 			driverphone = '$driverphone',
 			worktypeid = '$worktypeid',
+			nominalledgercodeid = '$nominalledgercodeid',
 			loadtypeid = '$loadtypeid',
 			ordernumber = '$ordernumber',
 			ordernumber2 = '$ordernumber2',

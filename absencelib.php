@@ -213,20 +213,20 @@
 	
 			if (isset($_GET['id'])) {
 				$this->sql = 
-					"SELECT A.*, " .
-					"B.name, B.payrollnumber " .
-					"FROM {$_SESSION['DB_PREFIX']}absence A " .
-					"INNER JOIN {$_SESSION['DB_PREFIX']}driver B " .
-					"ON B.id = A.memberid " .
-					"WHERE A.memberid = " . $_GET['id'];
+					"SELECT A.*,
+					 B.fullname
+					 FROM {$_SESSION['DB_PREFIX']}absence A 
+					 INNER JOIN {$_SESSION['DB_PREFIX']}members B 
+					 ON B.member_id = A.memberid 
+					 WHERE A.memberid = {$_GET['id']}";
 				
 			} else {
 				$this->sql = 
-					"SELECT A.*, " .
-					"B.name " .
-					"FROM {$_SESSION['DB_PREFIX']}absence A " .
-					"INNER JOIN {$_SESSION['DB_PREFIX']}driver B " .
-					"ON B.id = A.memberid";
+					"SELECT A.*,
+					 B.fullname
+					 FROM {$_SESSION['DB_PREFIX']}absence A 
+					 INNER JOIN {$_SESSION['DB_PREFIX']}members B 
+					 ON B.member_id = A.memberid";
 			}
 			
 			$this->sql = ($this->sql);
@@ -265,12 +265,12 @@
 						'name'       => 'memberid',
 						'type'       => 'DATACOMBO',
 						'length' 	 => 40,
-						'label' 	 => 'Driver',
-						'table'		 => 'driver',
+						'label' 	 => 'Staff Member',
+						'table'		 => 'members',
 						'required'	 => true,
-						'table_id'	 => 'id',
-						'alias'		 => 'name',
-						'table_name' => 'name'
+						'table_id'	 => 'member_id',
+						'alias'		 => 'fullname',
+						'table_name' => 'fullname'
 					),
 					array(
 						'name'       => 'requesteddate',

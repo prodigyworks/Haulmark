@@ -10,9 +10,8 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 <?php
 }
 ?>
-<div class="registerPage">
-	<h4>User Registry</h4>
-	<form id="loginForm" enctype="multipart/form-data" name="loginForm" class="entryform manualform" method="post" action="system-register-exec.php">
+	<form id="loginForm" enctype="multipart/form-data" name="loginForm" class="entryform" method="post" action="system-register-exec.php">
+	<h4><?php echo $_SESSION['title']; ?></h4>
 	  <table border="0" align="left">
 	    <tr>
 	      <td>First Name </td>
@@ -26,8 +25,9 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	      <td>Account Type </td>
 	      <td>
 	      	<SELECT id="accounttype" name="accounttype" onchange="accounttype_onchange()">
-	      		<OPTION value="ALLEGRO">Allegro Employee</OPTION>
-	      		<OPTION value="CUSTOMER">Allegro Customer</OPTION>
+	      		<OPTION value="ALLEGRO">Employee</OPTION>
+	      		<OPTION value="CUSTOMER">Customer</OPTION>
+	      		<OPTION value="DRIVER">Driver</OPTION>
 	      	</SELECT>
 	      </td>
 	    </tr>
@@ -37,17 +37,23 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	      	<?php createCombo("customerid", "id", "name", "{$_SESSION['DB_PREFIX']}customer", "", false)?>
 	      </td>
 	    </tr>
+	    <tr id="drivertype" style="display:none">
+	      <td>Driver</td>
+	      <td>
+	      	<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "", false)?>
+	      </td>
+	    </tr>
 	    <tr>
 	      <td>Login</td>
 	      <td><input required="true" name="login" type="text" class="textfield logintext" id="login" /></td>
 	    </tr>
 	    <tr>
 	      <td>Email</td>
-	      <td><input required="true" name="email" type="text" class="textfield60" id="email" /></td>
+	      <td><input required="true" name="email" type="email" class="textfield60" id="email" /></td>
 	    </tr>
 	    <tr>
 	      <td>Confirm Email</td>
-	      <td><input required="true" name="confirmemail" type="text" class="textfield60" id="confirmemail" /></td>
+	      <td><input required="true" name="confirmemail" type="email" class="textfield60" id="confirmemail" /></td>
 	    </tr>
 	    <tr>
 	      <td>Image</td>
@@ -79,7 +85,6 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	  </table>
 	  <input type="hidden" id="description" name="description" value="Profile image" />
 	</form>
-</div>
 <script>
 	$(document).ready(function() {
 		$(".pwd").blur(verifypassword);
@@ -92,13 +97,20 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	});
 
 	function accounttype_onchange() {
+		$("#customerid").val("0");
+		$("#driverid").val("0");
+		
 		if ($("#accounttype").val() == "ALLEGRO") {
-			$("#customerid").val("0");
 			$("#customertype").hide();
+			$("#drivertype").hide();
+
+		} else if ($("#accounttype").val() == "DRIVER") {
+			$("#customertype").hide();
+			$("#drivertype").show();
 
 		} else if ($("#accounttype").val() == "CUSTOMER") {
-			$("#customerid").val("0");
 			$("#customertype").show();
+			$("#drivertype").hide();
 		}
 	}
 				

@@ -9,6 +9,10 @@
 	        
 			$this->title = "Booking Legs";
 			$this->dialogWidth = 500;
+			$this->document = array(
+					'primaryidname'	 => 	"bookinglegid",
+					'tablename'		 =>		"bookinglegdocs"
+				);
 			$this->table = "{$_SESSION['DB_PREFIX']}bookingleg";
 			
 			if (isset($_GET['id'])) {
@@ -55,26 +59,6 @@
 						'label' 	 => 'Distance (Miles)'
 					)
 				);
-			$this->subapplications = array(
-					array(
-						'title'		  => 'Documents',
-						'imageurl'	  => 'images/article.png',
-						'script' 	  => 'editDocuments'
-					)
-				);
-		}
-
-		/* Post header event. */
-		public function postHeaderEvent() {
-			createDocumentLink();
-		}
-		
-		public function postScriptEvent() {
-?>
-			function editDocuments(node) {
-				viewDocument(node, "addbookinglegdocument.php", node, "bookinglegdocs", "bookinglegid");
-			}
-<?php
 		}
 	}
 	

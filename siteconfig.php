@@ -31,39 +31,44 @@
 		$bank = mysql_escape_string($_POST['bank']);
 		$bankaccountnumber = mysql_escape_string($_POST['bankaccountnumber']);
 		$banksortcode = mysql_escape_string($_POST['banksortcode']);
+		$defaultworktype = mysql_escape_string($_POST['defaultworktype']);
 		$averagewaittime = mysql_escape_string($_POST['averagewaittime']);
 		$vatrate = $_POST['vatrate'];
 		$basepostcode = $_POST['basepostcode'];
 		
-		$qry = "UPDATE {$_SESSION['DB_PREFIX']}siteconfig SET " .
-				"domainurl = '$domainurl', " .
-				"vatrate = $vatrate, " .
-				"address = '$address', " .
-				"maintelephone = '$maintelephone', " .
-				"defaultprofitmargin = '$defaultprofitmargin', " .
-				"defaultwagesmargin = '$defaultwagesmargin', " .
-				"bookingprefix = '$bookingprefix', " .
-				"trafficofficetelephone1 = '$trafficofficetelephone1', " .
-				"trafficofficetelephone2 = '$trafficofficetelephone2', " .
-				"fax = '$fax', " .
-				"accountsemail = '$accountsemail', " .
-				"trafficemail = '$trafficemail', " .
-				"website = '$website', " .
-				"vatregnumber = '$vatregnumber', " .
-				"vatprefix = '$vatprefix', " .
-				"companynumber = '$companynumber', " .
-				"currentrhaterms = '$currentrhaterms', " .
-				"termsandconditions = '$termsandconditions', " .
-				"financialyearend = '$financialyearend', " .
-				"rhamembershipnumber = '$rhamembershipnumber', " .
-				"payereference = '$payereference', " .
-				"bank = '$bank', " .
-				"bankaccountnumber = '$bankaccountnumber', " .
-				"banksortcode = '$banksortcode', " .
-			 	"averagewaittime = '$averagewaittime', " .
-				"basepostcode = '$basepostcode', " .
-				"runscheduledays = '$runscheduledays', " .
-				"emailfooter = '$emailfooter', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . "";
+		$memberid = getLoggedOnMemberID();
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}siteconfig SET 
+				domainurl = '$domainurl', 
+				vatrate = $vatrate, 
+				address = '$address', 
+				maintelephone = '$maintelephone', 
+				defaultprofitmargin = '$defaultprofitmargin', 
+				defaultwagesmargin = '$defaultwagesmargin', 
+				bookingprefix = '$bookingprefix', 
+				trafficofficetelephone1 = '$trafficofficetelephone1', 
+				trafficofficetelephone2 = '$trafficofficetelephone2', 
+				fax = '$fax', 
+				accountsemail = '$accountsemail', 
+				trafficemail = '$trafficemail', 
+				website = '$website', 
+				vatregnumber = '$vatregnumber', 
+				vatprefix = '$vatprefix', 
+				companynumber = '$companynumber', 
+				currentrhaterms = '$currentrhaterms', 
+				termsandconditions = '$termsandconditions', 
+				financialyearend = '$financialyearend', 
+				rhamembershipnumber = '$rhamembershipnumber', 
+				payereference = '$payereference', 
+				bank = '$bank', 
+				bankaccountnumber = '$bankaccountnumber', 
+				banksortcode = '$banksortcode', 
+				defaultworktype = '$defaultworktype',  
+			 	averagewaittime = '$averagewaittime', 
+				basepostcode = '$basepostcode', 
+				runscheduledays = '$runscheduledays', 
+				emailfooter = '$emailfooter', 
+				metamodifieddate = NOW(), 
+				metamodifieduserid = $memberid" ;
 		$result = mysql_query($qry);
 		
 	   	if (! $result) {
@@ -73,21 +78,25 @@
 	   	unset($_SESSION['SITE_CONFIG']);
 	}
 	
-	$qry = "SELECT *, DATE_FORMAT(lastschedulerun, '%d/%m/%Y') AS lastschedulerun, DATE_FORMAT(financialyearend, '%d/%m/%Y') AS financialyearend FROM {$_SESSION['DB_PREFIX']}siteconfig";
+	$qry = "SELECT *, 
+			DATE_FORMAT(lastschedulerun, '%d/%m/%Y') AS lastschedulerun, 
+			DATE_FORMAT(financialyearend, '%d/%m/%Y') AS financialyearend 
+			FROM {$_SESSION['DB_PREFIX']}siteconfig";
 	$result = mysql_query($qry);
 	
 	if ($result) {
 		while (($member = mysql_fetch_assoc($result))) {
 ?>
 <form id="contentForm" name="contentForm" method="post" class="entryform">
+	<h4><?php echo $_SESSION['title']; ?></h4>
 	<label>Domain URL</label>
-	<input required="true" type="text" class="textbox90" id="domainurl" name="domainurl" value="<?php echo $member['domainurl']; ?>" />
+	<input required="true" type="url" class="textbox90" id="domainurl" name="domainurl" value="<?php echo $member['domainurl']; ?>" />
 
 	<label>VAT Rate</label>
-	<input required="true" type="text" id="vatrate" name="vatrate" value="<?php echo number_format($member['vatrate'], 2); ?>" />
+	<input required="true" type="number" id="vatrate" name="vatrate" value="<?php echo number_format($member['vatrate'], 2); ?>" />
 
 	<label>Run Alert Schedule Cycle (Days)</label>
-	<input required="true" type="text" class="textbox20" id="runscheduledays" name="runscheduledays" value="<?php echo $member['runscheduledays']; ?>" />
+	<input required="true" type="number" class="textbox20" id="runscheduledays" name="runscheduledays" value="<?php echo $member['runscheduledays']; ?>" />
 
 	<label>Last Schedule Date Run</label>
 	<input readonly type="text" class="textbox20" id="lastschedulerun" name="lastschedulerun" value="<?php echo $member['lastschedulerun']; ?>" />
@@ -102,22 +111,22 @@
 	<input type="text" class="textbox20" id="maintelephone" name="maintelephone" value="<?php echo $member['maintelephone']; ?>" />
 
 	<label>Traffic Office Telephone 1</label>
-	<input type="text" class="textbox20" id="trafficofficetelephone1" name="trafficofficetelephone1" value="<?php echo $member['trafficofficetelephone1']; ?>" />
+	<input type="tel" class="textbox20" id="trafficofficetelephone1" name="trafficofficetelephone1" value="<?php echo $member['trafficofficetelephone1']; ?>" />
 
 	<label>Traffic Office Telephone 2</label>
-	<input type="text" class="textbox20" id="trafficofficetelephone2" name="trafficofficetelephone2" value="<?php echo $member['trafficofficetelephone2']; ?>" />
+	<input type="tel" class="textbox20" id="trafficofficetelephone2" name="trafficofficetelephone2" value="<?php echo $member['trafficofficetelephone2']; ?>" />
 
 	<label>Fax</label>
-	<input type="text" class="textbox20" id="fax" name="fax" value="<?php echo $member['fax']; ?>" />
+	<input type="tel" class="textbox20" id="fax" name="fax" value="<?php echo $member['fax']; ?>" />
 
 	<label>Accounts Email</label>
-	<input type="text" class="textbox90" id="accountsemail" name="accountsemail" value="<?php echo $member['accountsemail']; ?>" />
+	<input type="email" class="textbox90" id="accountsemail" name="accountsemail" value="<?php echo $member['accountsemail']; ?>" />
 
-	<label>Traffic Email</label>
+	<label>Traffic email</label>
 	<input type="text" class="textbox90" id="trafficemail" name="trafficemail" value="<?php echo $member['trafficemail']; ?>" />
 
 	<label>Web Site</label>
-	<input type="text" class="textbox90" id="website" name="website" value="<?php echo $member['website']; ?>" />
+	<input type="url" class="textbox90" id="website" name="website" value="<?php echo $member['website']; ?>" />
 
 	<label>VAT Reg Number</label>
 	<input type="text" class="textbox20" id="vatregnumber" name="vatregnumber" value="<?php echo $member['vatregnumber']; ?>" />
@@ -126,7 +135,7 @@
 	<input type="text" cols=2 id="vatprefix" name="vatprefix" value="<?php echo $member['vatprefix']; ?>" />
 
 	<label>Company Number</label>
-	<input type="text" class="textbox20" id="companynumber" name="companynumber" value="<?php echo $member['companynumber']; ?>" />
+	<input type="number" class="textbox20" id="companynumber" name="companynumber" value="<?php echo $member['companynumber']; ?>" />
 
 	<label>Current RHA Terms</label>
 	<textarea id="currentrhaterms" name="currentrhaterms" rows="15" cols="60" style="height:340px;width: 340px" class="tinyMCE"></textarea>
@@ -147,7 +156,7 @@
 	<input type="text" class="textbox90" id="bank" name="bank" value="<?php echo $member['bank']; ?>" />
 
 	<label>Bank Account Number</label>
-	<input type="text" class="textbox20" id="bankaccountnumber" name="bankaccountnumber" value="<?php echo $member['bankaccountnumber']; ?>" />
+	<input type="number" class="textbox20" id="bankaccountnumber" name="bankaccountnumber" value="<?php echo $member['bankaccountnumber']; ?>" />
 
 	<label>Bank Sort Code</label>
 	<input type="text" class="textbox20" id="banksortcode" name="banksortcode" value="<?php echo $member['banksortcode']; ?>" />
@@ -156,16 +165,19 @@
 	<input type="text" class="textbox20" id="basepostcode" name="basepostcode" value="<?php echo $member['basepostcode']; ?>" />
 
 	<label>Defaut Profit Margin</label>
-	<input type="text" class="textbox20" id="defaultprofitmargin" name="defaultprofitmargin" value="<?php echo $member['defaultprofitmargin']; ?>" />
+	<input type="number" class="textbox20" id="defaultprofitmargin" name="defaultprofitmargin" value="<?php echo $member['defaultprofitmargin']; ?>" />
 
 	<label>Defaut Wages Margin</label>
-	<input type="text" class="textbox20" id="defaultwagesmargin" name="defaultwagesmargin" value="<?php echo $member['defaultwagesmargin']; ?>" />
+	<input type="number" class="textbox20" id="defaultwagesmargin" name="defaultwagesmargin" value="<?php echo $member['defaultwagesmargin']; ?>" />
 
 	<label>Booking Prefix</label>
 	<input type="text" id="bookingprefix" name="bookingprefix" value="<?php echo $member['bookingprefix']; ?>" />
 
 	<label>Average Waiting Time (Minutes)</label>
-	<input type="text" class="textbox20" id="averagewaittime" name="averagewaittime" value="<?php echo $member['averagewaittime']; ?>" />
+	<input type="number" class="textbox20" id="averagewaittime" name="averagewaittime" value="<?php echo $member['averagewaittime']; ?>" />
+
+	<label>Default Work Type</label>
+	<?php createCombo("defaultworktype", "id", "name", "{$_SESSION['DB_PREFIX']}worktype"); ?>
 	
 	<br>
 	<br>
@@ -177,6 +189,7 @@
 			$("#address").val("<?php echo escape_notes($member['address']); ?>");
 			$("#currentrhaterms").val("<?php echo escape_notes($member['currentrhaterms']); ?>");
 			$("#termsandconditions").val("<?php echo escape_notes($member['termsandconditions']); ?>");
+			$("#defaultworktype").val("<?php echo escape_notes($member['defaultworktype']); ?>");
 		});
 </script>
 	<?php

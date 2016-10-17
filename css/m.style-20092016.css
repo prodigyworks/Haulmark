@@ -1,0 +1,271 @@
+/* TAGS */
+form table td {
+  	font: italic normal 1em/1.375 Georgia,Times,serif;
+}
+
+.mobiletable {
+	font-size:12px;
+}
+
+.mobilemenu:hover {
+	background: linear-gradient(to bottom, #22e2e2 0%,#dbdbdb 100%);	
+}
+.mobilemenu {
+	width:50%;
+	padding:30px;
+	font-size:17px;
+	margin:40px;
+	text-align:center;
+	box-shadow: 3px 3px 5px #888888;
+	border-radius: 128px;
+	background: linear-gradient(to bottom, #e2e2e2 0%,#dbdbdb 50%,#d1d1d1 51%,#fefefe 100%);	
+	border: 1px solid #888888;
+} 
+
+
+.upabit {
+	margin-top: -34px;
+	z-index:1111222222;
+	position: relative;
+	margin-bottom: 10px;
+}
+
+.modal {
+	display:none;
+}
+
+input[type="radio"] {
+	margin-left: 25px;
+	margin-right: 8px;
+	box-shadow: 0px 0px 0px #888888  ! important;
+}
+
+input[type="submit"] {
+	padding:10px;
+	box-shadow: 3px 3px 3px #888888;
+	border-radius: 25px;
+}
+
+input, textarea, select {
+	box-shadow: 1px 1px 1px #888888;
+	border-radius: 5px;
+}
+
+#orderapp form {
+	padding:2px;
+}
+
+#orderform {
+	margin-top: 2px;
+}
+
+#orderform td input {
+	font-size:11px;
+}
+
+#orderform .submitbutton {
+	padding:5px;
+	font-size:14px;
+	margin-top: 14px;
+}
+
+#orderform .header td {
+	font-style: italic;
+	font-weight: bold;
+	font-size: 11px;
+}
+
+#orderform td {
+	padding-top: 0px;
+}
+
+.favourite div {
+	font-size: 12px ! important;
+	font-weight: bold;
+}
+
+.ui-autocomplete {
+	max-height:200px;
+	overflow:auto;
+	border:1px solid #AAAAAA ! important;
+}
+
+.ui-autocomplete li a {
+	font-size: 11px ! important;
+	line-height: 11px ! important;
+    padding-top:2px ! important;
+}	
+
+.ui-autocomplete li a:hover
+{
+    color:White ! important;
+    background:#96B202 ! important;
+    outline:none ! important;
+}
+
+.ui-state-focus
+{
+    color:White;
+    background:#96B202;
+    outline:none;
+}
+
+* {
+	margin: 0;
+	padding: 0
+}
+
+#confirmimg {
+	box-shadow: 10px 10px 5px #888888;
+	border-radius: 25px;
+}
+
+#confirmback {
+	position: absolute;
+	width:100%;
+	height:50px;
+	top: 160px;
+	z-index:303333;
+}
+
+html, body {
+	width: 100%;
+}
+
+#loginForm {
+	width:100%;
+	text-align: center;
+	background-position-y: -80;
+}
+
+body {
+	background: url(../images/camberley.png) ;
+	background-attachment: fixed;
+	-webkit-background-size: cover;
+	background-size: cover;
+	font-family: Arial, Helvetica, sans-serif;
+	color: #434343;
+}
+
+.notes {
+	display:none;
+} 
+
+.checklist {
+	padding:10px;
+}
+
+input,textarea,select {
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #D3FCF3 ! important;
+	font-size: 1em;
+	vertical-align: middle;
+	font-weight: normal
+}
+
+input[readonly], textarea[readonly], select[readonly] {
+	font-family: arial;
+	background-color: #E3ECE3 ! important;
+	color: black;
+}
+
+.mobiletitle {
+	height:30px;
+	vertical-align: baseline;
+	margin-top: -10px;
+	line-height: 27px;
+	width:100%;
+	font-size:21px;
+	text-align: center;
+	box-shadow: 2px 2px 5px #888888;
+	border-radius: 4px;
+	text-shadow: 2px 2px #000000;
+	color: white;
+	background: #d0e0ed; /* For browsers that do not support gradients */
+	background: -webkit-linear-gradient(left, #d0e0ed , #C8B7CF); /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(right, #d0e0ed, #C8B7CF); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(right, #d0e0ed, #C8B7CF); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(to right, #d0e0ed , #C8B7CF); /* Standard syntax */
+	font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
+}
+
+.centerform {
+	margin-top: 20px;
+}
+.centerform table {
+	text-align: center;
+}
+
+.category {
+	box-shadow: 10px 10px 5px #888888;
+	border-radius: 25px;
+	height:130px;
+	width: 160px;
+	font-size:18px;
+	background-color:green;
+	border: 1px solid black;
+}
+
+.disabled {
+	background-color:#33ff33 ! important;
+}
+
+.category:hover {
+	background-color:blue;
+}
+
+.faults:hover {
+	background-color:blue ! important;
+}
+
+.faults, .rectangle {
+	box-shadow: 10px 10px 5px #888888;
+	border-radius: 25px;
+	font-size:18px;
+	border: 1px solid black;
+	width:100%;
+	height: 30px;
+}
+
+.rectangle {
+	background-color:cyan ! important;
+}
+
+.faults {
+	background-color:red ! important;
+}
+
+.category div, .faults div {
+	color: white;
+}
+
+.category a, .faults a {
+	text-decoration: none;
+}
+
+
+.title {
+  	font: italic normal 1em/1.375 Georgia,Times,serif;
+	width:100%;
+	padding: 2px;
+	font-size:17px;
+	top: 2px;
+	padding-left:8px;
+	height: 30px;
+}
+.logout a {
+	text-decoration: none;
+}
+.logout {
+	z-index: 33333333;
+	text-align:right;
+	position: absolute;
+	width:99%;
+	padding: 2px;
+	font-size:12px;
+	top: 2px;
+}
+
+#loginForm {
+	padding:5px;
+}

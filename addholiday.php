@@ -116,7 +116,7 @@
 		}
 		
 		sendInternalRoleMessage(
-				"Admin1",
+				"HOLIDAY",
 				"Holiday request created", 
 				"<h4>A holiday request has been created for " 
 				. GetUserName($memberid) 

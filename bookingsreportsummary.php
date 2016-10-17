@@ -64,8 +64,8 @@
 		    $this->SetFont('Arial','', 6);
 			$cols=array( "Registration"    => 18,
 			             "Phone"  => 25,
-			             "Trailer"  => 30,
-			             "Driver"  => 35,
+			             "Trailer"  => 20,
+			             "Driver"  => 55,
 			             "Date / Time"  => 24,
 			             "Delivery Point"  => 58);
 		

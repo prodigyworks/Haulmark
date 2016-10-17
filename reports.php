@@ -1,3 +1,3 @@
 <?php
-	header("location: exceptionreport1.php");
+	header("location: reportbookings.php");
 ?>

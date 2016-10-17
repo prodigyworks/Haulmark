@@ -5,8 +5,9 @@
 	$crud->sql = 
 		   "SELECT A.*, B.registration AS trailername, C.name AS driversname, D.name AS customername, 
 		    E.registration AS vehiclename, F.name AS vehicletypename, 
-		    H.name AS statusname, I.fullname, J.name AS worktypename, K.name AS loadtypename
-			FROM {$_SESSION['DB_PREFIX']}booking A 
+		    H.name AS statusname, I.fullname, J.name AS worktypename, K.name AS loadtypename,
+		    L.name AS nominalledgercodename
+		    FROM {$_SESSION['DB_PREFIX']}booking A 
 			LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer B 
 			ON B.id = A.trailerid 
 			LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver C 
@@ -25,6 +26,8 @@
 			ON J.id = A.worktypeid
 			LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}loadtype K 
 			ON K.id = A.loadtypeid
+			LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}nominalledgercode L 
+			ON L.id = A.nominalledgercodeid
 			WHERE A.statusid = 7
 			AND A.charge = 0
 			ORDER BY A.id DESC";

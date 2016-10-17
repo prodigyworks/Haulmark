@@ -3,10 +3,15 @@
 	
 	start_db();
 	
-	if (isUserInRole("CUSTOMER")) {
-		header("location: pod.php");
-
+	if (isMobileUserAgent()) {
+		header("location: m.index.php");
+		
 	} else {
-		header("location: booking.php");
+		if (isUserInRole("CUSTOMER")) {
+			header("location: pod.php");
+	
+		} else {
+			header("location: booking.php");
+		}
 	}
 ?>

@@ -39,7 +39,7 @@
         </td>
     </tr>
     <tr valign="center">
-        <td>Your Reference</td>
+        <td>Your Order Number</td>
         <td colspan=2>
             <input type="text" style="width:260px" id="yourordernumber" name="yourordernumber">
         </td>
@@ -62,13 +62,19 @@
     <tr valign="center">
         <td>Discount %</td>
         <td colspan=2>
-            <input type="text" style="width:70px" id="discount" name="discount" onchange="total_onchange()" value="0.00">
+            <input type="number" style="width:70px" id="discount" name="discount" onchange="total_onchange()" value="0.00">
         </td>
     </tr>
     <tr valign="center">
-        <td>Total</td>
+        <td>Total (Nett)</td>
         <td colspan=2>
-            <input type="text" style="width:70px" id="total" name="total" readonly value="0.00">
+            <input type="number" style="width:70px" id="total" name="total" readonly value="0.00">
+        </td>
+    </tr>
+    <tr valign="center">
+        <td>Total (Gross)</td>
+        <td colspan=2>
+            <input type="number" style="width:70px" id="totalgross" name="totalgross" readonly value="0.00">
         </td>
     </tr>
     </tbody>
@@ -78,21 +84,10 @@
     <tr>
         <td>
 		   	<span class="wrapper">
-		   		<a disabled class='subapp rgap2 link1' href="javascript:addQuoteItem()">
+		   		<a class='rgap2 link2' href="javascript:addInvoiceItem()">
                     <em>
                         <b>
                             <img src='images/add.png' /> Add
-                        </b>
-                    </em>
-                </a>
-		   	</span>
-        </td>
-        <td>
-		   	<span class="wrapper">
-		   		<a disabled class='subapp rgap2 link1' href="javascript:printQuote(currentCrudID)">
-                    <em>
-                        <b>
-                            <img src='images/print.png' /> Print
                         </b>
                     </em>
                 </a>
@@ -102,7 +97,7 @@
 </table>
 <?php
 function createHeader() {
-    ?><tr><td>Actions</td><td>Job Number</td><td align='left'>Journey</td><td align='right'>Total</td></tr><?php
+    ?><tr><td>Actions</td><td>Job Number</td><td align='left'>Journey</td><td align='right'>Total (Nett)</td></tr><?php
 }
 ?>
 <div id="divtable">
@@ -132,32 +127,38 @@ function createHeader() {
         <tr valign="center">
             <td>Quantity</td>
             <td>
-                <input type="text" id="item_quantity" name="item_quantity" size=9 onchange="productid_onchange()" />
+                <input type="number" id="item_quantity" name="item_quantity" size=9 onchange="productid_onchange()" />
                 <input type="hidden" id="item_id" name="item_id" />
             </td>
         </tr>
         <tr valign="center">
             <td>Unit Price</td>
             <td>
-                <input type="text" id="item_unitprice" name="item_unitprice" size=9 onchange="qty_onchange()" />
+                <input type="number" id="item_unitprice" name="item_unitprice" size=9 onchange="qty_onchange()" />
             </td>
         </tr>
         <tr valign="center">
             <td>VAT Rate</td>
             <td>
-                <input type="text" id="item_vatrate" name="item_vatrate" size=9 onchange="qty_onchange()" />
+                <input type="number" id="item_vatrate" name="item_vatrate" size=9 onchange="qty_onchange()" />
             </td>
         </tr>
         <tr valign="center">
             <td>VAT</td>
             <td>
-                <input type="text" id="item_vat" name="item_vat" size=9 readonly />
+                <input type="number" id="item_vat" name="item_vat" size=9 readonly />
             </td>
         </tr>
         <tr valign="center">
             <td>Line Total</td>
             <td>
-                <input type="text" id="item_linetotal" name="item_linetotal" size=9 onchange="qty_onchange()" />
+                <input type="number" id="item_linetotal" name="item_linetotal" size=9 onchange="qty_onchange()" />
+            </td>
+        </tr>
+        <tr valign="center">
+            <td>Nominal Ledger Code</td>
+            <td>
+            	<?php createCombo("item_nominalledgercodeid", "id", "name", "{$_SESSION['DB_PREFIX']}nominalledgercode"); ?>
             </td>
         </tr>
         </tbody>

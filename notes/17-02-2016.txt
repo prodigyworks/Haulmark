@@ -117,3 +117,90 @@ Rules for status (what should you be able to change etc)
 Key press on crud should scroll to first column match, E.g. GU goes to Guildford
 
 
+12/09/2016
+
+Bookings - When vehicle is a hire driver, prompt for registration and store on bookings table.
+New report (Hired in vehicles). Prompt From and To Dates, columns, Vehicle reg, date hire, booking number, Cost
+Upgrade system to use new crud.php / system files / css
+Delivery report shows blank
+Copy button on the dialog for the gantt chart and use the copy functionality, always add status New
+Booking - If the vehicle doesnt have a trailer associated with it, then force to blank if currently N/A
+Booking - If you manually overwrite the charge it should remain and not be recalculated if anything else changes.
+Gantt - tooltip. Show booking number
+Gantt - Show booking number, larger font. Top right of dialog
+Gantt - Cannot change status to In Progress / Completed if not on that date, e.g. If previous day to scheduled delivery
+Gantt - Change Print button on the dialog to Delivery Note.
+Booking - Restrict regions by Europe of possible. if not then restrict by UK again
+Put VNC on the server
+Invoicing - Your Order Number should be Allegro Reference
+Invoicing - Make total readonly
+Invoicing - Total should be Nett on the view.
+Invoicing - Total Gross on the dialog
+Invoicing - Bug when updating an item. VAT is included on the Nett. Shouldn't
+
+
+CREATE TABLE `hallmark_useragent` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(40) NULL DEFAULT NULL,
+	`useragent` VARCHAR(250) NULL DEFAULT NULL,
+	`width` INT(11) NULL DEFAULT NULL,
+	`height` INT(11) NULL DEFAULT NULL,
+	`metacreateduserid` INT(11) NULL DEFAULT NULL,
+	`metamodifieduserid` INT(11) NULL DEFAULT NULL,
+	`metacreateddate` DATETIME NULL DEFAULT NULL,
+	`metamodifieddate` DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `useragent` (`useragent`)
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+ROW_FORMAT=COMPACT
+AUTO_INCREMENT=81783
+;
+
+ALTER TABLE `hallmark_pages`
+	ADD COLUMN `mobilepagename` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
+	
+ALTER TABLE `hallmark_members`
+ADD COLUMN `driverid` INT(11) NULL DEFAULT NULL AFTER `customerid`;
+
+
+CREATE TABLE `hallmark_bookingpod` (
+	`id` INT(10) NOT NULL AUTO_INCREMENT,
+	`bookingid` INT(10) NOT NULL,
+	`documentid` INT(10) NOT NULL,
+	`poddate` DATE NULL DEFAULT NULL,
+	`reference` VARCHAR(60) NULL DEFAULT NULL,
+	`notes` TEXT NULL,
+	`metacreateddate` DATETIME NULL DEFAULT NULL,
+	`metamodifieddate` DATETIME NULL DEFAULT NULL,
+	`metacreateduserid` INT(11) NULL DEFAULT NULL,
+	`metamodifieduserid` INT(11) NULL DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	INDEX `customerid` (`bookingid`)
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=MyISAM
+ROW_FORMAT=DYNAMIC
+AUTO_INCREMENT=448
+;
+
+ALTER TABLE `hallmark_documents`
+	ADD COLUMN `roleid` VARCHAR(50) NULL DEFAULT NULL AFTER `mimetype`,
+	ADD COLUMN `expirydate` VARCHAR(50) NULL DEFAULT NULL AFTER `roleid`;
+
+	
+	ALTER TABLE `hallmark_booking`
+	ADD COLUMN `signatureid` INT(10) NULL DEFAULT NULL AFTER `customerid`;
+	
+	
+20/09/2016
+
+ALTER TABLE `hallmark_customer`
+	ADD COLUMN `imageid` INT(11) NULL DEFAULT NULL AFTER `documentid`;
+
+ALTER TABLE `hallmark_bookingleg`
+	ADD COLUMN `status` VARCHAR(1) NOT NULL AFTER `pallets`,
+	ADD COLUMN `damagedimageid` INT NOT NULL AFTER `status`,
+	ADD COLUMN `damagedtext` TEXT NOT NULL AFTER `damagedimageid`;
+	

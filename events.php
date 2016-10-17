@@ -7,6 +7,17 @@
 	$startdate = ($_GET['from']);
 	$enddate = ($_GET['to']);
 	
+	if ($_GET['mode'] == "V") {
+		$sectionid = "vehicleid";
+
+	} else if ($_GET['mode'] == "D") {
+		$sectionid = "driverid";
+
+	} else if ($_GET['mode'] == "T") {
+		$sectionid = "trailerid";
+	}
+	$json = array();
+	
 	$sql ="SELECT A.id, A.startdatetime, A.enddatetime, A.trailerid, A.driverid, 
 		   A.vehicleid, A.ordernumber, A.bookingtype, A.fromplace, A.toplace, A.legsummary,
 		   B.name AS drivername, 
@@ -25,21 +36,8 @@
 		   ON E.id = A.statusid
 		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer F 
 		   ON F.id = A.customerid 
-		   WHERE (A.startdatetime < '$enddate' AND A.enddatetime > '$startdate') ";
+		   WHERE (A.startdatetime < '$enddate' AND A.enddatetime > '$startdate')";
 	$result = mysql_query($sql);
-	$first = true;
-	$json = array();
-	
-	if ($_GET['mode'] == "V") {
-		$sectionid = "vehicleid";
-
-	} else if ($_GET['mode'] == "D") {
-		$sectionid = "driverid";
-
-	} else if ($_GET['mode'] == "T") {
-		$sectionid = "trailerid";
-	}
-	
 	
 	//Check whether the query was successful or not
 	if($result) {
@@ -53,7 +51,7 @@
 						"textColor" => $member['fgcolour'],
 						"start_date" => $member['startdatetime'],
 						"end_date" => $member['enddatetime'],
-						"text" => $member['customername'] . ": " . $member['legsummary'],
+						"text" => "<span title='Booking: " . getSiteConfigData()->bookingprefix . sprintf("%06d", $member['id'], 6) . "'>" . $member['customername'] . ": " . $member['legsummary'] . "</span>",
 						"section_id" => $member[$sectionid]
 					)
 			);
@@ -183,8 +181,8 @@
 					$json, 
 					array(
 							"id" => "TR" . $member['id'],
-							"color" => "#CCFFCC",
-							"textColor" => "#000000",
+							"color" => "#FF0000",
+							"textColor" => "white",
 							"start_date" => $nstartdate,
 							"end_date" => $nenddate,
 							"text" => "Unavailable (" . $member['name'] . ")",
@@ -219,8 +217,8 @@
 					$json, 
 					array(
 							"id" => "VE" . $member['id'],
-							"color" => "#00FFCC",
-							"textColor" => "#000000",
+							"color" => "#FF0000",
+							"textColor" => "white",
 							"start_date" => $nstartdate,
 							"end_date" => $nenddate,
 							"text" => "Unavailable (" . $member['name'] . ")",

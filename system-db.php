@@ -29,6 +29,7 @@ class SiteConfigClass {
 	public $defaultprofitmargin;
 	public $defaultwagesmargin;
 	public $bookingprefix;
+	public $defaultworktype;
 	public $termsandconditions;
 }
 
@@ -91,6 +92,7 @@ function start_db() {
 					$data->defaultprofitmargin = $member['defaultprofitmargin'];
 					$data->defaultwagesmargin = $member['defaultwagesmargin'];
 					$data->bookingprefix = $member['bookingprefix'];
+					$data->defaultworktype = $member['defaultworktype'];
 					$data->termsandconditions = $member['termsandconditions'];
 					$data->trafficofficetelephone1 = $member['trafficofficetelephone1'];
 					$data->trafficofficetelephone2 = $member['trafficofficetelephone2'];
@@ -175,6 +177,26 @@ function GetUserName($userid = "") {
 		
 		return $name;
 	}
+}
+
+function GetCustomerName($id) {
+	$qry = "SELECT A.name 
+			FROM {$_SESSION['DB_PREFIX']}customer A
+			WHERE A.id = $id";
+	$result = mysql_query($qry);
+	$name = "Unknown";
+
+	//Check whether the query was successful or not
+	if($result) {
+		while (($member = mysql_fetch_assoc($result))) {
+			$name = $member['name'];
+		}
+		
+	} else {
+		logError("$qry - " . mysql_error());
+	}
+	
+	return $name;
 }
 
 function GetEmail($userid) {
@@ -782,7 +804,7 @@ function redirectWithoutRole($role, $location) {
 }
 
 function getEmailHeader() {
-	return "<img src='" . getSiteConfigData()->domainurl . "/images/SmallLogo.png' />";
+	return "<img src='" . getSiteConfigData()->domainurl . "/images/logomain2.png' />";
 }
 
 function getEmailFooter() {
@@ -797,6 +819,20 @@ function getLoggedOnCustomerID() {
 	}
 	
 	return $_SESSION['SESS_CUSTOMER_ID'];
+}
+
+function getLoggedOnDriverID() {
+	start_db();
+	
+	if (! isset($_SESSION['SESS_DRIVER_ID'])) {
+		return 0;
+	}
+	
+	return $_SESSION['SESS_DRIVER_ID'];
+}
+
+function getLoggedOnImageID() {
+	return $_SESSION['SESS_IMAGE_ID'];
 }
 
 function getLoggedOnMemberID() {
@@ -1067,8 +1103,11 @@ function login($login, $password, $redirect = true) {
 			$_SESSION['SESS_MEMBER_ID'] = $member['member_id'];
 			$_SESSION['SESS_FIRST_NAME'] = $member['firstname'];
 			$_SESSION['SESS_LAST_NAME'] = $member['lastname'];
+			$_SESSION['SESS_DRIVER_ID'] = $member['driverid'];
 			$_SESSION['SESS_CUSTOMER_ID'] = $member['customerid'];
 			$_SESSION['SESS_CUSTOMER_NAME'] = $member['name'];
+			$_SESSION['SESS_IMAGE_ID'] = $member['imageid'];
+			
 			
 			$qry = "SELECT * FROM {$_SESSION['DB_PREFIX']}userroles WHERE memberid = " . $_SESSION['SESS_MEMBER_ID'] . "";
 			$result=mysql_query($qry);
@@ -1176,7 +1215,25 @@ function clean($str) {
 	}
 	return mysql_real_escape_string($str);
 }
+
+function isMobileUserAgent() {
+	$result = mysql_query("SELECT id 
+						   FROM {$_SESSION['DB_PREFIX']}useragent
+						   WHERE useragent = '{$_SERVER['HTTP_USER_AGENT']}'"
+		);
 	
+	if ($result) {
+		while (($member = mysql_fetch_assoc($result))) {
+			return true;
+		}
+		
+	} else {
+		logError($qry  . " - " . mysql_error());
+	}
+	
+	return false;
+}
+
 function cache_function($functionname, $arguments = array()) {
 //			$stti = microtime(true);
 	$encoded = md5(json_encode($arguments));

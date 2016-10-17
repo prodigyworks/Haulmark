@@ -1,8 +1,9 @@
 <?php 
 	$mode = "V";
 	
-	include("system-header.php");
-	include("tinymce.php");
+	require_once("system-header.php");
+	require_once("tinymce.php");
+	require_once("bookingscopy.php");
 	
 	function drivermode() {
 		global $mode;
@@ -24,17 +25,17 @@
 	?>
 	<script src='./codebase/dhtmlxscheduler.js' type="text/javascript" charset="utf-8"></script>
 	<script src='./codebase/ext/dhtmlxscheduler_timeline.js' type="text/javascript" charset="utf-8"></script>
-	<script type='text/javascript' src='jsc/jquery.autocomplete.js'></script>
-	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-	<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places" type="text/javascript"></script>
-	<script src="http://www.google.com/uds/api?file=uds.js&v=1.0" type="text/javascript"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&region=EU&key=AIzaSyB1DBBtL19Tc4sz0Nl_tmGa014MeHtqjLI" type="text/javascript"></script>
 	<script src='js/jquery.ui.timepicker.js'></script>
 	<link rel='STYLESHEET' type='text/css' href='./codebase/dhtmlxscheduler_glossy.css'>
 	<link rel="stylesheet" href="./codebase/ext/dhtmlxscheduler_ext.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	<link href="bookingform.css" rel="stylesheet" type="text/css" />
-	<script src='bookingscriptlibrary-20160710.js' type="text/javascript" charset="utf-8"></script>
+	<script src='bookingscriptlibrary-20160712.js' type="text/javascript" charset="utf-8"></script>
 	
 	<style type="text/css" media="screen">
+		div[aria-labelledby=ui-dialog-title-keydialog] {
+			opacity: 0.6 ! important;
+		}
 		.keyblock {
 			width:10px;
 			height:10px;
@@ -46,7 +47,6 @@
 			padding-top:5px; padding-left:5px;
 			text-align:left !important;
 		}
-		
 		.dhx_cal_event_line  {
 			font-size:11px;
 			line-height:12px;
@@ -56,7 +56,15 @@
 	<script type="text/javascript" charset="utf-8">
 		var counter = 1;
 		var map = null;
-
+		var timemode = "D";
+		
+<?php
+		if (isset($_POST['pk2'])) {
+?>
+		timemode = "<?php echo $_POST['pk2']; ?>";
+<?php
+		}
+?>
 		function getDMYDate(txtDate) {
 			var day = txtDate.substring(0, 2) - 0;      
 			var month= txtDate.substring(3, 5) - 1; // because months in JS start from 0     
@@ -68,7 +76,8 @@
 
 		    geocoder.geocode(
 		    		{ 
-		    			'address' : address 
+		    			'address': address,
+		    			componentRestrictions: {country: 'UK'}
 		    		}, 
 		    		function( results, status ) {
 				        if (status == google.maps.GeocoderStatus.OK ) {
@@ -179,11 +188,67 @@
 					}
 ?>
 
+					$("#xweek_tab").click(
+							function(e) {
+								call("vehiclemode", {
+										pk1: dateToDMY(scheduler.getState().date),
+										pk2: "W"
+									});
+							}
+						);
+					
+					$("#xday_tab").click(
+							function(e) {
+								call("vehiclemode", {
+										pk1: dateToDMY(scheduler.getState().date),
+										pk2: "D"
+									});
+							}
+						);
+					
 					$("#btnPrevPrices").click(
 							function() {
 								showPreviousPrices();
 							}
 						);
+					
+					$("#copyDialog").dialog({
+						autoOpen: false,
+						modal: true,
+						width: 400,
+						title: "Copy",
+						buttons: {
+							"Copy": function() {
+								if (verifyStandardForm("#copyform")) {
+									$.ajax({
+											url: "copybooking.php",
+											dataType: 'json',
+											async: false,
+											data: { 
+												id: $("#bookingid").val(),
+												date: $("#copydate").val(),
+												time: $("#copytime").val(),
+												vehicleid: $("#copyvehicleid").val(),
+												ordernumber: $("#copyordernumber").val()
+											},
+											type: "POST",
+											error: function(jqXHR, textStatus, errorThrown) {
+												pwAlert("ERROR :" + errorThrown);
+											},
+											success: function(data) {
+											}
+										});
+																			
+									updateBooking();
+									
+									$("#copyDialog").dialog("close");
+								}
+							},
+							Cancel: function() {
+								$(this).dialog("close");
+							}
+						}
+					});
 					
 					$("#prevPriceDialog").dialog({
 						autoOpen: false,
@@ -193,6 +258,7 @@
 						buttons: {
 							"Select": function() {
 								$("#charge").val($("input[type='radio'][name='pricecheck']:checked").val());
+								$("#fixedprice").attr("checked", true);
 								$(this).dialog("close");
 							},
 							Cancel: function() {
@@ -263,11 +329,22 @@
 							overlay: { opacity: 0.3, background: "white" },
 							title: "Booking",
 							buttons: {
-								"Print": function() {
+								"Copy": function() {
+									$("#copydate").val("<?php echo date("d/m/Y"); ?>");
+									$("#copytime").val("<?php echo date("H:m"); ?>");
+									$("#copyvehicleid").val("0");
+									$("#copyordernumber").val("");
+									$("#copyDialog").dialog("open");
+								},
+								"Delivery Note": function() {
 									window.open("deliverynotereport.php?id=" + $("#bookingid").val());
 								},
 								"Save": function() {
 									if (! verifyStandardForm("#bookinginnerform")) {
+										return;
+									}
+
+									if (! validateForm($("#bookingid").val())) {
 										return;
 									}
 
@@ -298,7 +375,7 @@
 									callAjax(
 											"removeschedule.php", 
 											{ 
-												id: $("#eventid").val()
+												id: $("#bookingid").val()
 											},
 											function(data) {
 											},
@@ -325,9 +402,11 @@
 							title: "Completion Confirmation",
 							buttons: {
 								"Continue": function() {
-									updateBooking();
-									
-									$("#bookingdialog").dialog("close");
+									if ($("#priceagreed").val() == "Y") {
+										updateBooking();
+										$("#bookingdialog").dialog("close");
+									}
+
 									$(this).dialog("close");
 								},
 								Cancel: function() {
@@ -346,6 +425,9 @@
 					$("#maintenanceoverhead").change(calculateRate2);
 					$("#wages").change(calculateRate2);
 					$("#driverid").change(driverid_onchange);
+					$("#worktypeid").change(worktypeid_onchange);
+
+					setupEvents();
 				}
 			);
 
@@ -384,8 +466,10 @@
 						vehicletypeid: $("#vehicletypeid").val(),
 						trailerid: $("#trailerid").val(),
 						drivername: $("#drivername").val(),
+						agencyvehicleregistration: $("#agencyvehicleregistration").val(),
 						driverphone: $("#driverphone").val(),
 						worktypeid: $("#worktypeid").val(),
+						nominalledgercodeid: $("#nominalledgercodeid").val(),
 						loadtypeid: $("#loadtypeid").val(),
 						ordernumber: $("#ordernumber").val(),
 						ordernumber2: $("#ordernumber2").val(),
@@ -395,7 +479,7 @@
 						weight: $("#weight").val(),
 						rate: $("#rate").val(),
 						charge: $("#charge").val(),
-						notes: $("#notes").val(),
+						notes: tinyMCE.get("notes").getContent(),
 						startdatetime: $("#startdatetime").val(),
 						startdatetime_time: $("#startdatetime_time").val(),
 						fromplace: $("#fromplace").val(),
@@ -423,9 +507,9 @@
 			modSchedHeight();
 			
 			scheduler.locale.labels.timeline_tab = "Timeline";
+			scheduler.locale.labels.xweek_tab = "Weekly";
+			scheduler.locale.labels.xday_tab = "Daily";
 			scheduler.locale.labels.section_custom="Section";
-			scheduler.config.details_on_create=true;
-			scheduler.config.details_on_dblclick=true;
 			scheduler.config.xml_date="%Y-%m-%d %H:%i";
 			
 			scheduler.config.first_hour = 6;
@@ -436,18 +520,27 @@
 			var sections=[
 <?php 
 				if ($mode == "V") {
-					$sql = "SELECT id, registration AS name FROM {$_SESSION['DB_PREFIX']}vehicle ORDER BY registration";
+					$sql = "SELECT A.id, CONCAT(B.name, CONCAT(' - ', A.registration)) AS name 
+							FROM {$_SESSION['DB_PREFIX']}vehicle A 
+							INNER JOIN {$_SESSION['DB_PREFIX']}vehicletype B 
+							ON B.id = A.vehicletypeid 
+							WHERE A.active = 'Y' 
+							ORDER BY B.code, A.registration";
 
 				} else if ($mode == "T") {
-					$sql = "SELECT id, registration AS name FROM {$_SESSION['DB_PREFIX']}trailer ORDER BY registration";
+					$sql = "SELECT id, registration AS name 
+							FROM {$_SESSION['DB_PREFIX']}trailer 
+							ORDER BY registration";
 					
 				} else if ($mode == "D") {
-					$sql = "SELECT id, code AS name FROM {$_SESSION['DB_PREFIX']}driver ORDER BY agencydriver, code";
+					$sql = "SELECT id, CASE WHEN agencydriver = 'Y' THEN CONCAT('(Agency) - ', name) ELSE name END name 
+							FROM {$_SESSION['DB_PREFIX']}driver 
+							ORDER BY agencydriver, name";
 				}
 				
 				$result = mysql_query($sql);
 				$first = true;
-			
+				
 				//Check whether the query was successful or not
 				if($result) {
 					while (($member = mysql_fetch_assoc($result))) {
@@ -464,44 +557,91 @@
 		
 ?>
 			];
-				
-			scheduler.createTimelineView({
-				name:	"timeline",
-				x_unit:	"minute",
-				x_date:	"%H:%i",
-				x_step:	60,
-				x_size: 24,
-				x_start: 0,
-				x_length:	24,
-				y_unit:	sections,
-				y_property:	"section_id",
-				render:"bar"
-			});
+
+			if (timemode == "D") {
+				scheduler.createTimelineView({
+						name:	"timeline",
+						x_unit:	"minute",
+						x_date:	"%H:%i",
+						x_step:	60,
+						x_size: 24,
+						x_start: 0,
+						x_length:	24,
+						y_unit:	sections,
+						y_property:	"section_id",
+						render:"bar"
+					});
+
+			} else {
+				scheduler.createTimelineView({
+						name:	"timeline",
+						x_unit:"day",//measuring unit of the X-Axis.
+					    x_date:"%D %d %M %y", //date format of the X-Axis
+					    x_step:1,      //X-Axis step in 'x_unit's
+					    x_size:7,      //X-Axis length specified as the total number of 'x_step's
+					    x_start:0,     //X-Axis offset in 'x_unit's
+					    x_length:7,    //number of 'x_step's that will be scrolled at a time
+						y_unit:	sections,
+						y_property:	"section_id",
+						render:"bar"
+					});
+			}
 
 			scheduler.locale.labels.timeline_tab = "Timeline";
 			scheduler.locale.labels.section_custom="Section";
 			scheduler.config.details_on_create=false;
 			scheduler.config.dblclick_create = false;
-			scheduler.config.drag_in = false;	      	
+//			scheduler.config.drag_in = false;	      	
 			
 			scheduler.attachEvent("onBeforeViewChange", function (old_mode, old_date, mode, date) {
 			    if (old_mode != mode || +old_date != +date)
 			        scheduler.clearAll();
 			    return true;
 			});
-			scheduler.attachEvent("onBeforeDrag",function(){return false;})
-	      	scheduler.attachEvent("onDblClick",function(){return false;})
+			scheduler.attachEvent("onBeforeEventCreated",function(){return false;})
+			scheduler.attachEvent("onEventChanged", function(id,ev){
+					var startDate = dateToDMYHM(ev.start_date);
+					var endDate = dateToDMYHM(ev.end_date);
+
+					callAjax(
+							"updatebookingevent.php", 
+							{ 
+								startdate: startDate,
+								enddate: endDate,
+								id: id,
+								sectionid: ev.section_id,
+								mode: "<?php echo $mode; ?>"
+							},
+							function(data) {
+							}
+						);
+				});
+			scheduler.attachEvent("onDblClick",function(){return false;})
 	      	scheduler.attachEvent("onClick",function(parentnode) {
 				callAjax(
 						"finddata.php", 
 						{ 
-							sql: "SELECT A.* " + 
+							sql: "SELECT A.*, B.street, B.address2, B.town, B.city, B.county, B.postcode, B.telephone " + 
 								 "FROM <?php echo $_SESSION['DB_PREFIX']; ?>booking A " +
-								 "WHERE id = " + parentnode
+								 "LEFT OUTER JOIN <?php echo $_SESSION['DB_PREFIX']; ?>customer B " +
+								 "ON B.id = A.customerid " +
+								 "WHERE A.id = " + parentnode
 						},
 						function(data) {
 							if (data.length == 1) {
 								var node = data[0];
+								var address = node.street;
+
+								if (node.address2 != null && node.address2 != "") address += "<br>" + node.address2;
+								if (node.town != null && node.town != "") address += "<br>" + node.town;
+								if (node.city != null && node.city != "") address += "<br>" + node.city;
+								if (node.county != null && node.county != "") address += "<br>" + node.county;
+								if (node.postcode != null && node.postcode != "") address += "<br>" + node.postcode;
+
+								address += "<br><b>Tel:</b>" + node.telephone;
+
+								$("#ui-dialog-title-bookingdialog").html("<i>Booking Number</i> : <b><?php echo getSiteConfigData()->bookingprefix; ?>" + padZero(node.id, 6) + "</b>");
+								$(".address").html(address);
 
 								$("#bookingid").val(parentnode);
 								$("#customerid").val(node.customerid);
@@ -519,12 +659,13 @@
 								$("#vehicletypeid").val(node.vehicletypeid);
 								$("#trailerid").val(node.trailerid);
 								$("#drivername").val(node.drivername);
+								$("#agencyvehicleregistration").val(node.agencyvehicleregistration);
 								$("#driverphone").val(node.driverphone);
 								$("#worktypeid").val(node.worktypeid);
+								$("#nominalledgercodeid").val(node.nominalledgercodeid);
 								$("#loadtypeid").val(node.loadtypeid);
 								$("#ordernumber").val(node.ordernumber);
 								$("#ordernumber2").val(node.ordernumber2);
-								$("#notes").val(node.notes);
 
 								$("#startdatetime").val(node.startdatetime.substring(0, 10));
 								$("#startdatetime_time").val(node.startdatetime.substring(11, 16));
@@ -532,7 +673,7 @@
 								$("#enddatetime").val(node.enddatetime.substring(0, 10));
 								$("#enddatetime_time").val(node.enddatetime.substring(11, 16));
 								$("#toplace").val(node.fromplace);
-								
+
 								$(".pointcontainer").remove();
 								
 								counter = 1;
@@ -553,6 +694,22 @@
 									$("#bookinginnerform select").attr("disabled", false);
 									$("#bookinginnerform .bookingbutton").show();
 									$("#bookinginnerform .pointimage").show();
+
+									day = $("#startdatetime").val().substring(0, 2) - 0;      
+									month= $("#startdatetime").val().substring(3, 5) - 1; // because months in JS start from 0     
+									year = $("#startdatetime").val().substring(6, 10) - 0; 
+
+									var startSeconds = (new Date(year, month, day)).getTime();      
+									var startToday = (new Date(<?php echo date("Y"); ?>, <?php echo date("m") - 1; ?>, <?php echo date("d"); ?>)).getTime();      
+
+									if (node.statusid < 7 && (startToday < startSeconds)) {
+										$("#statusid option[value='6']").attr("disabled", true);
+										$("#statusid option[value='7']").attr("disabled", true);
+										
+									} else {
+										$("#statusid option[value='6']").attr("disabled", false);
+										$("#statusid option[value='7']").attr("disabled", false);
+									}
 								}
 								
 								$("#memberid").attr("disabled", true);
@@ -560,6 +717,7 @@
 								fetchOverHeadRates();
 							
 								driverid_onchange();
+								vehicleid_onchange();
 
 								$("#miles").val(node.miles);
 								$("#duration").val(node.duration);
@@ -567,6 +725,10 @@
 								$("#weight").val(node.weight);
 								$("#rate").val(node.rate);
 								$("#charge").val(node.charge);
+
+								$("#fixedprice").attr("checked", node.fixedprice == 1);
+
+								tinyMCE.get("notes").setContent(node.notes);
 							}
 						},
 						false
@@ -576,40 +738,6 @@
 		      		
 			      	return false;
 		      	});
-	      	scheduler.attachEvent("onClick",function(){return false;})
-
-//			
-//			scheduler.attachEvent("onBeforeEventChanged", function(ev, e, is_new){
-//			    //any custom logic here
-//			    var strStartDate, strEndDate;
-//
-//			    strStartDate = padZero(ev.start_date.getDate());
-//			    strStartDate += "/" + padZero(ev.start_date.getMonth() + 1);
-//			    strStartDate += "/" + (1900 + ev.start_date.getYear());
-//			    strStartDate += " " + padZero(ev.start_date.getHours());
-//			    strStartDate += ":" + padZero(ev.start_date.getMinutes());
-//			    
-//			    strEndDate = padZero(ev.end_date.getDate());
-//			    strEndDate += "/" + padZero(ev.end_date.getMonth() + 1);
-//			    strEndDate += "/" + (1900 + ev.end_date.getYear());
-//			    strEndDate += " " + padZero(ev.end_date.getHours());
-//			    strEndDate += ":" + padZero(ev.end_date.getMinutes());
-//			    
-//				callAjax(
-//						"updatebooking.php", 
-//						{ 
-//							id: ev.id,
-//							sectionid: ev.section_id,
-//							startdate: strStartDate,
-//							enddate: strEndDate
-//						},
-//						function(data) {
-//						}
-//					);
-//
-//			    return true;
-//			    
-//			});			
 			
 			//===============
 			//Data loading
@@ -634,24 +762,61 @@
 		
 		function modSchedHeight(){
 			var sch = document.getElementById("scheduler_here");
-			sch.style.height = (document.body.offsetHeight - 20) + "px";
+			sch.style.height = ( $("body").attr("offsetHeight") - 220) + "px";
 			var contbox = document.getElementById("contbox");
 			contbox.style.width = (parseInt(document.body.offsetWidth)-300)+"px";
 		}
 
 		function drivermode() {
-			call("drivermode", {pk1: dateToDMY(scheduler.getState().date)});
+			call("drivermode", {
+					pk1: dateToDMY(scheduler.getState().date),
+					pk2: timemode
+				});
 		}
 
 		function trailermode() {
-			call("trailermode", {pk1: dateToDMY(scheduler.getState().date)});
+			call("trailermode", {
+					pk1: dateToDMY(scheduler.getState().date),
+					pk2: timemode
+				});
 		}
 
 		function vehiclemode() {
-			call("vehiclemode", {pk1: dateToDMY(scheduler.getState().date)});
+			call("vehiclemode", {
+					pk1: dateToDMY(scheduler.getState().date),
+					pk2: timemode
+				});
 		}
 	</script>
 	<div id="map_canvas" class="modal"></div>
+	<div id="copyDialog" class="modal">
+		<form id="copyform">
+			<table cellpadding=5 cellspacing=5 style="table-layout: fixed" width=400>
+				<tr>
+					<td width='90px'>Start Date / Time</td>
+					<td>
+						<input id="copydate" name="copydate" class="datepicker" required="true" />
+						<span></span>
+						<input id="copytime" name="copytime" class="timepicker" required="true" />
+						<span></span>
+					</td>
+				</tr>
+				<tr>
+					<td width='90px'>Vehicle</td>
+					<td>
+						<?php createCombo("copyvehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'", false); ?>
+						<span></span>
+					</td>
+				</tr>
+				<tr>
+					<td width='90px'>Order Number</td>
+					<td>
+						<input type="text" style="width:120px" id="copyordernumber" name="copyordernumber" />
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
 	<div id="keydialog" class="modal">
 		<table width='220px'>
 <?php 			
@@ -706,7 +871,7 @@
 		<input type="text" id="bookingdate" class="modal"></span>
 	</div>
 	<div id="prevPriceDialog" class="modal">
-		<div id="prevPriceDiv">
+		<div id="prevPriceDiv" class="crudentryform">
 		</div>
 	</div>
 	<div id="rateCardDialog" class="modal">
@@ -714,9 +879,9 @@
 			<iframe id="rateCardIframe" src="about:blank" frameborder=1 style='width:760px;height:510px'></iframe>
 		</div>
 	</div>
-	<div onclick="drivermode()" style="font-size:11px; position:absolute; left:360px; top:62px; z-index:100" class="dhx_cal_today_button">&nbsp;&nbsp;Drivers</div>
-	<div onclick="vehiclemode()" style="font-size:11px; position:absolute; left:430px; top:62px; z-index:100" class="dhx_cal_today_button">&nbsp;Vehicles</div>
-	<div onclick="trailermode()" style="font-size:11px; position:absolute; left:500px; top:62px; z-index:100" class="dhx_cal_today_button">&nbsp;Trailers</div>
+	<div onclick="drivermode()" style="font-size:11px; position:absolute; left:360px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "D") echo "active"; ?>">&nbsp;&nbsp;Drivers</div>
+	<div onclick="vehiclemode()" style="font-size:11px; position:absolute; left:430px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "V") echo "active"; ?>">&nbsp;Vehicles</div>
+	<div onclick="trailermode()" style="font-size:11px; position:absolute; left:500px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "T") echo "active"; ?>">&nbsp;Trailers</div>
 	<div style="height:0px;background-color:#3D3D3D;border-bottom:5px solid #828282;">
 		<div id="contbox" style="float:left;color:white;margin:22px 75px 0 75px; overflow:hidden;font: 17px Arial,Helvetica;color:white">
 		</div>
@@ -728,8 +893,9 @@
 			<div class="dhx_cal_next_button">&nbsp;</div>
 			<div class="dhx_cal_today_button"></div>
 			<div class="dhx_cal_date"></div>
-			<div class="dhx_cal_tab" name="day_tab" style="right:215px;"></div>
+			<div class="dhx_cal_tab2" id="xday_tab" name="xday_tab" style="right:215px;"></div>
 			<div class="dhx_cal_tab" name="timeline_tab" style="right:280px;"></div>
+			<div class="dhx_cal_tab2" id="xweek_tab" name="xweek_tab" style="right:150px;"></div>
 		</div>
 		<div class="dhx_cal_header">
 		</div>

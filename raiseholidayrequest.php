@@ -7,9 +7,9 @@
 	<form id="manualeditform" action="addholiday.php" method="POST">
 		<table width='100%' style='table-layout:fixed' cellspacing=5>
 			<tr>
-				<td width='200px'>Driver</td>
+				<td width='200px'>Staff Member</td>
 				<td>
-					<?php createCombo("memberid", "id", "name", "{$_SESSION['DB_PREFIX']}driver"); ?>
+					<?php createCombo("memberid", "member_id", "fullname", "{$_SESSION['DB_PREFIX']}members"); ?>
 				</td>
 			</tr>
 			<tr>

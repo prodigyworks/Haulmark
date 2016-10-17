@@ -3,11 +3,6 @@
 	
 	class ProductCrud extends Crud {
 		
-		/* Post header event. */
-		public function postHeaderEvent() {
-			createDocumentLink();
-		}
-		
 		public function postEditScriptEvent() {
 ?>
 			$("#groupcode").css("font-style", "");
@@ -28,8 +23,7 @@
 <?php
 		}		
 		
-		public function postInsertEvent() {
-			$id = mysql_insert_id();
+		public function postInsertEvent($id) {
 			$groupcode = getSiteConfigData()->productgroupprefix . $id;
 			$productcode = getSiteConfigData()->productcodeprefix . $id;
 			$sql = "UPDATE {$_SESSION['DB_PREFIX']}product SET 
@@ -41,20 +35,15 @@
 				logError($sql . " - " . mysql_error(), false);
 			}
 		}
-		
-		public function postScriptEvent() {
-?>
-			function editDocuments(node) {
-				viewDocument(node, "addproductdocument.php", node, "productdocs", "productid");
-			}
-	
-<?php			
-		}
 	}
 	
 	$crud = new ProductCrud();
 	$crud->dialogwidth = 800;
 	$crud->title = "Products";
+	$crud->document = array(
+			'primaryidname'	 => 	"productid",
+			'tablename'		 =>		"productdocs"
+		);
 	$crud->table = "{$_SESSION['DB_PREFIX']}product";
 	$crud->sql = "SELECT A.*, B.name AS suppliername
 				  FROM  {$_SESSION['DB_PREFIX']}product A
@@ -141,11 +130,6 @@
 		);
 
 	$crud->subapplications = array(
-			array(
-				'title'		  => 'Documents',
-				'imageurl'	  => 'images/document.gif',
-				'script' 	  => 'editDocuments'
-			),
 			array(
 				'title'		  => 'Price Breaks',
 				'imageurl'	  => 'images/document.gif',

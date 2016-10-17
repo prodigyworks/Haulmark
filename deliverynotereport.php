@@ -68,7 +68,7 @@
 			$this->Line(10, $y + 5, 200, $y + 5);
 				
 			$top = $y;
-			$y = 165;
+			$y = 185;
 			$this->Line(10, $y - 2, 200, $y - 2);
 				
 			$this->addText(15, $y, "Weight", 10, 4.5, 'B', 80);
@@ -149,11 +149,14 @@
 					$startdate = $member['startdate'];
 					$starttime = $member['starttime'];
 					$fromplace = $member['toplace'];
-					$first = true;
+					$pagenumber = 1;
 					
 					if ($itemresult) {
 						while (($itemmember = mysql_fetch_assoc($itemresult))) {
-							if (! $first) {
+							if ($pagenumber == 1) {
+								/* Do nothing. */
+								
+							} else if ($pagenumber == 2) {
 								$this->newPage();
 								
 								$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
@@ -161,28 +164,61 @@
 								$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
 								$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
 								$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
-								$y = $this->addText(60, $y, $starttime, 10, 4.5, '', 80) + 4;
+								$y = $this->addText(60, $y, $starttime, 10, 4.5, '', 80);
+								$this->addText(15, $y, "Reference", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $reference, 10, 4.5, '', 80);
+								$this->addText(15, $y, "Phone", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $phone, 10, 4.5, '', 80) + 4;
 								
 			 					$this->addText(15, $y, "Delivery", 10, 4.5, 'B', 80);
 			 					$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 80);
 								$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
 								$y = $this->addText(60, $y, $itemmember['startdate'], 10, 4.5, '', 80);
 								$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
-								$y = $this->addText(60, $y, $itemmember['starttime'], 10, 4.5, '', 80) + 5;
+								$y = $this->addText(60, $y, $itemmember['starttime'], 10, 4.5, '', 80);
+								$this->addText(15, $y, "Reference", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $itemmember['reference'], 10, 4.5, '', 80);
+								$this->addText(15, $y, "Phone", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $itemmember['phone'], 10, 4.5, '', 80) + 5;
+								
+							} else {
+								$this->newPage();
+								
+			 					$this->addText(15, $y, "Delivery", 10, 4.5, 'B', 80);
+			 					$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 80);
+								$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $itemmember['startdate'], 10, 4.5, '', 80);
+								$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $itemmember['starttime'], 10, 4.5, '', 80);
+								$this->addText(15, $y, "Reference", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $itemmember['reference'], 10, 4.5, '', 80);
+								$this->addText(15, $y, "Phone", 10, 4.5, 'B', 80);
+								$y = $this->addText(60, $y, $itemmember['phone'], 10, 4.5, '', 80) + 5;
 							}
 							
 							$startdate = $itemmember['startdate'];
 							$starttime = $itemmember['starttime'];
 							$fromplace = $itemmember['place'];
+							$reference = $itemmember['reference'];
+							$phone = $itemmember['phone'];
 							
-							if ($first) {
-								$first = false;
-							}
+							$pagenumber++;
 						}
 					
 					} else {
 						logError($sql . " - " . mysql_error());
 					}
+					
+//					if (! $first) {
+//						$this->newPage();
+//						
+//						$this->addText(15, $y, "Delivery", 10, 4.5, 'B', 80);
+//						$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 80);
+//						$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
+//						$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
+//						$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
+//						$y = $this->addText(60, $y, $starttime, 10, 4.5, '', 80) + 4;
+//					}
 				}
 				
 			} else {

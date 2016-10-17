@@ -33,6 +33,13 @@
 		$customerid = 0;
 	}
 	
+	if (isset($_POST['driverid'])) {
+		$driverid = $_POST['driverid'];
+		
+	} else {
+		$driverid = 0;
+	}
+	
 	$mobile = "";
 	
 	//Input Validations
@@ -107,12 +114,14 @@
 				(
 					firstname, lastname, login, passwd, fullname, 
 					email, imageid, accepted, guid, status, customerid,
+					driverid,
 					metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid
 				) 
 				VALUES
 				(
 					'$fname','$lname','$login', '$md5passwd', '$fullname', 
 					'$email', $imageid, 'Y', '$guid', 'Y', $customerid,
+					$driverid,
 					NOW(), $currentmemberid, NOW(), $currentmemberid
 				)";
 		$result = @mysql_query($qry);
@@ -198,6 +207,10 @@
 
 		if (! $result) {
 			logError("UPDATE members failed:" . mysql_error());
+		}
+		
+		if (isset($_FILES['imageid'])) {
+			$_SESSION['SESS_FIRST_IMAGE'] = $imageid;
 		}
 		
 		$_SESSION['SESS_FIRST_NAME'] = $fname;

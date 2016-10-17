@@ -18,7 +18,7 @@
 		$where .= "AND A.vehicletypeid = $vehicletypeid ";
 	}
 	
-	$sql = "SELECT A.id, A.pallets, A.charge, B.name, C.name AS customername
+	$sql = "SELECT A.id, A.pallets, A.charge, A.legsummary, B.name, C.name AS customername
 			FROM {$_SESSION['DB_PREFIX']}booking A
 			INNER JOIN {$_SESSION['DB_PREFIX']}vehicletype B
 			ON B.id = A.vehicletypeid
@@ -50,23 +50,7 @@
 			$customer = $member['customername'];
 			$price = $member['charge'];
 			$name = $member['name'];
-			$journey = "";
-			
-			$sql = "SELECT place
-					FROM {$_SESSION['DB_PREFIX']}bookingleg
-					WHERE bookingid = $id";
-			
-			$itemresult = mysql_query($sql);
-			
-			if ($itemresult) {
-				while (($itemmember = mysql_fetch_assoc($itemresult))) {
-					if ($journey != "") {
-						$journey .= " -> ";
-					}
-					
-					$journey .= $itemmember['place'];
-				}
-			}
+			$journey = $member['legsummary'];
 			
 			echo 	"<TR>
 						<TD align='center'>

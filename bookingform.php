@@ -1,9 +1,40 @@
+<style>
+    .bookingnumber_div {
+    	position: absolute;
+    	font-size:17px;
+    	top: 10px;
+    	width:400px;
+    	height:20px;
+    	left: 520px;
+    	text-align:right;
+    }
+    .address {
+		box-shadow: 5px 5px 5px #888888;
+    	padding:5px;
+    	text-align: left;
+    	border:1px solid grey;
+    	border-radius: 13px;
+    	font-size:12px;
+    	width:400px;
+    	height:120px;
+    	background-color: white;
+    }
+</style>
+<div class="bookingnumber_div">
+</div>
+
 <table width="100%" cellpadding="0" cellspacing="4" class="entryformclass">
 	<tbody>
 		<tr valign="center">
 			<td>Customer</td>
 			<td>
 				<?php createCombo("customerid", "id", "name", "{$_SESSION['DB_PREFIX']}customer", "", true); ?>
+			</td>
+			<td rowspan=8 align='right'>
+				<div class="address">
+					<div>
+					</div>
+				</div>
 			</td>
 		</tr>
 		<tr valign="center">
@@ -19,24 +50,31 @@
 			</td>
 		</tr>
 		<tr valign="center">
-			<td>Driver / Agency</td>
-			<td>
-				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver", "", false, false, array(), true, "agencydriver, name"); ?>
-				<input type="hidden" id="agencydriver" name="agencydriver">
-				<input type="hidden" id="bookingid" name="bookingid">
-				<input type="hidden" id="originalstatusid" name="originalstatusid">
-			</td>
-		</tr>
-		<tr valign="center">
 			<td>Vehicle Type</td>
 			<td>
-				<?php createCombo("vehicletypeid", "id", "name", "{$_SESSION['DB_PREFIX']}vehicletype", "", false); ?>
+				<?php createCombo("vehicletypeid", "id", "name", "{$_SESSION['DB_PREFIX']}vehicletype", "", true, false, array(), true, "code"); ?>
 			</td>
 		</tr>
 		<tr valign="center">
 			<td>Vehicle</td>
 			<td>
 				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'",  false); ?>
+			</td>
+		</tr>
+		<tr class="agencyvehiclerow">
+			<td>Registration</td>
+			<td>
+				<input type="text" style="width:120px" id="agencyvehicleregistration" name="agencyvehicleregistration"><div class="bubble" title="Required field"></div>
+			</td>
+		</tr>
+		<tr valign="center">
+			<td>Driver / Agency</td>
+			<td>
+				<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "", false, false, array(), true, "agencydriver, name"); ?>
+				<input type="hidden" id="agencydriver" name="agencydriver">
+				<input type="hidden" id="bookingid" name="bookingid">
+				<input type="hidden" id="originalstatusid" name="originalstatusid">
+				<label id="driverphonenumber"></label>
 			</td>
 		</tr>
 		<tr valign="center">
@@ -54,7 +92,7 @@
 		<tr class="drivernamerow">
 			<td>Driver Phone</td>
 			<td>
-				<input type="text" style="width:220px" id="driverphone" name="driverphone"><div class="bubble" title="Required field"></div>
+				<input type="tel" style="width:220px" id="driverphone" name="driverphone"><div class="bubble" title="Required field"></div>
 			</td>
 		</tr>
 		<tr valign="center">
@@ -64,14 +102,8 @@
 			</td>
 		</tr>
 		<tr valign="center">
-			<td>Load Type</td>
-			<td>
-				<?php createCombo("loadtypeid", "id", "name", "{$_SESSION['DB_PREFIX']}loadtype", "", true); ?>
-			</td>
-		</tr>
-		<tr valign="center">
 			<td>Order Number</td>
-			<td>
+			<td colspan=2>
 				<input required="true" type="text" style="width:120px" id="ordernumber" name="ordernumber"><div class="bubble" title="Required field"></div>
 			</td>
 		</tr>
@@ -85,7 +117,7 @@
 			<td>
 				&nbsp;
 			</td>
-			<td>
+			<td colspan=2>
 				<table style="table-layout:fixed" width='700px'>
 					<tr>
 						<td style="width:310px"><b>Destination</b></td>
@@ -99,14 +131,14 @@
 		</tr>
 		<tr valign="center">
 			<td>Collection Point</td>
-			<td>
-				<div id="tolocationdiv">
+			<td colspan=2>
+				<div id="tolocationdiv" class="bookingjourneys">
 					<div>
 						<input required="true" type="text" style="width:300px" id="fromplace" name="fromplace" placeholder="Enter a location" onchange="calculateTimeNode(this, 1)"   autocomplete="off">&nbsp;
-						<input class="datepicker" required="true" type="text" index='0' id="startdatetime"  onchange="calculateTimeNode(this, 1)" name="startdatetime" ><div class="bubble" title="Required field"></div>
-						<input class="timepicker" required="true" type="text" index='0' id="startdatetime_time" onchange="calculateTimeNode(this, 1)"   name="startdatetime_time"><div class="bubble" title="Required field"></div>
+						<input class="datepicker bookingdateclass" required="true" type="text" index='0' id="startdatetime"  onchange="calculateTimeNode(this, 1)" name="startdatetime" ><div class="bubble" title="Required field"></div>
+						<input class="timepicker bookingtimeclass" required="true" type="text" index='0' id="startdatetime_time" onchange="calculateTimeNode(this, 1)"   name="startdatetime_time"><div class="bubble" title="Required field"></div>
 						<input type="text" style="width:200px" id="fromplace_ref" name="fromplace_ref">
-						<input type="text" style="width:80px" id="fromplace_phone" name="fromplace_phone">
+						<input type="tel" style="width:80px" id="fromplace_phone" name="fromplace_phone">
 						&nbsp;<img src="images/add.png" class='pointimage' onclick="addPointBetweenNodes()"></img>
 					</div>
 				</div>
@@ -114,36 +146,38 @@
 		</tr>
 		<tr valign="center">
 			<td>Return To</td>
-			<td>
-				<input required="true" type="text" style="width:300px" id="toplace" name="toplace" placeholder="Enter a location" onchange="calculateTimeNode(this, 1)"  autocomplete="off">&nbsp;
-				<input class="datepicker" required="true" type="text" id="enddatetime" name="enddatetime" onchange="calculateTimeNode(this, 1)"  ><div class="bubble" title="Required field"></div>
-				<input class="timepicker" required="true" type="text" id="enddatetime_time" name="enddatetime_time"><div class="bubble" title="Required field"></div>
-				<input type="text" style="width:200px" id="toplace_ref" name="toplace_ref">
-				<input type="text" style="width:80px" id="toplace_phone" name="toplace_phone">
+			<td colspan=2>
+				<div class="bookingjourneys">
+					<input required="true" type="text" style="width:300px" id="toplace" name="toplace" placeholder="Enter a location" onchange="calculateTimeNode(this, 1)"  autocomplete="off">&nbsp;
+					<input class="datepicker bookingdateclass" required="true" type="text" id="enddatetime" name="enddatetime" onchange="calculateTimeNode(this, 1)"  ><div class="bubble" title="Required field"></div>
+					<input class="timepicker bookingtimeclass" required="true" type="text" id="enddatetime_time" name="enddatetime_time"><div class="bubble" title="Required field"></div>
+					<input type="text" style="width:200px" id="toplace_ref" name="toplace_ref">
+					<input type="tel" style="width:80px" id="toplace_phone" name="toplace_phone">
+				</div>
 				
 			</td>
 		</tr>
 		<tr valign="center">
 			<td>Distance (Miles)</td>
-			<td>
+			<td colspan=2>
 				<input required="true" type="text" style="width:72px" id="miles" name="miles"><div class="bubble" title="Required field"></div>
 			</td>
 		</tr>
 		<tr valign="center">
 			<td>Duration</td>
 			<td>
-				<input required="true" type="text" style="width:72px" id="duration" name="duration"><div class="bubble" title="Required field"></div>
-			</td>
+				<input required="true" type="number" style="width:72px" id="duration" name="duration"><div class="bubble" title="Required field"></div>
+			</td colspan=2>
 		</tr>
 		<tr valign="center">
 			<td>Pallets</td>
 			<td>
-				<input required="false" type="text" style="width:72px" id="pallets" name="pallets"><div class="bubble" title="Required field"></div>
-			</td>
+				<input type="number" style="width:72px" id="pallets" name="pallets"><div class="bubble" title="Required field"></div>
+			</td colspan=2>
 		</tr>
 		<tr valign="center">
 			<td>Total Weight</td>
-			<td>
+			<td colspan=2>
 				<input required="true" type="text" style="width:72px" id="weight" name="weight"> (Kg)
 				<input type="hidden" id="vehiclecostoverhead" name="vehiclecostoverhead">
 				<input type="hidden" id="allegrodayrate" name="allegrodayrate">
@@ -162,17 +196,20 @@
 		</tr>
 		<tr valign="center">
 			<td>Rate</td>
-			<td>
+			<td colspan=2>
 				<input required="true" type="text" style="width:72px" id="rate" name="rate"><div class="bubble" title="Required field"></div>
 			</td>
 		</tr>
 		<tr valign="center">
 			<td>Charge</td>
-			<td>
+			<td colspan=2>
 				<table>
 					<tr>
 						<td>
 							<input required="true" type="text" style="width:72px" id="charge" name="charge" /><div class="bubble" title="Required field"></div>
+						</td>
+						<td width="200px">
+							<input type="checkbox" id="fixedprice" name="fixedprice" >&nbsp;Fixed Price</input>
 						</td>
 						<td>
 							<span class="bookingbutton" id="btnPrevPrices">Check Prices</span>&nbsp;
@@ -186,8 +223,14 @@
 		</tr>
 		<tr valign="center">
 			<td>Notes</td>
-			<td>
+			<td colspan=2>
 				<textarea class="tinyMCE" id="notes" name="notes"></textarea>
+			</td>
+		</tr>
+		<tr valign="center">
+			<td>Nominal Ledger Code</td>
+			<td colspan=2>
+				<?php createCombo("nominalledgercodeid", "id", "name", "{$_SESSION['DB_PREFIX']}nominalledgercode"); ?>
 			</td>
 		</tr>
 	</tbody>

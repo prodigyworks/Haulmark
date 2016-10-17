@@ -46,8 +46,8 @@
 			$this->updateHoliday($id);
 		}
 		
-		public function postInsertEvent() {
-			$this->updateHoliday(mysql_insert_id());
+		public function postInsertEvent($id) {
+			$this->updateHoliday($id);
 		}
 		
 		public function updateHoliday($id) {

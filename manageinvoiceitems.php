@@ -3,7 +3,7 @@
 	
 	class InvoiceItemCrud extends Crud {
 		
-		function postInsertEvent() {
+		function postInsertEvent($id) {
 			$invoiceid = $_GET['id'];
 			
 			$qry = "UPDATE {$_SESSION['DB_PREFIX']}invoices SET nett = (SELECT SUM(total) FROM {$_SESSION['DB_PREFIX']}invoiceitem WHERE invoiceid = $invoiceid), metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " WHERE id = $invoiceid";

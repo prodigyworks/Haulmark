@@ -48,14 +48,40 @@
 				<input type="hidden" id="callback" name="callback" value="<?php if (isset($_GET['session'])) echo base64_decode( urldecode( $_GET['session'])); else echo "http://" . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']; ?>" />
 				<div><label>password</label></div>
 				<input type="password" name="password" id="password" value="" />
+				<div id="logindialoglogo" ></div>
+				<img src="images/loginlogo.png" class="loginlogo"  />
+				<br />
+				<br />
+				<br />
+				<div>
+					<div class="loginbutton" onclick="$('#loginForm').submit()">Click To Log In</div>
+				</div>
+				<br>
+				<br />
+				<br />
 				<br />
 				<br>
 				<a href="javascript:void(0)" onclick="checkForgotPassword()">Forgotten password ?</a>
-				<br>
-				<div id="logindialoglogo" onclick="$('#loginForm').submit()"></div>
-				<img src="images/loginlogo.png" style="float:left"  />
 			</form>
+<!--			<div>-->
+<!--				<span style="">-->
+<!--					<img src="images/mobiledevice.png" height=42 id="iammobile"  />-->
+<!--					<br />-->
+<!--					<h6 style='color: black'>Mobile version</h6>-->
+<!--				</span>-->
+<!--			-->
+<!--			</div>-->
 			<script>
+				$(document).ready(
+						function() {
+							$("#iammobile").click(
+									function() {
+										navigate("m.system-login.php?fromdesktop=true");
+									}
+								);
+						}
+					);
+				
 				document.onkeypress = changeHREF;
 				function changeHREF(ev) {
 					ev = ev || event;
@@ -71,7 +97,7 @@
 		<script>
 			function checkForgotPassword() {
 				if ($("#login").val() != "") {
-					$("#loginDialog .loginDialogbody").html("You are about to reset the password.<br>Are you sure ?");
+					$("#loginDialog .confirmdialogbody").html("An email will be sent to your registered email address containing your existing password.<br><br>Continue ?");
 					$("#loginDialog").dialog("open");
 				}
 			}

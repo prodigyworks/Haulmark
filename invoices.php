@@ -16,7 +16,6 @@
 		/* Post header event. */
 		public function postHeaderEvent() {
 			createConfirmDialog("confirmRemoveDialog", "Confirm removal ?", "confirmRemoval");
-			createDocumentLink();
 		}
 
 		public function afterInsertRow() {
@@ -34,7 +33,7 @@
 			$memberid = getLoggedOnMemberID();
 
 			$qry = "DELETE FROM {$_SESSION['DB_PREFIX']}invoiceitem
-						WHERE invoiceid = $invoiceid";
+					WHERE invoiceid = $invoiceid";
 
 			$result = mysql_query($qry);
 
@@ -50,13 +49,18 @@
 				$unitprice = $item['priceeach'];
 				$description = mysql_escape_string($item['description']);
 				$productid = $item['productid'];
+				$nominalledgercodeid = $item['nominalledgercodeid'];
 
 				$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}invoiceitem
-							(invoiceid, description, quantity, priceeach, vatrate, vat, linetotal,
-							productid, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid)
-							VALUES
-							($invoiceid, '$description', '$qty', '$unitprice', $vatrate, '$vat', $linetotal,
-							'$productid', NOW(), $memberid , NOW(), $memberid)";
+						(
+							invoiceid, description, quantity, priceeach, vatrate, vat, linetotal, nominalledgercodeid,
+							productid, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid
+						)
+						VALUES
+						(
+							$invoiceid, '$description', '$qty', '$unitprice', $vatrate, '$vat', $linetotal, $nominalledgercodeid,
+							'$productid', NOW(), $memberid , NOW(), $memberid
+						)";
 
 				$result = mysql_query($qry);
 
@@ -76,8 +80,7 @@
 			}
 		}
 
-		public function postInsertEvent() {
-			$invoiceid = mysql_insert_id();
+		public function postInsertEvent($invoiceid) {
 			$items = json_decode($_POST['item_serial'], true);
 			$memberid = getLoggedOnMemberID();
 
@@ -89,13 +92,18 @@
 				$unitprice = $item['priceeach'];
 				$productid = $item['productid'];
 				$description = mysql_escape_string($item['description']);
+				$nominalledgercodeid = $item['nominalledgercodeid'];
 
 				$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}invoiceitem
-							(invoiceid, quantity, priceeach, vatrate, vat, linetotal,
-							productid, description, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid)
-							VALUES
-							($invoiceid, '$qty', '$unitprice', $vatrate, '$vat', $linetotal,
-							'$productid', '$description', NOW(), $memberid , NOW(), $memberid)";
+						(
+							invoiceid, quantity, priceeach, vatrate, vat, linetotal, nominalledgercodeid,
+							productid, description, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid
+						)
+						VALUES
+						(
+							$invoiceid, '$qty', '$unitprice', $vatrate, '$vat', $linetotal, $nominalledgercodeid,
+							'$productid', '$description', NOW(), $memberid , NOW(), $memberid
+						)";
 
 				$result = mysql_query($qry);
 
@@ -126,17 +134,29 @@
 			itemArray = [];
 
 			populateTable();
+			
+			$("#addinvoiceitembutton").attr("disabled", false);
 <?php
 		}
 
 		public function postEditScriptEvent() {
 ?>
+			$("#total").attr("readonly", true);
+			$("#totalgross").attr("readonly", true);
+			$("#totalgross").val(
+					new Number(
+							parseFloat($("#total").val()) + 
+						   (parseFloat($("#total").val()) * <?php echo getSiteConfigData()->vatrate / 100;?>)
+						).toFixed(2)
+				);
 			$("#revision").val(parseInt($("#revision").val()) + 1);
 
 			callAjax(
 					"finddata.php",
 					{
-						sql: "SELECT A.* FROM <?php echo $_SESSION['DB_PREFIX'];?>customer A WHERE A.id = " + $("#customerid").val()
+						sql: "SELECT A.* " + 
+							 "FROM <?php echo $_SESSION['DB_PREFIX'];?>customer A " +
+							 "WHERE A.id = " + $("#customerid").val()
 					},
 					function(data) {
 						if (data.length > 0) {
@@ -195,7 +215,9 @@
 				callAjax(
 						"finddata.php",
 						{
-							sql: "SELECT A.* FROM <?php echo $_SESSION['DB_PREFIX'];?>customer A WHERE A.id = " + $("#customerid").val()
+							sql: "SELECT A.* " +
+								 "FROM <?php echo $_SESSION['DB_PREFIX'];?>customer A " +
+								 "WHERE A.id = " + $("#customerid").val()
 						},
 						function(data) {
 							if (data.length > 0) {
@@ -223,13 +245,15 @@
 				);
 			}
 			
-			function reloadBookingCombo() {
+			function reloadBookingCombo(currentBooking) {
 				$.ajax({
 						url: "createbookingcombo.php",
 						dataType: 'html',
 						async: false,
 						data: { 
-							customerid: $("#customerid").val()
+							customerid: $("#customerid").val(),
+							currentbooking: currentBooking,
+							existing: itemArray
 						},
 						type: "POST",
 						error: function(jqXHR, textStatus, errorThrown) {
@@ -267,7 +291,7 @@
 				callAjax(
 						"finddata.php",
 						{
-							sql: "SELECT id, charge, legsummary " +
+							sql: "SELECT id, charge, legsummary, nominalledgercodeid " +
 								 "FROM <?php echo $_SESSION['DB_PREFIX'];?>booking A " +
 								 "WHERE A.id = " + $("#item_productid").val()
 						},
@@ -281,6 +305,7 @@
 								$("#item_description").val(node.legsummary);
 								$("#item_unitprice").val(node.charge);
 								$("#item_quantity").val("1");
+								$("#item_nominalledgercodeid").val(node.nominalledgercodeid);
 
 								qty_onchange();
 							}
@@ -355,6 +380,12 @@
 				}
 
 				$("#total").val(new Number(total).toFixed(2));
+				$("#totalgross").val(
+						new Number(
+								total + 
+							   (total * <?php echo getSiteConfigData()->vatrate / 100;?>)
+							).toFixed(2)
+					);
 
 				calculate_total();
 
@@ -375,7 +406,8 @@
 						priceeach: $("#item_unitprice").val(),
 						vatrate: $("#item_vatrate").val(),
 						vat: $("#item_vat").val(),
-						linetotal: $("#item_linetotal").val(),
+						nominalledgercodeid: $("#item_nominalledgercodeid").val(),
+						linetotal: (parseFloat($("#item_linetotal").val()) - parseFloat($("#item_vat").val())),
 						productid: $("#item_productid").val(),
 						proddesc: $("#item_productdesc").val(),
 						description: $("#item_description").val()
@@ -396,7 +428,7 @@
 			function removeItem(id) {
 				currentItem = id;
 
-				$("#confirmRemoveDialog .confirmdialogbody").html("You are about to approve this item.<br>Are you sure ?");
+				$("#confirmRemoveDialog .confirmdialogbody").html("You are about to remove this item.<br>Are you sure ?");
 				$("#confirmRemoveDialog").dialog("open");
 			}
 
@@ -420,6 +452,8 @@
 			function editItem(id) {
 				currentItem = id;
 				var node = itemArray[id];
+				
+				reloadBookingCombo(node.productid);
 
 				$("#item_itemid").val(node.id);
 				$("#item_productid").val(node.productid).trigger("change");
@@ -430,6 +464,7 @@
 				$("#item_vatrate").val(node.vatrate);
 				$("#item_unitprice").val(node.priceeach);
 				$("#item_linetotal").val(node.linetotal);
+				$("#item_nominalledgercodeid").val(node.nominalledgercodeid);
 
 				$('#invoiceitemdialog').dialog('open');
 			}
@@ -495,10 +530,14 @@
 
 
 			function checkStatus(node) {
-			}
-
-			function editDocuments(node) {
-				viewDocument(node, "addinvoicedocument.php", node, "invoicedocs", "invoiceid");
+				if (node.exported == "Yes") {
+					$("#crudeditbutton").hide();
+					$("#crudremovebutton").hide();
+					
+				} else {
+					$("#crudremovebutton").show();
+					$("#crudeditbutton").show();
+				}
 			}
 
 			function exportInvoices() {
@@ -525,10 +564,14 @@
 		
 	$crud->allowRemove = ! isUserInRole("CUSTOMER");
 	$crud->allowAdd = ! isUserInRole("CUSTOMER");
-	$crud->allowView = ! isUserInRole("CUSTOMER");
+	$crud->allowView = false;
 	$crud->allowEdit = ! isUserInRole("CUSTOMER");
 	$crud->dialogwidth = 840;
 	$crud->title = "Invoices";
+	$crud->document = array(
+			'primaryidname'	 => 	"invoiceid",
+			'tablename'		 =>		"invoicedocs"
+		);
 	$crud->onClickCallback = "checkStatus";
 	$crud->table = "{$_SESSION['DB_PREFIX']}invoice";
 	$crud->sql = "SELECT A.*, B.name AS customername, C.fullname AS takenbyname
@@ -663,7 +706,16 @@
 			'name'       => 'total',
 			'length' 	 => 12,
 			'align'		 => 'right',
-			'label' 	 => 'Total'
+			'label' 	 => 'Total (Nett)'
+		),
+		array(
+			'name'       => 'totalgross',
+			'readonly'   => true,
+			'bind'		 => false,
+			'length' 	 => 12,
+			'showInView' => false,
+			'align'		 => 'right',
+			'label' 	 => 'Total (Gross)'
 		),
 		array(
 			'name'       => 'takenbyid',
@@ -685,11 +737,6 @@
 
 	if (! isUserInRole("CUSTOMER")) {
 		$crud->subapplications = array(
-			array(
-				'title'		  => 'Documents',
-				'imageurl'	  => 'images/document.gif',
-				'script' 	  => 'editDocuments'
-			),
 			array(
 				'title'		  => 'Print',
 				'imageurl'	  => 'images/print.png',

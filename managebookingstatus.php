@@ -37,6 +37,7 @@
 				'name'       => 'sequence',
 				'length' 	 => 12,
 				'align'		 => 'right',
+				'datatype'	 => 'integer',
 				'label' 	 => 'Sequence'
 			),
 			array(
@@ -52,11 +53,13 @@
 			array(
 				'name'       => 'bgcolour',
 				'length' 	 => 20,
+				'datatype'	 => 'color',
 				'label' 	 => 'Background Chart Colour'
 			),
 			array(
 				'name'       => 'fgcolour',
 				'length' 	 => 20,
+				'datatype'	 => 'color',
 				'label' 	 => 'Foreground Chart Colour'
 			),
 			array(

@@ -191,8 +191,7 @@
 			);
 		}
 		
-		public function postInsertEvent() {
-			$courtid = mysql_insert_id();
+		public function postInsertEvent($courtid) {
 			$firstname = mysql_escape_string($_POST['firstname']);
 			$lastname = mysql_escape_string($_POST['lastname']);
 			$telephone = mysql_escape_string($_POST['telephone']);

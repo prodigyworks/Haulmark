@@ -414,8 +414,7 @@
 			<?php
 		}
 		
-		public function postInsertEvent() {
-			$stockitemid = mysql_insert_id();
+		public function postInsertEvent($stockitemid) {
 			$warehouseid = $_POST['warehouseid'];
 			$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}warehousestock " .
 					"(warehouseid, stockitemid) " .
