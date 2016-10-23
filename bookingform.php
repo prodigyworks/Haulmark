@@ -71,9 +71,10 @@
 			<td>Driver / Agency</td>
 			<td>
 				<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "", false, false, array(), true, "agencydriver, name"); ?>
-				<input type="hidden" id="agencydriver" name="agencydriver">
-				<input type="hidden" id="bookingid" name="bookingid">
-				<input type="hidden" id="originalstatusid" name="originalstatusid">
+				<input type="hidden" id="agencydriver" name="agencydriver" />
+				<input type="hidden" id="bookingid" name="bookingid" />
+				<input type="hidden" id="originalstatusid" name="originalstatusid" />
+				<input type="hidden" id="nominalledgercodeid" name="nominalledgercodeid" />
 				<label id="driverphonenumber"></label>
 			</td>
 		</tr>
@@ -225,12 +226,6 @@
 			<td>Notes</td>
 			<td colspan=2>
 				<textarea class="tinyMCE" id="notes" name="notes"></textarea>
-			</td>
-		</tr>
-		<tr valign="center">
-			<td>Nominal Ledger Code</td>
-			<td colspan=2>
-				<?php createCombo("nominalledgercodeid", "id", "name", "{$_SESSION['DB_PREFIX']}nominalledgercode"); ?>
 			</td>
 		</tr>
 	</tbody>

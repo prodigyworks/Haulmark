@@ -9,7 +9,7 @@
 			
 			$this->title = "Vehicle Unavailability";
 			$this->table = "{$_SESSION['DB_PREFIX']}vehicleunavailability";
-			$this->dialogwidth = 500;
+			$this->dialogwidth = 960;
 	
 			$this->sql = 
 				"SELECT A.*, B.name, C.registration AS vehiclename 
@@ -54,6 +54,21 @@
 						'datatype'	 => 'timestamp',
 						'length' 	 => 20,
 						'label' 	 => 'End Date / Time'
+					),
+					array(
+						'name'       => 'workcarriedout',
+						'filter'	 => false,
+						'showInView' => false,
+						'type'	 	 => 'TEXTAREA',
+						'required'	 => false,
+						'label' 	 => 'Work Carried Out'
+					),
+					array(
+						'name'       => 'totalcost',
+						'length'	 => 12,
+						'required'	 => false,
+						'datatype'	 => 'double',
+						'label' 	 => 'Total Cost'
 					),
 					array(
 						'name'       => 'reasonid',

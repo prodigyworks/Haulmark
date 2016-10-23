@@ -539,6 +539,12 @@
 					$("#crudeditbutton").show();
 				}
 			}
+			
+			function downloadInvoices() {
+				window.open("downloadinvoices.php");
+				
+				refresh();
+			}
 
 			function exportInvoices() {
 				window.open("exportinvoices.php");
@@ -661,6 +667,27 @@
 				)
 		),
 		array(
+			'name'       => 'downloaded',
+			'length' 	 => 12,
+			'role'		 => 
+				array(
+					'ADMIN', 
+					'ALLEGRO'
+				),
+			'label' 	 => 'Downloaded',
+			'type'       => 'COMBO',
+			'options'    => array(
+					array(
+						'value'		=> "N",
+						'text'		=> "No"
+					),
+					array(
+						'value'		=> "Y",
+						'text'		=> "Yes"
+					)
+				)
+		),
+		array(
 			'name'       => 'emailed',
 			'length' 	 => 10,
 			'label' 	 => 'Emailed',
@@ -754,6 +781,11 @@
 					'title'		  => 'Export',
 					'imageurl'	  => 'images/document.gif',
 					'script' 	  => 'exportInvoices'
+				),
+				array(
+					'title'		  => 'Download',
+					'imageurl'	  => 'images/receive.png',
+					'script' 	  => 'downloadInvoices'
 				)
 			);
 		

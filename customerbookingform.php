@@ -4,7 +4,7 @@
 	?>
 <script src='js/jquery.ui.timepicker.js'></script>
 <script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&region=EU&key=AIzaSyB1DBBtL19Tc4sz0Nl_tmGa014MeHtqjLI" type="text/javascript"></script>
-<script src='bookingscriptlibrary-20160712.js' type="text/javascript" charset="utf-8"></script>
+<script src='bookingscriptlibrary-20161018.js' type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
 	var directionsService = new google.maps.DirectionsService();
     var counter = 1;
@@ -69,9 +69,9 @@
 		$address = $member['postcode'];
 	}
 ?>
-<form method="POST" id="bookform" action="customerbookingsave.php">
+<form method="POST" id="bookform" action="customerbookingsave.php" enctype="multipart/form-data">
 	<h4><?php echo $_SESSION['title']; ?></h4>
-	<table cellspacing=3>
+	<table cellspacing=6>
 		<tr valign="center">
 			<td>
 				&nbsp;
@@ -134,6 +134,12 @@
 			<td>Vehicle Type</td>
 			<td>
 				<?php createCombo("vehicletypeid", "id", "name", "{$_SESSION['DB_PREFIX']}vehicletype", "", true, false, array(), true, "code"); ?>
+			</td>
+		</tr>
+		<tr>
+			<td>PO Attachment</td>
+			<td>
+				<input type="file" id="po" name="po" style='width:500px' />
 			</td>
 		</tr>
 		<tr>

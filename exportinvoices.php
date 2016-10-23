@@ -3,13 +3,19 @@
 
     start_db();
 
-    $sql = "SELECT DATE_FORMAT(A.orderdate, '%Y%m%d') AS orderdate2, A.*, C.name, B.accountcode
+    $sql = "SELECT DATE_FORMAT(A.orderdate, '%Y%m%d') AS orderdate2, A.*, 
+    		C.name, 
+    		B.accountcode, 
+    		D.linetotal, D.vat, D.id AS itemid, D.productid
             FROM {$_SESSION['DB_PREFIX']}invoice A
             INNER JOIN {$_SESSION['DB_PREFIX']}customer B
             ON B.id = A.customerid
             LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}taxcode C
             ON C.id = B.taxcodeid
-            WHERE (A.exported != 'Y' OR A.exported IS NULL)";
+            INNER JOIN {$_SESSION['DB_PREFIX']}invoiceitem D
+            ON D.invoiceid = A.id
+            WHERE (A.exported != 'Y' OR A.exported IS NULL)
+            ORDER BY A.id";
     $result = mysql_query($sql);
 
     if (! $result) {
@@ -30,14 +36,16 @@
         );
 
     while (($member = mysql_fetch_assoc($result))) {
-        $id = $member['id'];
+        $id = $member['itemid'];
         $accountcode = $member['accountcode'];
-        $charge = $member['total'];
+        $charge = $member['linetotal'];
         $taxcode = $member['name'];
+        $bookingid = $member['productid'];
         $invoicedate = $member['orderdate2'];
         $sagecustomerref = $member['sagecustomerref'];
-        $description = "SALES TRANSPORT - " . getSiteConfigData()->bookingprefix . sprintf("%06d", $id);
-        $vat = $charge * (getSiteConfigData()->vatrate/ 100);
+        $itemid = $member['itemid'];
+        $description = "SALES TRANSPORT - " . getSiteConfigData()->bookingprefix . sprintf("%06d", $bookingid);
+        $vat = $member['vat'];
 
         array_push(
                 $array,

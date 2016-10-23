@@ -14,10 +14,10 @@
 	$customername;
 	$bookinglink = false;
 	$reference = substr($file, 0, lastIndexOf($file, "."));
-	$bookingid = substr($file, 0, strpos($file, "_"));
+	$bookingid = substr($file, 0, strpos($file, "-"));
 	
 	if (is_numeric ($bookingid)) {
-		$reference = substr($file, strpos($file, "_") + 1, lastIndexOf($file, "."));
+		$reference = substr($file, strpos($file, "-") + 1, lastIndexOf($file, "."));
 		$bookinglink = true;
 		
 	} else {

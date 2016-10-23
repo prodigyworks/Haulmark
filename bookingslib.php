@@ -484,7 +484,7 @@
 		public function postHeaderEvent() {
 ?>
 			<script type="text/javascript" src="js/html2canvas.js"></script>
-			<script type="text/javascript" src="bookingscriptlibrary-20160712.js"></script>
+			<script type="text/javascript" src="bookingscriptlibrary-20161018.js"></script>
 			<link href="bookingform.css" rel="stylesheet" type="text/css" />
 			<style>
 				#dateswitch {
@@ -505,7 +505,7 @@
 				<span id="cleardate"><img src='images/delete.png' /></span>
 			</div>
 			<div id="prevPriceDialog" class="modal">
-				<div id="prevPriceDiv class="crudentryform">
+				<div id="prevPriceDiv" class="crudentryform">
 				</div>
 			</div>
 			<div id="rateCardDialog" class="modal">

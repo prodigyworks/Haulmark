@@ -145,13 +145,13 @@
 								(
 									customerid, revision, orderdate, yourordernumber,
 									paid, exported, status, takenbyid, deliverycharge,
-									discount, total
+									discount, total, downloaded
 								)
 								VALUES
 								(
 									$customerid, 1, CURDATE(), '$generatedbooking',
 									'N', 'N', 0, 1, 0,
-									0, $charge
+									0, $charge, 'N'
 								)";
 									
 						if (! mysql_query($sql)) {

@@ -27,7 +27,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <link rel="shortcut icon" href="favicon.ico">
 
-<link href="css/style-13102016.css" rel="stylesheet" type="text/css" />
+<link href="css/style-18102016.css" rel="stylesheet" type="text/css" />
 <link href="css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
 <link href="css/dcmegamenu.css" rel="stylesheet" type="text/css" />
 <link href="css/skins/white.css" rel="stylesheet" type="text/css" />
@@ -38,7 +38,7 @@
 <script src="js/jquery-ui.min.js" type="text/javascript"></script>
 <script src='js/jquery.hoverIntent.minified.js' type='text/javascript'></script>
 <script src='js/jquery.dcmegamenu.1.3.3.js' type='text/javascript'></script>
-<script src="js/prodigyworks-20161013.js" language="javascript" ></script>
+<script src="js/prodigyworks-20161018.js" language="javascript" ></script>
 <!--[if lt IE 7]>
 <script type="text/javascript" src="js/ie_png.js"></script>
 <script type="text/javascript">

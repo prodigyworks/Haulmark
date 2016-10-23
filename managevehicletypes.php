@@ -41,14 +41,14 @@
 				'length' 	 => 12,
 				'datatype'	 => 'double',
 				'align'		 => 'right',
-				'label' 	 => 'Our Day Rate'
+				'label' 	 => 'Our Hourly Rate'
 			),
 			array(
 				'name'       => 'agencydayrate',
 				'length' 	 => 12,
 				'datatype'	 => 'double',
 				'align'		 => 'right',
-				'label' 	 => 'Agency Day Rate'
+				'label' 	 => 'Agency Hourly Rate'
 			),
 			array(
 				'name'       => 'vehiclecostpermile',

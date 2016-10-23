@@ -103,8 +103,8 @@
 													"Revenue" => "£ " . number_format($cumulativetotalcharge, 2),
 													"Cost" => "£ " . number_format($cumulativetotalcost, 2),
 													"Profit" => "£ " . number_format($cumulativetotalprofit, 2),
-										    	    "Profit %"  		=> number_format(100 - ($member['$cumulativetotalcost'] * (100 / $member['$cumulativetotalcharge'])), 2) . " %"
-											)
+											        "Profit %"  => number_format(100 - ($cumulativetotalcost * (100 / $cumulativetotalcharge)), 2) . " %"
+									    	    )
 										)
 								);
 				    		$this->SetFont('Arial','', 6);
@@ -127,7 +127,7 @@
 									            "Weight (Kg)"  		=> $member['weight'],
 									            "Revenue"  			=> "£ " . $member['charge'],
 									            "Cost"  			=> "£ " . $member['rate'],
-									            "Profit"  			=> ($member['charge'] - $member['rate']) . " %",
+									            "Profit"  			=> "£ " . number_format($member['charge'] - $member['rate'], 2),
 										        "Profit %"  		=> number_format(100 - ($member['rate'] * (100 / $member['charge'])), 2) . " %"
 										)
 									)
@@ -152,7 +152,7 @@
 											"Revenue" => "£ " . number_format($cumulativetotalcharge, 2),
 											"Cost" => "£ " . number_format($cumulativetotalcost, 2),
 											"Profit" => "£ " . number_format($cumulativetotalprofit, 2),
-									        "Profit %"  => number_format(100 - ($member['$cumulativetotalcost'] * (100 / $member['$cumulativetotalcharge'])), 2) . " %"
+									        "Profit %"  => number_format(100 - ($cumulativetotalcost * (100 / $cumulativetotalcharge)), 2) . " %"
 										)
 								)
 						);

@@ -28,13 +28,23 @@
 	<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&region=EU&key=AIzaSyB1DBBtL19Tc4sz0Nl_tmGa014MeHtqjLI" type="text/javascript"></script>
 	<script src='js/jquery.ui.timepicker.js'></script>
 	<link rel='STYLESHEET' type='text/css' href='./codebase/dhtmlxscheduler_glossy.css'>
-	<link rel="stylesheet" href="./codebase/ext/dhtmlxscheduler_ext.css" type="text/css" media="screen" title="no title" charset="utf-8">
 	<link href="bookingform.css" rel="stylesheet" type="text/css" />
-	<script src='bookingscriptlibrary-20160712.js' type="text/javascript" charset="utf-8"></script>
+	<script src='bookingscriptlibrary-20161018.js' type="text/javascript" charset="utf-8"></script>
 	
 	<style type="text/css" media="screen">
 		div[aria-labelledby=ui-dialog-title-keydialog] {
 			opacity: 0.6 ! important;
+		}
+		.nowpointer {
+			position: relative;
+			height:400px;
+			width:1px;
+			z-index:100;
+			top:46px;
+			border-left: 1px dashed red;
+		}
+		.dhx_cal_event_line {
+			z-index:101 ! important;
 		}
 		.keyblock {
 			width:10px;
@@ -372,20 +382,7 @@
 									}
 								},
 								"Remove": function() {
-									callAjax(
-											"removeschedule.php", 
-											{ 
-												id: $("#bookingid").val()
-											},
-											function(data) {
-											},
-											false
-										);
-	
-									scheduler.clearAll();
-									scheduler.setCurrentView(null, "timeline");
-									
-									$("#bookingdialog").dialog("close");
+									askremoval();
 								},
 								Cancel: function() {
 									$("#bookingdialog").dialog("close");
@@ -428,8 +425,42 @@
 					$("#worktypeid").change(worktypeid_onchange);
 
 					setupEvents();
+
+					moveNowPoint();
 				}
 			);
+
+		function positionNowPoint() {
+			if (timemode == "D") {
+				var hour = 0;
+				var leftPos = 0;
+				var currentMins = new Date().getMinutes();
+				var currentHour = new Date().getHours();
+
+				$(".dhx_scale_bar").each(
+						function() {
+							if (hour++ == currentHour) { 
+								leftPos = $(this).attr("offsetLeft");
+								leftPos += ((currentMins / 60) * $(this).attr("offsetWidth"));
+							}
+						}
+					);
+
+				$(".nowpointer").css("left", leftPos + "px");
+				$(".nowpointer").css("height", ($("#scheduler_here").attr("offsetHeight") - 20) + "px");
+			}
+		}
+		
+		function moveNowPoint() {
+			positionNowPoint();
+
+			setTimeout(
+					function() {
+						moveNowPoint();
+					},
+					1000 * 60 * 2					
+				);
+		}
 
 		function updateBooking() {
 			var legs = new Array();
@@ -511,7 +542,7 @@
 			scheduler.locale.labels.xday_tab = "Daily";
 			scheduler.locale.labels.section_custom="Section";
 			scheduler.config.xml_date="%Y-%m-%d %H:%i";
-			
+			scheduler.config.mark_now = true;			
 			scheduler.config.first_hour = 6;
 			scheduler.config.last_hour = 23;
 			//===============
@@ -598,6 +629,30 @@
 			        scheduler.clearAll();
 			    return true;
 			});
+			
+			scheduler.attachEvent("onSchedulerResize", positionNowPoint);
+			
+			scheduler.attachEvent("onOptionsLoadFinal", function () {
+				if (timemode == "D") {
+					$("#scheduler_here").append("<div class='nowpointer'></div>");
+					positionNowPoint();
+				}
+			});
+			
+			scheduler.attachEvent("onViewChange", function (m, d) {
+				if (timemode == "D") {
+					if (d.getFullYear() == <?php echo date("Y"); ?> && 
+					   (d.getMonth() + 1) == <?php echo date("m"); ?> && 
+						d.getDate() == <?php echo date("d"); ?>) {
+	
+						$(".nowpointer").show();
+						
+					} else {
+						$(".nowpointer").hide();
+					}
+				}
+			});
+			
 			scheduler.attachEvent("onBeforeEventCreated",function(){return false;})
 			scheduler.attachEvent("onEventChanged", function(id,ev){
 					var startDate = dateToDMYHM(ev.start_date);
@@ -653,8 +708,8 @@
 								$("#toplace_ref").val(node.toplace_ref);
 								$("#fromplace_phone").val(node.fromplace_phone);
 								$("#fromplace_ref").val(node.fromplace_ref);
-								$("#driverid").val(node.driverid);
 								$("#agencydriver").val(node.agencydriver);
+								$("#driverid").val(node.driverid);
 								$("#vehicleid").val(node.vehicleid);
 								$("#vehicletypeid").val(node.vehicletypeid);
 								$("#trailerid").val(node.trailerid);
@@ -715,7 +770,7 @@
 								$("#memberid").attr("disabled", true);
 								
 								fetchOverHeadRates();
-							
+
 								driverid_onchange();
 								vehicleid_onchange();
 
@@ -725,6 +780,9 @@
 								$("#weight").val(node.weight);
 								$("#rate").val(node.rate);
 								$("#charge").val(node.charge);
+								$("#agencydriver").val(node.agencydriver);
+								$("#driverid").val(node.driverid);
+								$("#vehicleid").val(node.vehicleid);
 
 								$("#fixedprice").attr("checked", node.fixedprice == 1);
 
@@ -739,15 +797,6 @@
 			      	return false;
 		      	});
 			
-			//===============
-			//Data loading
-			//===============
-			scheduler.config.lightbox.sections=[	
-				{name:"description", height:130, map_to:"text", type:"textarea" , focus:true},
-				{name:"custom", height:23, type:"select", options:sections, map_to:"section_id" },
-				{name:"time", height:12, type:"time", map_to:"auto"}
-			];
-			
 			scheduler.init('scheduler_here',new Date(),"timeline");
 			scheduler.setLoadMode("day");
 			scheduler.config.show_loading = true;
@@ -755,6 +804,7 @@
 			scheduler.load("events.php?mode=<?php echo $mode; ?>","json",function(){
 			    // alert("Data has been successfully loaded");
 			    scheduler.updateCollection("sections",sections );
+			    
 			});
 			var dp = new dataProcessor("events.php");
 			dp.init(scheduler);
@@ -787,7 +837,35 @@
 					pk2: timemode
 				});
 		}
+		
+		function askremoval() {
+			$("#confirmremovedialog .confirmdialogbody").html("You are about to remove this booking.<br>Are you sure ?");
+			$("#confirmremovedialog").dialog("open");
+		}
+		
+		function confirmremoval(crudID) {
+			callAjax(
+					"removeschedule.php", 
+					{ 
+						id: $("#bookingid").val()
+					},
+					function(data) {
+					},
+					false
+				);
+
+			scheduler.clearAll();
+			scheduler.setCurrentView(null, "timeline");
+			
+			$("#bookingdialog").dialog("close");
+			$("#confirmremovedialog").dialog("close");
+		}
+	
 	</script>
+	
+	<?php 
+		createConfirmDialog("confirmremovedialog", "Confirm removal ?", "confirmremoval");
+	?>
 	<div id="map_canvas" class="modal"></div>
 	<div id="copyDialog" class="modal">
 		<form id="copyform">
@@ -879,9 +957,9 @@
 			<iframe id="rateCardIframe" src="about:blank" frameborder=1 style='width:760px;height:510px'></iframe>
 		</div>
 	</div>
-	<div onclick="drivermode()" style="font-size:11px; position:absolute; left:360px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "D") echo "active"; ?>">&nbsp;&nbsp;Drivers</div>
-	<div onclick="vehiclemode()" style="font-size:11px; position:absolute; left:430px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "V") echo "active"; ?>">&nbsp;Vehicles</div>
-	<div onclick="trailermode()" style="font-size:11px; position:absolute; left:500px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "T") echo "active"; ?>">&nbsp;Trailers</div>
+	<div onclick="drivermode()" style="font-size:11px; position:absolute; left:380px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "D") echo "active"; ?>">&nbsp;&nbsp;Drivers</div>
+	<div onclick="vehiclemode()" style="font-size:11px; position:absolute; left:450px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "V") echo "active"; ?>">&nbsp;Vehicles</div>
+	<div onclick="trailermode()" style="font-size:11px; position:absolute; left:520px; top:57px; z-index:100" class="dhx_cal_tab <?php if ($mode == "T") echo "active"; ?>">&nbsp;Trailers</div>
 	<div style="height:0px;background-color:#3D3D3D;border-bottom:5px solid #828282;">
 		<div id="contbox" style="float:left;color:white;margin:22px 75px 0 75px; overflow:hidden;font: 17px Arial,Helvetica;color:white">
 		</div>

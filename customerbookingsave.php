@@ -1,6 +1,7 @@
 <?php
-	require("system-db.php");
-	require("bookingshared.php");
+	require_once("system-db.php");
+	require_once("bookingshared.php");
+	require_once("sqlfunctions.php");
 	
 	start_db();
 	
@@ -103,6 +104,27 @@
 	
 	if (! mysql_query($sql)) {
 		logError($sql . " - " . mysql_error());
+	}
+	
+	if (isset($_FILES['po']) && $_FILES['po']['tmp_name'] != "") {
+		$documentid = getFileData("po");
+		
+		$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingdocs
+				(
+					bookingid, documentid, createddate,
+					metacreateddate, metamodifieddate,
+					metamodifieduserid, metacreateduserid
+				)
+				VALUES
+				(
+					$bookingid, $documentid, NOW(),
+					NOW(), NOW(),
+					$memberid, $memberid
+				)";
+					
+		if (! mysql_query($sql)) {
+			logError("$sql - " . mysql_error());
+		}
 	}
 	
 	$customername = GetCustomerName($customerid);

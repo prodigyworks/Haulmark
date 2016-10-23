@@ -219,6 +219,22 @@
 					)
 			),
 			array(
+				'name'       => 'subcontractor',
+				'length' 	 => 20,
+				'label' 	 => 'Subcontractor',
+				'type'       => 'COMBO',
+				'options'    => array(
+						array(
+							'value'		=> "Y",
+							'text'		=> "Yes"
+						),
+						array(
+							'value'		=> "N",
+							'text'		=> "No"
+						)
+					)
+			),
+			array(
 				'name'       => 'usualdriverid',
 				'type'       => 'DATACOMBO',
 				'length' 	 => 30,
