@@ -221,13 +221,8 @@
 						echo "<tr>\n";
 					}
 					
-					if (isUserInRole("ADMIN")) {
-						echo "<td width='20px' title='Delete' onclick='deleteDocument(" . $member['id'] . ")'><img src='images/delete.png' /></td>\n";
+					echo "<td width='20px' title='Delete' onclick='deleteDocument(" . $member['id'] . ")'><img src='images/delete.png' /></td>\n";
 						
-					} else {
-						echo "<td width='20px'>&nbsp;</td>\n";
-					}
-					
 					if ($expired) {
 						echo "<td>" . $member['name'] . "</td>\n";
 						

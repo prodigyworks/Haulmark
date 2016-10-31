@@ -33,7 +33,9 @@
 			$y = $this->addText(150, $y, "Fax : 01773 541774", 10, 4, '', 80);
 			
 				
-			$y = 60;
+			$y = 59;
+			
+			$y = $this->addText(15, $y, "Collection Address:", 12, 5, 'BU', 80) + 1;
 			
 			if ($member['customername'] != "") $y = $this->addText(15, $y, $member['customername'], 10, 4, 'B', 80);
 			if ($member['street'] != "") $y = $this->addText(15, $y, $member['street'], 10, 4, '', 80);
@@ -48,7 +50,7 @@
 			$this->Line(10, $y - 5, 200, $y - 5);
 			
 			$this->addText(15, $y, "Job Ticket No", 10, 4.5, 'B', 80);
-			$y = $this->addText(60, $y, getSiteConfigData()->bookingprefix . sprintf("%06d", $member['id']), 10, 4.5, '', 80);
+			$y = $this->addText(60, $y, getBookingReference($member['id']), 10, 4.5, '', 80);
 				
 			$this->addText(15, $y, "Driver", 10, 4.5, 'B', 80);
 			$y = $this->addText(60, $y, $member['drivername'], 10, 4.5, '', 80);
@@ -68,7 +70,7 @@
 			$this->Line(10, $y + 5, 200, $y + 5);
 				
 			$top = $y;
-			$y = 185;
+			$y = 190;
 			$this->Line(10, $y - 2, 200, $y - 2);
 				
 			$this->addText(15, $y, "Weight", 10, 4.5, 'B', 80);
@@ -139,8 +141,8 @@
 					$bookingid = $member['id'];
 						
 					$sql = "SELECT A.*,
-							DATE_FORMAT(A.departuretime, '%d/%m/%Y') AS startdate,
-							DATE_FORMAT(A.departuretime, '%H:%i') AS starttime
+							DATE_FORMAT(A.arrivaltime, '%d/%m/%Y') AS startdate,
+							DATE_FORMAT(A.arrivaltime, '%H:%i') AS starttime
 							FROM {$_SESSION['DB_PREFIX']}bookingleg A
 							WHERE A.bookingid = $id 
 							ORDER BY A.id";

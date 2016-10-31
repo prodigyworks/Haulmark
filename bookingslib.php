@@ -28,7 +28,7 @@
 			$this->title = "Bookings";
 			$this->table = "{$_SESSION['DB_PREFIX']}booking";
 			$this->allowView = true;
-			$this->dialogwidth = 970;
+			$this->dialogwidth = 1050;
 			$this->document = array(
 					'primaryidname'	 => 	"bookingid",
 					'tablename'		 =>		"bookingdocs"
@@ -555,19 +555,28 @@
 					$point = $_POST['point_' . $i];
 					$pointlat = $_POST['point_' . $i . "_lat"];
 					$pointlng = $_POST['point_' . $i . "_lng"];
-					$pointdate = convertStringToDate($_POST['pointdate_' . $i]);
-					$pointtime = $_POST['pointtime_' . $i];
-					$pointdate = $pointdate . " " . $pointtime;
+					$pointdeparturedate = convertStringToDate($_POST['pointdeparturedate_' . $i]);
+					$pointdeparturetime = $_POST['pointdeparturetime_' . $i];
+					$pointdeparturedate = $pointdeparturedate . " " . $pointdeparturetime;
+					$pointarrivaldate = convertStringToDate($_POST['pointarrivaldate_' . $i]);
+					$pointarrivaltime = $_POST['pointarrivaltime_' . $i];
+					$pointarrivaldate = $pointarrivaldate . " " . $pointarrivaltime;
 					$phone = $_POST['point_' . $i . "_phone"];
 					$reference = $_POST['point_' . $i . "_ref"];
 					
 					$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg
 							(
-							bookingid, place, place_lng, place_lat, departuretime, phone, reference
+							bookingid, place, place_lng, place_lat, 
+							arrivaltime, 
+							departuretime, 
+							phone, reference
 							)
 							VALUES
 							(
-							$id, '$point', $pointlng, $pointlat, '$pointdate', '$phone', '$reference'
+							$id, '$point', $pointlng, $pointlat, 
+							'$pointarrivaldate', 
+							'$pointdeparturedate', 
+							'$phone', '$reference'
 							)";
 					$result = mysql_query($sql);
 			
@@ -606,22 +615,31 @@
 				if (isset($_POST['point_' . $i])) {
 					$counter++;
 					
-					$point = $_POST['point_' . $i];
+					$point = mysql_escape_string($_POST['point_' . $i]);
 					$pointlat = $_POST['point_' . $i . "_lat"];
 					$pointlng = $_POST['point_' . $i . "_lng"];
-					$pointdate = convertStringToDate($_POST['pointdate_' . $i]);
-					$pointtime = $_POST['pointtime_' . $i];
-					$pointdate = $pointdate . " " . $pointtime;
-					$phone = $_POST['point_' . $i . "_phone"];
-					$reference = $_POST['point_' . $i . "_ref"];
+					$pointdeparturedate = convertStringToDate($_POST['pointdeparturedate_' . $i]);
+					$pointdeparturetime = $_POST['pointdeparturetime_' . $i];
+					$pointdeparturedate = $pointdeparturedate . " " . $pointdeparturetime;
+					$pointarrivaldate = convertStringToDate($_POST['pointarrivaldate_' . $i]);
+					$pointarrivaltime = $_POST['pointarrivaltime_' . $i];
+					$pointarrivaldate = $pointarrivaldate . " " . $pointarrivaltime;
+					$phone = mysql_escape_string($_POST['point_' . $i . "_phone"]);
+					$reference = mysql_escape_string($_POST['point_' . $i . "_ref"]);
 					
 					$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg 
 							(
-							 	bookingid, place, place_lng, place_lat, departuretime, phone, reference
+							 	bookingid, place, place_lng, place_lat, 
+							 	arrivaltime, 
+							 	departuretime, 
+							 	phone, reference
 							)
 							VALUES
 							(
-							 	$id, '$point', $pointlng, $pointlat, '$pointdate', '$phone', '$reference'
+							 	$id, '$point', $pointlng, $pointlat, 
+							 	'$pointarrivaldate', 
+							 	'$pointdeparturedate', 
+							 	'$phone', '$reference'
 							)";
 					$result = mysql_query($sql);
 						
@@ -700,8 +718,7 @@
 							
 						    for(var i=0; i < legs.length; ++i) {
 						        totalDistance += legs[i].distance.value;
-						        totalDuration += legs[i].duration.value / 0.8;
-						        totalDuration += <?php echo getSiteConfigData()->averagewaittime * 60; ?>;
+						        totalDuration += (legs[i].duration.value / 0.9);
 						    }
 						    
 						    var prevTime = $("#startdatetime_time"); 
@@ -711,48 +728,56 @@
 							$(".pointcontainer").each(
 									function() {
 										var index = parseInt($(this).attr("index"));
-										var startdate = $(this).find(".datepicker");
-										var starttime = $(this).find(".timepicker");
+										var startdate = $(this).find(".arrivaldate");
+										var starttime = $(this).find(".arrivaltime");
+										var departuredate = $(this).find(".departuredate");
+										var departuretime = $(this).find(".departuretime");
 										
 										if (startIndex <= index) {
-		    					    		starttime.val(
-		    					    				getJourneyTime(
-		    					    						prevTime.val(), 
-		    					    						prevDate.val(), 
-		    					    						startdate.attr("id"), 
-		    					    						(legs[cnt].duration.value / 0.8) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
-		    					    					)
-		    					    			);
+    					    				getJourneyTime(
+    					    						prevTime.val(), 
+    					    						prevDate.val(), 
+    					    						startdate.attr("id"), 
+    					    						starttime.attr("id"), 
+    					    						departuredate.attr("id"),
+    					    						departuretime.attr("id"),
+    					    						(legs[cnt].duration.value / 0.9)
+    					    					);
 										}
 										
-									    prevTime = starttime; 
-									    prevDate = startdate;
+									    prevTime = departuretime; 
+									    prevDate = departuredate;
 									    
 									    cnt++;
 									}
 								);
 						    
 						       	
-    			    		$('#enddatetime_time').val(
-    			    				getJourneyTime(
-    			    						prevTime.val(), 
-    			    						prevDate.val(), 
-    			    						"enddatetime", 
-    			    						(legs[legs.length - 1].duration.value / 0.8)
-    			    					)
+	        				getJourneyTime(
+	        						prevTime.val(), 
+	        						prevDate.val(), 
+	        						"enddatetime", 
+	        						"enddatetime_time", 
+	        						null,
+	        						null,
+	        						(legs[legs.length - 1].duration.value / 0.9)
     			    			);
 							
 							var mins = Math.round( totalDuration / 60 ) % 60;
 							var hours = Math.round( totalDuration / 3600 );
-							
+
 							$('#miles').val((Math.round( totalDistance * METERS_TO_MILES * 10 ) / 10));						    
-							$('#duration').val(hours + "." + mins);	
+							$('#duration').val(new Number(hours + "." + mins).toFixed(2));	
 							
 							fetchOverHeadRates();					    
 		        		}
 		      		});
 		      		
-      	    }			
+      	    }	
+      	    
+      	    function getAverageWaitTime() {
+      	    	return <?php echo getSiteConfigData()->averagewaittime * 60; ?>;
+      	    }		
       	    
       	    function calculateRate2() {
       	    	calculateRate(

@@ -139,7 +139,7 @@
 					if ($selfbilledinvoices == "N" && $mobileautoinvoice == "Y") {
 						/* Set to invoiced. */
 						$statusid = 8;
-						$generatedbooking = getSiteConfigData()->bookingprefix . sprintf("%06d", $bookinglegid, 6);
+						$generatedbooking = getBookingReference($bookinglegid);
 						
 						$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}invoice
 								(

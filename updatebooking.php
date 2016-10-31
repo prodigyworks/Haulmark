@@ -70,7 +70,7 @@
 				if ($selfbilledinvoices == "N") {
 					/* Set to invoiced. */
 					$statusid = 8;
-					$generatedbooking = getSiteConfigData()->bookingprefix . sprintf("%06d", $id, 6);
+					$generatedbooking = getBookingReference($id);
 					
 					$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}invoice
 							(
@@ -170,18 +170,22 @@
 
 	for ($i = 0; $i < count($_POST['legs']); $i++) {
 		$place = mysql_escape_string($_POST['legs'][$i]['place']);
-		$time = $_POST['legs'][$i]['time'];
-		$departuretime = convertStringToDate($_POST['legs'][$i]['date']) . " $time";
+		$time = $_POST['legs'][$i]['departuretime'];
+		$departuretime = convertStringToDate($_POST['legs'][$i]['departuredate']) . " $time";
+		$time = $_POST['legs'][$i]['arrivaltime'];
+		$arrivaltime = convertStringToDate($_POST['legs'][$i]['arrivaldate']) . " $time";
 		$reference = mysql_escape_string($_POST['legs'][$i]['reference']);
 		$phone = mysql_escape_string($_POST['legs'][$i]['phone']);
 		
 		$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg 
 				(
-					bookingid, departuretime, place, reference, phone
+					bookingid, arrivaltime, departuretime, 
+					place, reference, phone
 				)
 				VALUES
 				(
-					$id, '$departuretime', '$place', '$reference', '$phone'
+					$id, '$arrivaltime', '$departuretime', 
+					'$place', '$reference', '$phone'
 				)";
 		$result = mysql_query($qry);
 		

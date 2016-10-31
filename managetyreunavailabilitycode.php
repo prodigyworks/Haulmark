@@ -9,10 +9,12 @@
 	}
 	
 	$crud = new UnavailableCrud();
-	$crud->title = "Trailer Unavailability Codes";
+	$crud->title = "Tyre Unavailability Codes";
 	$crud->dialogwidth = 600;
-	$crud->table = "{$_SESSION['DB_PREFIX']}trailerunavailabilityreasons";
-	$crud->sql = "SELECT * FROM {$_SESSION['DB_PREFIX']}trailerunavailabilityreasons ORDER BY name";
+	$crud->table = "{$_SESSION['DB_PREFIX']}tyreunavailabilityreasons";
+	$crud->sql = "SELECT * 
+				  FROM {$_SESSION['DB_PREFIX']}tyreunavailabilityreasons 
+				  ORDER BY name";
 	
 	$crud->columns = array(
 			array(

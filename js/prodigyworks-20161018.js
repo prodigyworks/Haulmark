@@ -160,6 +160,8 @@ function envelopeCode(node) {
 $(document).ready(function() {
 		$(".content, .reportform").css("min-height", ($("body").attr("offsetHeight") - 200) + "px");
 		$(".entryform").css("height", ($("body").attr("offsetHeight") - 200) + "px");
+		
+		$(".reportform .datacombo option[value='0']").text("All");
 
 		$(".link2").click(
 				function() {

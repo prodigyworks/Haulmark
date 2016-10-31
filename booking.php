@@ -128,8 +128,7 @@
 
 					    for(var i=0; i < legs.length; ++i) {
 					        totalDistance += legs[i].distance.value;
-					        totalDuration += legs[i].duration.value / 0.8;
-					        totalDuration += <?php echo getSiteConfigData()->averagewaittime * 60; ?> * 60;
+					        totalDuration += legs[i].duration.value / 0.9;
 					    }
 					    
 					    var prevTime = $("#startdatetime_time"); 
@@ -139,42 +138,46 @@
 						$(".pointcontainer").each(
 								function() {
 									var index = parseInt($(this).attr("index"));
-									var startdate = $(this).find(".datepicker");
-									var starttime = $(this).find(".timepicker");
+									var startdate = $(this).find(".arrivaldate");
+									var starttime = $(this).find(".arrivaltime");
+									var departuredate = $(this).find(".departuredate");
+									var departuretime = $(this).find(".departuretime");
 									
 									if (startIndex <= index) {
-	    					    		starttime.val(
-	    					    				getJourneyTime(
-	    					    						prevTime.val(), 
-	    					    						prevDate.val(), 
-	    					    						startdate.attr("id"), 
-	    					    						(legs[cnt].duration.value / 0.8) + <?php echo getSiteConfigData()->averagewaittime * 60; ?>
-	    					    					)
+    				    				getJourneyTime(
+    				    						prevTime.val(), 
+    				    						prevDate.val(), 
+    				    						startdate.attr("id"), 
+    				    						starttime.attr("id"), 
+    				    						departuredate.attr("id"),
+    				    						departuretime.attr("id"),
+    				    						(legs[cnt].duration.value / 0.9)
 	    					    			);
 									}
 									
-								    prevTime = starttime; 
-								    prevDate = startdate;
+								    prevTime = departuretime; 
+								    prevDate = departuredate;
 
 								    cnt++;
 								}
 							);
 					    
 					       	
-			    		$('#enddatetime_time').val(
-			    				getJourneyTime(
-			    						prevTime.val(), 
-			    						prevDate.val(), 
-			    						"enddatetime", 
-			    						(legs[legs.length - 1].duration.value / 0.8)
-			    					)
+	    				getJourneyTime(
+	    						prevTime.val(), 
+	    						prevDate.val(), 
+	    						"enddatetime", 
+	    						"enddatetime_time", 
+	    						null,
+	    						null,
+	    						(legs[legs.length - 1].duration.value / 0.9)
 			    			);
 						
 						var mins = Math.round( totalDuration / 60 ) % 60;
 						var hours = Math.round( totalDuration / 3600 );
 						
 						$('#miles').val((Math.round( totalDistance * METERS_TO_MILES * 10 ) / 10));						    
-						$('#duration').val(hours + "." + mins);	
+						$('#duration').val(new Number(hours + "." + mins).toFixed(2));	
 						
 						fetchOverHeadRates();					    
 	        		}
@@ -333,7 +336,7 @@
 							modal: true,
 							dialogClass: "kev",
 							autoOpen: false,
-							width: 960,
+							width: 1050,
 							height: 600,
 							opacity: 0.4,
 							overlay: { opacity: 0.3, background: "white" },
@@ -429,6 +432,10 @@
 					moveNowPoint();
 				}
 			);
+  	    
+  	    function getAverageWaitTime() {
+  	    	return <?php echo getSiteConfigData()->averagewaittime * 60; ?>;
+  	    }		
 
 		function positionNowPoint() {
 			if (timemode == "D") {
@@ -470,8 +477,10 @@
 					function() {
 						legs[pointIndex++] = {
 								place: $(this).find(".point").val(),
-								date: $(this).find(".datepicker").val(),
-								time: $(this).find(".timepicker").val(),
+								departuredate: $(this).find(".departuredate").val(),
+								departuretime: $(this).find(".departuretime").val(),
+								arrivaldate: $(this).find(".arrivaldate").val(),
+								arrivaltime: $(this).find(".arrivaltime").val(),
 								reference: $(this).find(".reference").val(),
 								phone: $(this).find(".phone").val()
 							};
@@ -623,7 +632,13 @@
 			scheduler.config.details_on_create=false;
 			scheduler.config.dblclick_create = false;
 //			scheduler.config.drag_in = false;	      	
-			
+
+			scheduler.attachEvent("onBeforeDrag", function (id, mode, e){
+	      		var event = scheduler.getEvent(id);
+
+		      	return (event.type == "B");
+			});			
+				
 			scheduler.attachEvent("onBeforeViewChange", function (old_mode, old_date, mode, date) {
 			    if (old_mode != mode || +old_date != +date)
 			        scheduler.clearAll();
@@ -673,6 +688,12 @@
 				});
 			scheduler.attachEvent("onDblClick",function(){return false;})
 	      	scheduler.attachEvent("onClick",function(parentnode) {
+	      		var event = scheduler.getEvent(parentnode);
+
+		      	if (event.type != "B") {
+			      	return;
+		      	}
+		      	
 				callAjax(
 						"finddata.php", 
 						{ 

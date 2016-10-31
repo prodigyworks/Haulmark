@@ -42,16 +42,22 @@
 	//Check whether the query was successful or not
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
+			$tooltip = "Booking: " . getBookingReference($member['id']) . "\n" . 
+					"Vehicle: " . $member['vehiclename'] . "\n" . 
+					"Trailer: " . $member['trailername'] . "\n" .
+					"Driver: " . $member['drivername'];
+			
 			array_push(
 				$json, 
 				array(
 						"id" => $member['id'],
+						"type" => "B",
 						"bookingid" => $member['id'],
 						"color" => $member['bgcolour'],
 						"textColor" => $member['fgcolour'],
 						"start_date" => $member['startdatetime'],
 						"end_date" => $member['enddatetime'],
-						"text" => "<span title='Booking: " . getSiteConfigData()->bookingprefix . sprintf("%06d", $member['id'], 6) . "'>" . $member['customername'] . ": " . $member['legsummary'] . "</span>",
+						"text" => "<span title='$tooltip'>" . $member['customername'] . ": " . $member['legsummary'] . "</span>",
 						"section_id" => $member[$sectionid]
 					)
 			);
@@ -99,6 +105,7 @@
 					$json, 
 					array(
 							"id" => "HOL" . $member['id'],
+							"type" => "H",
 							"color" => "#00FFFF",
 							"textColor" => "#000000",
 							"start_date" => $nstartdate,
@@ -181,6 +188,7 @@
 					$json, 
 					array(
 							"id" => "TR" . $member['id'],
+							"type" => "T",
 							"color" => "#FF0000",
 							"textColor" => "white",
 							"start_date" => $nstartdate,
@@ -217,6 +225,7 @@
 					$json, 
 					array(
 							"id" => "VE" . $member['id'],
+							"type" => "V",
 							"color" => "#FF0000",
 							"textColor" => "white",
 							"start_date" => $nstartdate,

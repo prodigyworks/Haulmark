@@ -21,21 +21,9 @@
 			</td>
 		</tr>
 		<tr>
-			<td>
-				Status
-			</td>
-			<td>
-				<SELECT id="status" name="status">
-					<OPTION value="">All</OPTION>
-					<OPTION value="P">Planned</OPTION>
-					<OPTION value="A">Accepted</OPTION>
-				</SELECT>
-			</td>
-		</tr>
-		<tr>
 			<td>Vehicle</td>
 			<td>
-				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'"); ?>
+				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'", false); ?>
 			</td>
 		</tr>
 		<tr>
@@ -43,7 +31,7 @@
 				Driver
 			</td>
 			<td>
-				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver"); ?>
+				<?php createCombo("driverid", "id", "code", "{$_SESSION['DB_PREFIX']}driver", "", false); ?>
 			</td>
 		</tr>
 		<tr>
@@ -60,17 +48,15 @@
 			</td>
 		</tr>
 		<tr>
+			<td>&nbsp;</td>
 			<td>
-				&nbsp;
-			</td>
-			<td>
-				<a class="link1" href="javascript: runreport();"><em><b>Run Report</b></em></a>
+				<a href="javascript: if (verifyStandardForm('.reportform')) submit();" class="link1"><em><b>Run</b></em></a>
 			</td>
 		</tr>
 	</table>	
 </form>
 <script>
-	function runreport(e) {
+	function submit(e) {
 		$('#reportform').submit();
 		
 		try {

@@ -33,6 +33,13 @@
 		$customerid = 0;
 	}
 	
+	if (isset($_POST['supplierid'])) {
+		$supplierid = $_POST['supplierid'];
+		
+	} else {
+		$supplierid = 0;
+	}
+	
 	if (isset($_POST['driverid'])) {
 		$driverid = $_POST['driverid'];
 		
@@ -114,14 +121,14 @@
 				(
 					firstname, lastname, login, passwd, fullname, 
 					email, imageid, accepted, guid, status, customerid,
-					driverid,
+					driverid, supplierid,
 					metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid
 				) 
 				VALUES
 				(
 					'$fname','$lname','$login', '$md5passwd', '$fullname', 
 					'$email', $imageid, 'Y', '$guid', 'Y', $customerid,
-					$driverid,
+					$driverid, $supplierid,
 					NOW(), $currentmemberid, NOW(), $currentmemberid
 				)";
 		$result = @mysql_query($qry);

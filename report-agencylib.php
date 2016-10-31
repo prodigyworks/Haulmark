@@ -99,7 +99,7 @@
 								$this->addLine(
 										$this->getY(), 
 										array( 
-											"Booking"	=> getSiteConfigData()->bookingprefix . sprintf("%06d", $member['id']),
+											"Booking"	=> getBookingReference($member['id']),
 											"Agency"	=> $member['agencyname'],
 								            "Date"  	=> $member['startdatetime'],
 								            "Load"  	=> $member['loadname'],

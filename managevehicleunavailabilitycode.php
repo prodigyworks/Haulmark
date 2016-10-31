@@ -9,9 +9,12 @@
 	}
 	
 	$crud = new UnavailableCrud();
+	$crud->dialogwidth = 600;
 	$crud->title = "Vehicle Unavailability Codes";
 	$crud->table = "{$_SESSION['DB_PREFIX']}vehicleunavailabilityreasons";
-	$crud->sql = "SELECT * FROM {$_SESSION['DB_PREFIX']}vehicleunavailabilityreasons ORDER BY name";
+	$crud->sql = "SELECT * 
+				  FROM {$_SESSION['DB_PREFIX']}vehicleunavailabilityreasons 
+				  ORDER BY name";
 	
 	$crud->columns = array(
 			array(
@@ -27,6 +30,22 @@
 				'name'       => 'name',
 				'length' 	 => 60,
 				'label' 	 => 'Name'
+			),
+			array(
+				'name'       => 'defectnumberrequired',
+				'length' 	 => 20,
+				'label' 	 => 'Defect Number Required',
+				'type'       => 'COMBO',
+				'options'    => array(
+						array(
+							'value'		=> 'Y',
+							'text'		=> 'Yes'
+						),
+						array(
+							'value'		=> 'N',
+							'text'		=> 'No'
+						)
+					)
 			)
 		);
 		

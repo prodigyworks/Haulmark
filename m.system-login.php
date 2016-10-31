@@ -60,14 +60,16 @@
 
 		echo "</div>";
 	}
-?>
+	
+	$protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';			
+	?>
 	<form action="m.system-login-exec.php?session=<?php echo urlencode($_GET['session']); ?>" method="post" id="loginForm">
 		<br>
 		<div><label>User name</label></div>
 		<input type="text" name="login" id="login" value="<?php if (isset($_SESSION['ERR_USER'])) echo $_SESSION['ERR_USER']; ?>"/>
 		<br/>
 		<br/>
-		<input type="hidden" id="callback" name="callback" value="<?php if (isset($_GET['session'])) echo base64_decode( urldecode( $_GET['session'])); else echo "http://" . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']; ?>" />
+		<input type="hidden" id="callback" name="callback" value="<?php if (isset($_GET['session'])) echo base64_decode( urldecode( $_GET['session'])); else echo $protocol . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']; ?>" />
 		<div><label>Password</label></div>
 		<input type="password" name="password" id="password" value="" />
 		<br>

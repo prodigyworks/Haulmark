@@ -4,6 +4,11 @@
 	padding: 0
 }
 
+.dhx_cal_event_line {
+	box-shadow: 3px 3px 5px #888888;
+	border-radius: 3px;
+}
+
 .dhx_cal_data > table > tbody > tr > td {
 }
 

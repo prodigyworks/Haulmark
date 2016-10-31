@@ -44,7 +44,7 @@
         $invoicedate = $member['orderdate2'];
         $sagecustomerref = $member['sagecustomerref'];
         $itemid = $member['itemid'];
-        $description = "SALES TRANSPORT - " . getSiteConfigData()->bookingprefix . sprintf("%06d", $bookingid);
+        $description = "SALES TRANSPORT - " . getBookingReference($bookingid);
         $vat = $member['vat'];
 
         array_push(

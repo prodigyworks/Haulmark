@@ -22,9 +22,11 @@
 		$website = mysql_escape_string($_POST['website']);
 		$vatregnumber = mysql_escape_string($_POST['vatregnumber']);
 		$vatprefix = mysql_escape_string($_POST['vatprefix']);
+		$ssl = mysql_escape_string($_POST['ssl']);
 		$companynumber = mysql_escape_string($_POST['companynumber']);
 		$currentrhaterms = mysql_escape_string($_POST['currentrhaterms']);
 		$termsandconditions = mysql_escape_string($_POST['termsandconditions']);
+		$webbookingconfirmation = mysql_escape_string($_POST['webbookingconfirmation']);
 		$financialyearend = convertStringToDate($_POST['financialyearend']);
 		$rhamembershipnumber = mysql_escape_string($_POST['rhamembershipnumber']);
 		$payereference = mysql_escape_string($_POST['payereference']);
@@ -53,9 +55,11 @@
 				website = '$website', 
 				vatregnumber = '$vatregnumber', 
 				vatprefix = '$vatprefix', 
+				sslencryption = '$ssl',
 				companynumber = '$companynumber', 
 				currentrhaterms = '$currentrhaterms', 
 				termsandconditions = '$termsandconditions', 
+				webbookingconfirmation = '$webbookingconfirmation', 
 				financialyearend = '$financialyearend', 
 				rhamembershipnumber = '$rhamembershipnumber', 
 				payereference = '$payereference', 
@@ -134,6 +138,12 @@
 	<label>VAT Prefix</label>
 	<input type="text" cols=2 id="vatprefix" name="vatprefix" value="<?php echo $member['vatprefix']; ?>" />
 
+	<label>SSL</label>
+	<SELECT id='ssl' name='ssl'>
+		<OPTION value='N'>No</OPTION>
+		<OPTION value='Y'>Yes</OPTION>
+	</SELECT>
+
 	<label>Company Number</label>
 	<input type="number" class="textbox20" id="companynumber" name="companynumber" value="<?php echo $member['companynumber']; ?>" />
 
@@ -142,6 +152,9 @@
 
 	<label>Terms And Conditions</label>
 	<textarea id="termsandconditions" name="termsandconditions" rows="15" cols="60" style="height:340px;width: 340px" class="tinyMCE"></textarea>
+
+	<label>Web Booking Confirmation</label>
+	<textarea id="webbookingconfirmation" name="webbookingconfirmation" rows="15" cols="60" style="height:340px;width: 340px" class="tinyMCE"></textarea>
 
 	<label>Financial Year</label>
 	<input type="text" class="datepicker" id="financialyearend" name="financialyearend" value="<?php echo $member['financialyearend']; ?>" />
@@ -189,7 +202,9 @@
 			$("#address").val("<?php echo escape_notes($member['address']); ?>");
 			$("#currentrhaterms").val("<?php echo escape_notes($member['currentrhaterms']); ?>");
 			$("#termsandconditions").val("<?php echo escape_notes($member['termsandconditions']); ?>");
+			$("#webbookingconfirmation").val("<?php echo escape_notes($member['webbookingconfirmation']); ?>");
 			$("#defaultworktype").val("<?php echo escape_notes($member['defaultworktype']); ?>");
+			$("#ssl").val("<?php echo escape_notes($member['sslencryption']); ?>");
 		});
 </script>
 	<?php

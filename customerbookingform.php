@@ -2,9 +2,9 @@
 	require_once("system-header.php"); 
 	require_once("tinymce.php"); 
 	?>
-<script src='js/jquery.ui.timepicker.js'></script>
-<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&region=EU&key=AIzaSyB1DBBtL19Tc4sz0Nl_tmGa014MeHtqjLI" type="text/javascript"></script>
 <script src='bookingscriptlibrary-20161018.js' type="text/javascript" charset="utf-8"></script>
+<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&region=EU&key=AIzaSyB1DBBtL19Tc4sz0Nl_tmGa014MeHtqjLI" type="text/javascript"></script>
+<script src='js/jquery.ui.timepicker.js'></script>
 <script type="text/javascript">
 	var directionsService = new google.maps.DirectionsService();
     var counter = 1;
@@ -29,28 +29,6 @@
 			    }
 			);            
 	}
-
-	$(document).ready(
-			function() {
-				$("#fromplace, #toplace").change(function() {
-					setTimeout(
-							function() { 
-								getLatLng($(this).attr("id"), $(this).val());
-							},
-							500
-						);
-					});
-
-		        var options = {
-		        		types: ['(cities)'],
-		        		region: "uk",
-		        		componentRestrictions: {country: ["uk"]}       
-		        	};
-
-			    new google.maps.places.Autocomplete(document.getElementById('toplace'), options);
-			    new google.maps.places.Autocomplete(document.getElementById('fromplace'), options);
-			}
-		);
 </script>
 <?php 
 	$address = "";
@@ -71,57 +49,37 @@
 ?>
 <form method="POST" id="bookform" action="customerbookingsave.php" enctype="multipart/form-data">
 	<h4><?php echo $_SESSION['title']; ?></h4>
+	<div id="map_canvas" class="modal"></div>
+	<div class="link2" style="padding:5px"  onclick="addPointBetweenNodesWeb()"><img src="images/add.png" class='pointimage'></img>&nbsp;Add Additional Drop / Collection</div>
+	<br>
+	<br>
 	<table cellspacing=6>
 		<tr valign="center">
 			<td>
 				&nbsp;
 			</td>
 			<td>
-				<table style="table-layout:fixed" width='700px'>
+				<table style="table-layout:fixed" width='800px'>
 					<tr>
 						<td style="width:340px"><b>Destination</b></td>
 						<td style="width:117px"><b>Date</b></td>
 						<td style="width:76px"><b>Time</b></td>
 						<td style="width:232px"><b>Booking Ref</b></td>
-						<td style="width:100px"><b>Phone</b></td>
+						<td style="width:103px"><b>Phone</b></td>
 					</tr>
 				</table>
 			</td>
 		</tr>
 		<tr valign="center">
-			<td>Collection Point</td>
+			<td valign=top>Collection/Delivery</td>
 			<td>
 				<input type="hidden" id="base_lng" name="base_lng" />
 				<input type="hidden" id="base_lat" name="base_lat" />
-				<input type="hidden" id="fromplace_lng" name="fromplace_lng" />
-				<input type="hidden" id="fromplace_lat" name="fromplace_lat" />
-				<input type="hidden" id="toplace_lng" name="toplace_lng" />
-				<input type="hidden" id="toplace_lat" name="toplace_lat" />
-				<div class="bookingjourneys">
-					<div>
-						<input required="true" type="text" style="width:300px" id="fromplace" name="fromplace" placeholder="Enter a location" onchange="calculateTimeNode(this, 1)" autocomplete="off">&nbsp;<div class='bubble' title='Required field'></div>&nbsp;
-						<input class="datepicker bookingdateclass" required="true" type="text" index='0' id="startdatetime"  onchange="calculateTimeNode(this, 1)" name="startdatetime" ><div class='bubble' title='Required field'></div>&nbsp;
-						<input class="timepicker bookingtimeclass" required="true" type="text" index='0' id="startdatetime_time" onchange="calculateTimeNode(this, 1)"   name="startdatetime_time"><div class='bubble' title='Required field'></div>&nbsp;
-						<input type="text" style="width:200px" id="fromplace_ref" name="fromplace_ref"><div class='bubble' title='Required field'></div>&nbsp;
-						<input type="tel" style="width:80px" id="fromplace_phone" name="fromplace_phone"><div class='bubble' title='Required field'></div>
-						&nbsp;<img src="images/add.png" class='pointimage' onclick="addPointBetweenNodes()"></img>
-					</div>
-				</div>
+				<input type="hidden" id="startdatetime" name="startdatetime" />
+				<input type="hidden" id="enddatetime" name="enddatetime" />
+						
 				<div id="tolocationdiv" class="bookingjourneys">
 				</div>
-			</td>
-		</tr>
-		<tr valign="center">
-			<td>Delivery To</td>
-			<td>
-				<div class="bookingjourneys">
-					<input required="true" type="text" style="width:300px" id="toplace" name="toplace" placeholder="Enter a location" onchange="calculateTimeNode(this, 1)"  autocomplete="off">&nbsp;<div class='bubble' title='Required field'></div>&nbsp;
-					<input class="datepicker bookingdateclass" required="true" type="text" id="enddatetime" name="enddatetime" onchange="calculateTimeNode(this, 1)"  ><div class='bubble' title='Required field'></div>&nbsp;
-					<input class="timepicker bookingtimeclass" required="true" type="text" id="enddatetime_time" name="enddatetime_time"><div class='bubble' title='Required field'></div>&nbsp;
-					<input type="text" style="width:200px" id="toplace_ref" name="toplace_ref"><div class='bubble' title='Required field'></div>&nbsp;
-					<input type="tel" style="width:80px" id="toplace_phone" name="toplace_phone"><div class='bubble' title='Required field'></div>
-				</div>
-				
 			</td>
 		</tr>
 		<tr>
@@ -151,7 +109,7 @@
 		<tr>
 			<td>&nbsp;</td>
 			<td>
-				<a href="javascript: if (verifyStandardForm('#bookform')) submit();" class="link1"><em><b>Confirm</b></em></a>
+				<a href="javascript: if (verifyStandardForm('#bookform')) submit();" class="link1"><em><b>Confirm Booking</b></em></a>
 			</td>
 		</tr>
 	</table>
@@ -164,9 +122,26 @@
 		e.preventDefault();
 	}
 
+	function addPointBetweenNodesWeb() {
+		addPointBetweenNodes(true);
+	}
+
+	function initializeMap () {
+	}
+
+    function getAverageWaitTime() {
+      	return <?php echo getSiteConfigData()->averagewaittime * 60; ?>;
+    }		
+
 	$(document).ready(
 			function() {
-				$("#fromplace").val("<?php echo $address; ?>").trigger("change");
+				addPoint(true);
+				addPoint(true);
+
+<?php 
+
+?>				
+				$("#tolocationdiv .pointimage").hide();
 			}
 		);
 </script>

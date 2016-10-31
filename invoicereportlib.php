@@ -162,7 +162,7 @@ class InvoiceReport extends PDFReport {
 							}
 							
 							$line = array(
-								"Job"    => getSiteConfigData()->bookingprefix . sprintf("%06d", $itemmember['bookingid']),
+								"Job"    => getBookingReference($itemmember['bookingid']),
 								"Date"  => $itemmember['bookingdate'],
 								"Ref"  => $order,
 								"Collection"  => $itemmember['fromplace'],

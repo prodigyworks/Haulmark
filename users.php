@@ -307,10 +307,12 @@
 	$crud->table = "{$_SESSION['DB_PREFIX']}members";
 	
 	$crud->sql = 
-			"SELECT A.*, B.name
+			"SELECT A.*, B.name, C.name AS suppliername
 			 FROM {$_SESSION['DB_PREFIX']}members A 
 			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer B
 			 ON B.id = A.customerid 
+			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}supplier C
+			 ON C.id = A.supplierid 
 			 ORDER BY A.firstname, A.lastname"; 
 			
 	$crud->columns = array(
@@ -354,6 +356,13 @@
 				'name'       => 'name',
 				'length' 	 => 30,
 				'label' 	 => 'Customer',
+				'editable'	 => false,
+				'bind'		 => false
+			),
+			array(
+				'name'       => 'suppliername',
+				'length' 	 => 30,
+				'label' 	 => 'Supplier',
 				'editable'	 => false,
 				'bind'		 => false
 			),

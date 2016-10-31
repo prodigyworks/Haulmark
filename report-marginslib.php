@@ -24,13 +24,13 @@
 							"Booking Number"	=> 24,
 				            "Date"  			=> 20,
 				            "Company Name"  	=> 44,
-				            "Journey"  			=> 89,
+				            "Journey"  			=> 77,
 				            "Pallets"  			=> 20,
 				            "Weight (Kg)"  		=> 20,
-				            "Revenue"  			=> 15,
-							"Cost"				=> 15,
-							"Profit"			=> 15,
-							"Profit %"		    => 15
+				            "Revenue"  			=> 18,
+							"Cost"				=> 18,
+							"Profit"			=> 18,
+							"Profit %"		    => 18
 						)
 				);
 				
@@ -84,7 +84,6 @@
 					    ON B.id = A.customerid
 					    WHERE DATE(A.startdatetime) >= '$dateFrom'
 					    AND DATE(A.startdatetime) <= '$dateTo'
-					    AND B.selfbilledinvoices != 'N'
 					    AND A.statusid = 7
 					    $and
 					    ORDER BY B.name, A.id DESC";
@@ -119,7 +118,7 @@
 								$this->addLine(
 										$this->getY(), 
 										array( 
-												"Booking Number"	=> getSiteConfigData()->bookingprefix . sprintf("%06d", $member['charge']),
+												"Booking Number"	=> getBookingReference($member['id']),
 									            "Date"  			=> $member['startdatetime'],
 									            "Company Name"  	=> $member['customername'],
 									            "Journey"  			=> $member['legsummary'],

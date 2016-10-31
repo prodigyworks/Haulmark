@@ -2,7 +2,7 @@
 	require_once("system-db.php");
 	
 	function getJourneyDescription($bookingid) {
-		$sql ="SELECT A.place, A.departuretime, A.id
+		$sql ="SELECT A.place, A.id
 			   FROM {$_SESSION['DB_PREFIX']}bookingleg A
 			   WHERE A.bookingid = $bookingid
 			   ORDER BY A.id";

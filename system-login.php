@@ -1,4 +1,16 @@
 <?php 
+	require_once("system-db.php");
+	
+	start_db();
+	
+	$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    	
+	if (getSiteConfigData()->ssl == "Y" && $protocol == "http://" && strpos(getSiteConfigData()->domainurl, "https://") === 0) {
+//		logError( "PROT:$protocol AND " . getSiteConfigData()->domainurl , false);
+		header("location: " . getSiteConfigData()->domainurl);
+		exit(0);
+	}
+	
 	require_once("system-header.php"); 
 	require_once("confirmdialog.php");
 	
@@ -45,7 +57,7 @@
 				<input type="text" name="login" id="login" value="<?php if (isset($_SESSION['ERR_USER'])) echo $_SESSION['ERR_USER']; ?>"/>
 				<br/>
 				<br/>
-				<input type="hidden" id="callback" name="callback" value="<?php if (isset($_GET['session'])) echo base64_decode( urldecode( $_GET['session'])); else echo "http://" . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']; ?>" />
+				<input type="hidden" id="callback" name="callback" value="<?php if (isset($_GET['session'])) echo base64_decode( urldecode( $_GET['session'])); else echo $protocol . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']; ?>" />
 				<div><label>password</label></div>
 				<input type="password" name="password" id="password" value="" />
 				<div id="logindialoglogo" ></div>

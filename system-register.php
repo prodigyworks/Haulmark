@@ -28,16 +28,23 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	      		<OPTION value="ALLEGRO">Employee</OPTION>
 	      		<OPTION value="CUSTOMER">Customer</OPTION>
 	      		<OPTION value="DRIVER">Driver</OPTION>
+	      		<OPTION value="MAINTENANCE">Maintenance</OPTION>
 	      	</SELECT>
 	      </td>
 	    </tr>
-	    <tr id="customertype" style="display:none">
+	    <tr id="customertype" class="hidden usertype">
 	      <td>Customer</td>
 	      <td>
 	      	<?php createCombo("customerid", "id", "name", "{$_SESSION['DB_PREFIX']}customer", "", false)?>
 	      </td>
 	    </tr>
-	    <tr id="drivertype" style="display:none">
+	    <tr id="suppliertype" class="hidden usertype">
+	      <td>Supplier</td>
+	      <td>
+	      	<?php createCombo("supplierid", "id", "name", "{$_SESSION['DB_PREFIX']}supplier", "", false)?>
+	      </td>
+	    </tr>
+	    <tr id="drivertype" class="hidden usertype">
 	      <td>Driver</td>
 	      <td>
 	      	<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "", false)?>
@@ -97,20 +104,17 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	});
 
 	function accounttype_onchange() {
-		$("#customerid").val("0");
-		$("#driverid").val("0");
+		$(".usertype").val("0");
+		$(".usertype").hide();
 		
-		if ($("#accounttype").val() == "ALLEGRO") {
-			$("#customertype").hide();
-			$("#drivertype").hide();
-
-		} else if ($("#accounttype").val() == "DRIVER") {
-			$("#customertype").hide();
+		if ($("#accounttype").val() == "DRIVER") {
 			$("#drivertype").show();
+
+		} else if ($("#accounttype").val() == "MAINTENANCE") {
+			$("#suppliertype").show();
 
 		} else if ($("#accounttype").val() == "CUSTOMER") {
 			$("#customertype").show();
-			$("#drivertype").hide();
 		}
 	}
 				

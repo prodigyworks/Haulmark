@@ -169,21 +169,27 @@ function validateForm(id) {
 	return true;
 }
 
-function addPointBetweenNodes() {
-	var prevTime = $("#startdatetime_time").val();
-	var prevDate = $("#startdatetime").val();
+function addPointBetweenNodes(hideDeparture) {
+	var prevArrivalTime = $("#startdatetime_time").val();
+	var prevArrivalDate = $("#startdatetime").val();
+	var prevDepartureTime = $("#startdatetime_time").val();
+	var prevDepartureDate = $("#startdatetime").val();
 	
 	$(".pointcontainer:last").each(
 			function() {
-				prevTime = $(this).find(".timepicker").val();
-				prevDate = $(this).find(".datepicker").val();
+				prevArrivalTime = $(this).find(".arrivaltime").val();
+				prevArrivalfDate = $(this).find(".arrivaldate").val();
+				prevDepartureTime = $(this).find(".departuretime").val();
+				prevDepartureDate = $(this).find(".departuredate").val();
 			}
 		);
 		
-	var index = addPoint();
+	var index = addPoint(hideDeparture);
 	
-	$("#pointdate_" + index).val(prevDate);
-	$("#pointtime_" + index).val(prevTime);
+	$("#pointarrivaldate_" + index).val(prevArrivalDate);
+	$("#pointarrivaltime_" + index).val(prevArrivalTime);
+	$("#pointdeparturedate_" + index).val(prevDepartureDate);
+	$("#pointdeparturetime_" + index).val(prevDepartureTime);
 }
 
 function showRateCard() {
@@ -236,34 +242,70 @@ function showRateCard() {
 }
 
 
-function addPoint() {
+function addPoint(hideDeparture) {
+	var html;
     var pointoptions = {
     		types: ['(cities)'],
     		componentRestrictions: {country: ["uk"]}   
     	};
-	var html = "<div id='container_" + counter + "' class='pointcontainer bookingjourneys' index='" + counter + "' style='padding-top:3px'>\n" +
-	   		   "	<input class='point' id='point_" + counter  + "' index='" + counter + "' required='true' type='text' style='width:300px' name='point_" + counter + "'>&nbsp;\n" +
-			   "	<div class='bubble' title='Required field'></div>\n" +
-			   "	<input class='datepicker bookingdateclass' required='true' index='" + counter + "' type='text' id='pointdate_" + counter +  "' name='pointdate_" + counter + "'>\n" +
-			   "	<div class='bubble' title='Required field'></div>\n" +
-			   "	<input class='timepicker bookingtimeclass' required='true' index='" + counter + "' type='text' id='pointtime_" + counter + "' name='pointtime_" + counter + "'>\n" +
-			   "	<div class='bubble' title='Required field'></div>\n" +
-	   		   "    <input type='text' class='reference' style='width:200px' id='point_" + counter + "_ref' name='point_" + counter + "_ref'>\n" +
-			   "	<div class='bubble' title='Required field'></div>\n" +
-			   "	<input type='tel' class='phone' style='width:80px' id='point_" + counter + "_phone' name='point_" + counter + "_phone'>\n" +
-			   "	<div class='bubble' title='Required field'></div>\n" +
-			   "	<img src='images/minus.gif' class='pointimage' onclick='removePoint(this)'></img>" +
-	   		   "	<input id='point_" + counter  + "_lng' type='hidden' name='point_" + counter + "_lng'>\n" +
-	   		   "	<input id='point_" + counter  + "_lat' type='hidden' name='point_" + counter + "_lat'>\n" +
-			   "</div>";
-	$("#tolocationdiv").append(html);
-	$("#pointdate_" + counter).datepicker({dateFormat: "dd/mm/yy"});
-	$("#pointtime_" + counter).timepicker();
-	
-    var input = document.getElementById('point_' + counter);
-    new google.maps.places.Autocomplete(input, pointoptions);
-    var pacContainerInitialized = false; 
     
+    if (hideDeparture) {
+    	html = "<div id='container_" + counter + "' class='pointcontainer bookingjourneys' index='" + counter + "' style='padding-top:3px'>\n" +
+		   "	<input class='point' id='point_" + counter  + "' index='" + counter + "' required='true' type='text' style='width:300px' name='point_" + counter + "'>&nbsp;\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input class='datepicker bookingdateclass arrivaldate' required='true' index='" + counter + "' type='text' id='pointarrivaldate_" + counter +  "' name='pointarrivaldate_" + counter + "'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input class='timepicker bookingtimeclass arrivaltime' required='true' index='" + counter + "' type='text' id='pointarrivaltime_" + counter + "' name='pointarrivaltime_" + counter + "'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input class='datepicker bookingdateclass departuredate' index='" + counter + "' type='hidden' id='pointdeparturedate_" + counter +  "' name='pointdeparturedate_" + counter + "'>\n" +
+		   "	<input class='timepicker bookingtimeclass departuretime' index='" + counter + "' type='hidden' id='pointdeparturetime_" + counter + "' name='pointdeparturetime_" + counter + "'>\n" +
+		   "    <input type='text' class='reference' style='width:200px' id='point_" + counter + "_ref' name='point_" + counter + "_ref'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input type='tel' class='phone' style='width:80px' id='point_" + counter + "_phone' name='point_" + counter + "_phone'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<img src='images/minus.gif' class='pointimage' onclick='removePoint(this)'></img>" +
+		   "	<input id='point_" + counter  + "_lng' type='hidden' name='point_" + counter + "_lng'>\n" +
+		   "	<input id='point_" + counter  + "_lat' type='hidden' name='point_" + counter + "_lat'>\n" +
+		   "</div>";
+    	
+    } else {
+    	html = "<div id='container_" + counter + "' class='pointcontainer bookingjourneys' index='" + counter + "' style='padding-top:3px'>\n" +
+		   "	<input class='point' id='point_" + counter  + "' index='" + counter + "' required='true' type='text' style='width:300px' name='point_" + counter + "'>&nbsp;\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input class='datepicker bookingdateclass arrivaldate' required='true' index='" + counter + "' type='text' id='pointarrivaldate_" + counter +  "' name='pointarrivaldate_" + counter + "'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input class='timepicker bookingtimeclass arrivaltime' required='true' index='" + counter + "' type='text' id='pointarrivaltime_" + counter + "' name='pointarrivaltime_" + counter + "'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input class='datepicker bookingdateclass departuredate' required='true' index='" + counter + "' type='text' id='pointdeparturedate_" + counter +  "' name='pointdeparturedate_" + counter + "'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input class='timepicker bookingtimeclass departuretime' required='true' index='" + counter + "' type='text' id='pointdeparturetime_" + counter + "' name='pointdeparturetime_" + counter + "'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "    <input type='text' class='reference' style='width:200px' id='point_" + counter + "_ref' name='point_" + counter + "_ref'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<input type='tel' class='phone' style='width:80px' id='point_" + counter + "_phone' name='point_" + counter + "_phone'>\n" +
+		   "	<div class='bubble' title='Required field'></div>\n" +
+		   "	<img src='images/minus.gif' class='pointimage' onclick='removePoint(this)'></img>" +
+		   "	<input id='point_" + counter  + "_lng' type='hidden' name='point_" + counter + "_lng'>\n" +
+		   "	<input id='point_" + counter  + "_lat' type='hidden' name='point_" + counter + "_lat'>\n" +
+		   "</div>";
+    	
+    }
+	$("#tolocationdiv").append(html);
+	$("#pointarrivaldate_" + counter).datepicker({dateFormat: "dd/mm/yy"});
+	$("#pointarrivaltime_" + counter).timepicker();
+	$("#pointdeparturedate_" + counter).datepicker({dateFormat: "dd/mm/yy"});
+	$("#pointdeparturetime_" + counter).timepicker();
+	
+    new google.maps.places.Autocomplete(
+    		document.getElementById('point_' + counter), 
+    		{
+        		region: "uk",
+        		componentRestrictions: {country: ["uk"]}       
+        	}
+        ).setTypes(['establishment']);
+    var pacContainerInitialized = false;
+
+	
     $('#point_' + counter).keypress(function() { 
         if (! pacContainerInitialized) { 
                $('.pac-container').css('z-index', '9999'); 
@@ -273,8 +315,10 @@ function addPoint() {
 
 
 	$('#point_' + counter).change(calculatePoint);
-	$('#pointdate_' + counter).change(calculateTime);
-	$('#pointtime_' + counter).change(calculateTime);
+	$('#pointarrivaldate_' + counter).change(calculateArrivalTime);
+	$('#pointarrivaltime_' + counter).change(calculateArrivalTime);
+	$('#pointdeparturedate_' + counter).change(calculateTime);
+	$('#pointdeparturetime_' + counter).change(calculateTime);
 
     counter++;
     
@@ -346,7 +390,9 @@ function loadLegs(id) {
 			{ 
 				sql: "SELECT B.id, A.fromplace, A.fromplace_ref, A.fromplace_phone, A.toplace, A.toplace_ref, A.toplace_phone, B.place, B.place_lng, place_lat, B.reference, B.phone, " +
 					 "DATE_FORMAT(B.departuretime, '%d/%m/%Y') AS departuredate, " +
-					 "DATE_FORMAT(B.departuretime, '%H:%i') AS departuretime " + 
+					 "DATE_FORMAT(B.departuretime, '%H:%i') AS departuretime, " + 
+					 "DATE_FORMAT(B.arrivaltime, '%d/%m/%Y') AS arrivaldate, " +
+					 "DATE_FORMAT(B.arrivaltime, '%H:%i') AS arrivaltime " + 
 					 "FROM hallmark_booking A " +
 					 "INNER JOIN hallmark_bookingleg B " + 
 					 "ON B.bookingid = A.id " +
@@ -364,8 +410,10 @@ function loadLegs(id) {
 						$("#point_" + i + "_lng").val(node.place_lng);
 						$("#point_" + i + "_ref").val(node.reference);
 						$("#point_" + i + "_phone").val(node.phone);
-						$("#pointdate_" + i).val(node.departuredate);
-						$("#pointtime_" + i).val(node.departuretime.replace(/^\s+|\s+$/g, ''));
+						$("#pointdeparturedate_" + i).val(node.departuredate);
+						$("#pointdeparturetime_" + i).val(node.departuretime.replace(/^\s+|\s+$/g, ''));
+						$("#pointarrivaldate_" + i).val(node.arrivaldate);
+						$("#pointarrivaltime_" + i).val(node.arrivaltime.replace(/^\s+|\s+$/g, ''));
 					}
 				}
 			},
@@ -373,34 +421,71 @@ function loadLegs(id) {
 		);
 }
 
-function getJourneyTime(startTime, startDate, nextDate, elapsedTime) {
-    var pointmin2 = Math.round( elapsedTime / 60 ) % 60;
-    var pointhr2 = Math.floor( elapsedTime / 3600 );
+function calculateArrivalTime() {
+	var index = $(this).attr("index");
+	var startDate = $("#pointarrivaldate_" + index).val();
+	var startTime = $("#pointarrivaltime_" + index).val();
+	
+	if (startDate == "") {
+		return;
+	}
+	
 	var prevhr = startTime.replace(/^\s+|\s+$/g, '').substr(0, 2);
 	var prevmin = startTime.replace(/^\s+|\s+$/g, '').substr(3, 5);
-	var legtotal = (prevhr * 3600) + (prevmin * 60);
-	var timeTaken = elapsedTime + parseInt(legtotal);
-    var pointmin = Math.round( timeTaken / 60 ) % 60;
-    var pointhr = (Math.floor( timeTaken / 3600 ) % 24);
-    var dateadd = (Math.floor( (timeTaken / 3600 ) / 24));
-        
-    if (dateadd > 0) {
-	    var strDate = startDate.split('/');
-    	var date = new Date(strDate[2], strDate[1] - 1, strDate[0]);
-    	
-    	date.setTime(date.getTime() + (dateadd * 24 * 60 * 60 * 1000));
-    	
-    	$("#" + nextDate).val(
+    var strDate = startDate.split('/');
+	var date = new Date(strDate[2], strDate[1] - 1, strDate[0]);
+
+	date.setHours(prevhr);
+	date.setMinutes(prevmin);
+	date = new Date(date.getTime() + (getAverageWaitTime() * 1000));
+	
+	$("#pointdeparturedate_" + index).val(
+			padZero(date.getDate()) + "/" + 
+			padZero(date.getMonth() + 1) + "/" + 
+			date.getFullYear()
+		);
+
+	$("#pointdeparturetime_" + index).val(
+			padZero(date.getHours()) + ":" + 
+			padZero(date.getMinutes())
+		).trigger("change");
+}
+
+function getJourneyTime(startTime, startDate, arrivalDate, arrivalTime, departureDate, departureTime, elapsedTime) {
+	var prevhr = startTime.replace(/^\s+|\s+$/g, '').substr(0, 2);
+	var prevmin = startTime.replace(/^\s+|\s+$/g, '').substr(3, 5);
+    var strDate = startDate.split('/');
+	var date = new Date(strDate[2], strDate[1] - 1, strDate[0]);
+	
+	date.setHours(prevhr);
+	date.setMinutes(prevmin);
+	date = new Date(date.getTime() + (elapsedTime * 1000));
+	
+	$("#" + arrivalDate).val(
+			padZero(date.getDate()) + "/" + 
+			padZero(date.getMonth() + 1) + "/" + 
+			date.getFullYear()
+		);
+
+	$("#" + arrivalTime).val(
+			padZero(date.getHours()) + ":" + 
+			padZero(date.getMinutes())
+		);
+
+	if (departureDate != null) {
+		date.setTime(date.getTime() + (getAverageWaitTime() * 1000));
+		
+    	$("#" + departureDate).val(
     			padZero(date.getDate()) + "/" + 
     			padZero(date.getMonth() + 1) + "/" + 
     			date.getFullYear()
     		);
     	
-    } else {
-    	$("#" + nextDate).val(startDate);
-    }
-    
-	return padZero(pointhr) + ":" + padZero(pointmin);
+    	$("#" + departureTime).val(
+    			padZero(date.getHours()) + ":" + 
+    			padZero(date.getMinutes())
+    		);
+	}
 }
 
 function fetchOverHeadRates() {

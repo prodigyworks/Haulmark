@@ -10,7 +10,7 @@
 	$customerid = 0;
 
 	if ($_POST['reference'] == "") {
-		$reference = getSiteConfigData()->bookingprefix . sprintf("%06d", $bookingid);
+		$reference = getBookingReference($bookingid);
 		
 	} else {
 		$reference = $_POST['reference'];

@@ -39,7 +39,7 @@
 			$this->addText( 170, $dynamicY + 25, $this->headermember['takenbyname'], 8, 3);
 
 			$this->addText( 145, $dynamicY + 31.5, "Our Order No:", 8, 3, 'B');
-			$this->addText( 170, $dynamicY + 31.5, getSiteConfigData()->bookingprefix . sprintf("%06d", $this->headermember['id'], 6), 8, 3, 'B');
+			$this->addText( 170, $dynamicY + 31.5, getBookingReference($this->headermember['id']), 8, 3, 'B');
 			
 			$invoiceaddress = "";
 			$deliveryaddress = "";

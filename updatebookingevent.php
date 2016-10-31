@@ -48,7 +48,8 @@
 	}
 	
 	$sql = "UPDATE {$_SESSION['DB_PREFIX']}bookingleg SET 
-			departuretime = DATE_ADD(departuretime, INTERVAL $minutes MINUTE)
+			departuretime = DATE_ADD(departuretime, INTERVAL $minutes MINUTE),
+			arrivaltime = DATE_ADD(arrivaltime, INTERVAL $minutes MINUTE)
 			WHERE bookingid = $id ";
 
 	$result = mysql_query($sql);

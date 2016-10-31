@@ -90,7 +90,7 @@
 								$this->addLine(
 										$this->getY(), 
 										array( 
-												"Booking Number"	=> getSiteConfigData()->bookingprefix . sprintf("%06d", $member['charge']),
+												"Booking Number"	=> getBookingReference($member['id']),
 									            "Date"  			=> $member['startdatetime'],
 									            "Company Name"  	=> $member['customername'],
 									            "Journey"  			=> $member['legsummary'],

@@ -122,7 +122,9 @@
 				<table style="table-layout:fixed" width='700px'>
 					<tr>
 						<td style="width:310px"><b>Destination</b></td>
-						<td style="width:80px"><b>Date</b></td>
+						<td style="width:80px"><b>Arrival</b></td>
+						<td style="width:50px"><b>Time</b></td>
+						<td style="width:80px"><b>Depart</b></td>
 						<td style="width:50px"><b>Time</b></td>
 						<td style="width:200px"><b>Booking Ref</b></td>
 						<td style="width:100px"><b>Phone</b></td>
@@ -131,11 +133,12 @@
 			</td>
 		</tr>
 		<tr valign="center">
-			<td>Collection Point</td>
+			<td>Collection / Delivery</td>
 			<td colspan=2>
 				<div id="tolocationdiv" class="bookingjourneys">
 					<div>
 						<input required="true" type="text" style="width:300px" id="fromplace" name="fromplace" placeholder="Enter a location" onchange="calculateTimeNode(this, 1)"   autocomplete="off">&nbsp;
+						<div style='display:inline-block; min-width:131px'>&nbsp;</div>
 						<input class="datepicker bookingdateclass" required="true" type="text" index='0' id="startdatetime"  onchange="calculateTimeNode(this, 1)" name="startdatetime" ><div class="bubble" title="Required field"></div>
 						<input class="timepicker bookingtimeclass" required="true" type="text" index='0' id="startdatetime_time" onchange="calculateTimeNode(this, 1)"   name="startdatetime_time"><div class="bubble" title="Required field"></div>
 						<input type="text" style="width:200px" id="fromplace_ref" name="fromplace_ref">
@@ -152,6 +155,7 @@
 					<input required="true" type="text" style="width:300px" id="toplace" name="toplace" placeholder="Enter a location" onchange="calculateTimeNode(this, 1)"  autocomplete="off">&nbsp;
 					<input class="datepicker bookingdateclass" required="true" type="text" id="enddatetime" name="enddatetime" onchange="calculateTimeNode(this, 1)"  ><div class="bubble" title="Required field"></div>
 					<input class="timepicker bookingtimeclass" required="true" type="text" id="enddatetime_time" name="enddatetime_time"><div class="bubble" title="Required field"></div>
+					<div style='display:inline-block; min-width:131px'>&nbsp;</div>
 					<input type="text" style="width:200px" id="toplace_ref" name="toplace_ref">
 					<input type="tel" style="width:80px" id="toplace_phone" name="toplace_phone">
 				</div>

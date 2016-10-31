@@ -59,7 +59,7 @@
 ?>
 		<tr class="seperator">
 			<td onclick="navigate('m.uploadpoddoc.php?id=<?php echo $member['id']; ?>')">
-				<?php echo getSiteConfigData()->bookingprefix . sprintf("%06d", $member['bookingid']); ?>
+				<?php echo getBookingReference($member['bookingid']); ?>
 			</td>
 			<td><?php echo $member['customername']; ?></td>
 			<td><?php echo $member['place']; ?></td>

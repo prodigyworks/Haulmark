@@ -9,7 +9,7 @@
 				sendDriverMessage(
 						$member['driverid'], 
 						$notificationSubject,
-						str_replace("{$id}", getSiteConfigData()->bookingprefix . sprintf("%06d", $id), $notification)
+						str_replace("{$id}", getBookingReference($id), $notification)
 					);
 			}
 			

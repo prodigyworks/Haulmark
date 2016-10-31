@@ -17,6 +17,7 @@ class SiteConfigClass {
 	public $currentrhaterms;
 	public $companynumber;
 	public $vatprefix;
+	public $ssl;
 	public $vatregnumber;
 	public $website;
 	public $trafficemail;
@@ -30,6 +31,7 @@ class SiteConfigClass {
 	public $defaultwagesmargin;
 	public $bookingprefix;
 	public $defaultworktype;
+	public $webbookingconfirmation;
 	public $termsandconditions;
 }
 
@@ -94,6 +96,7 @@ function start_db() {
 					$data->bookingprefix = $member['bookingprefix'];
 					$data->defaultworktype = $member['defaultworktype'];
 					$data->termsandconditions = $member['termsandconditions'];
+					$data->webbookingconfirmation = $member['webbookingconfirmation'];
 					$data->trafficofficetelephone1 = $member['trafficofficetelephone1'];
 					$data->trafficofficetelephone2 = $member['trafficofficetelephone2'];
 					$data->fax = $member['fax'];
@@ -102,6 +105,7 @@ function start_db() {
 					$data->website = $member['website'];
 					$data->vatregnumber = $member['vatregnumber'];
 					$data->vatprefix = $member['vatprefix'];
+					$data->ssl = $member['sslencryption'];
 					$data->companynumber = $member['companynumber'];
 					$data->currentrhaterms = $member['currentrhaterms'];
 					$data->financialyearend = $member['financialyearend'];
@@ -182,6 +186,26 @@ function GetUserName($userid = "") {
 function GetCustomerName($id) {
 	$qry = "SELECT A.name 
 			FROM {$_SESSION['DB_PREFIX']}customer A
+			WHERE A.id = $id";
+	$result = mysql_query($qry);
+	$name = "Unknown";
+
+	//Check whether the query was successful or not
+	if($result) {
+		while (($member = mysql_fetch_assoc($result))) {
+			$name = $member['name'];
+		}
+		
+	} else {
+		logError("$qry - " . mysql_error());
+	}
+	
+	return $name;
+}
+
+function GetSupplierName($id) {
+	$qry = "SELECT A.name 
+			FROM {$_SESSION['DB_PREFIX']}supplier A
 			WHERE A.id = $id";
 	$result = mysql_query($qry);
 	$name = "Unknown";
@@ -543,15 +567,44 @@ function sendDriverMessage($driverid, $subject, $message, $footer = "", $attachm
 	if (!empty($error)) echo $error;
 }
 
-function sendCourtMessage($id, $subject, $message, $footer = "", $attachments = array(), $action = "") {
-	$qry = "SELECT B.email, B.firstname FROM {$_SESSION['DB_PREFIX']}contacts B " .
-	"WHERE B.courtid = $id ";
+function sendCustomerMessage($id, $subject, $message, $footer = "", $attachments = array(), $action = "") {
+	$qry = "SELECT contact1, email 
+			FROM {$_SESSION['DB_PREFIX']}customer 
+			WHERE id = $id ";
 	$result = mysql_query($qry);
 
 	//Check whether the query was successful or not
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			smtpmailer($member['email'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['name'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, $attachments);
+			if ($member['email'] != "") {
+				smtpmailer($member['email'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['contact1'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, $attachments);
+			}
+				
+			$subject = mysql_escape_string($subject);
+			$message = mysql_escape_string($message);
+				
+			sendMessage($subject, $message, $id, $action);
+		}
+
+	} else {
+		logError($qry . " - " . mysql_error());
+	}
+
+	if (!empty($error)) echo $error;
+}
+
+function sendSupplierMessage($id, $subject, $message, $footer = "", $attachments = array(), $action = "") {
+	$qry = "SELECT firstname, email1
+			FROM {$_SESSION['DB_PREFIX']}supplier
+			WHERE id = $id ";
+	$result = mysql_query($qry);
+
+	//Check whether the query was successful or not
+	if($result) {
+		while (($member = mysql_fetch_assoc($result))) {
+			if ($member['email11'] != "") {
+				smtpmailer($member['email1'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, $attachments);
+			}
 				
 			$subject = mysql_escape_string($subject);
 			$message = mysql_escape_string($message);
@@ -633,7 +686,7 @@ function sendInternalUserMessage($id, $subject, $message, $footer = "", $attachm
 function createCombo($id, $value, $name, $table, $where = " ", $required = true, $isarray = false, $attributeArray = array(), $blank = true, $orderby = null) {
 	
 	if (! $required) {
-		echo "<select id='" . $id . "' ";
+		echo "<select class='datacombo' id='" . $id . "' ";
 	
 	} else {
 		echo "<select required='true' id='" . $id . "' ";
@@ -819,6 +872,16 @@ function getLoggedOnCustomerID() {
 	}
 	
 	return $_SESSION['SESS_CUSTOMER_ID'];
+}
+
+function getLoggedOnSupplierID() {
+	start_db();
+	
+	if (! isset($_SESSION['SESS_SUPPLIER_ID'])) {
+		return 0;
+	}
+	
+	return $_SESSION['SESS_SUPPLIER_ID'];
 }
 
 function getLoggedOnDriverID() {
@@ -1014,7 +1077,7 @@ function createBookingComboOptions($where) {
 	
 	if ($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			echo "<option value=" . $member['id'] . ">" . getSiteConfigData()->bookingprefix .  sprintf("%06d", $member['id'] , 6)  . " - " . $member['name'] . "</option>";
+			echo "<option value=" . $member['id'] . ">" . getBookingReference($member['id'])  . " - " . $member['name'] . "</option>";
 		}
 		
 	} else {
@@ -1083,10 +1146,12 @@ function login($login, $password, $redirect = true) {
 	
 	//Create query
 	$md5password = md5($password);
-	$qry = "SELECT DISTINCT A.*, B.name 
+	$qry = "SELECT DISTINCT A.*, B.name, C.name AS suppliername
 		    FROM {$_SESSION['DB_PREFIX']}members A 
 		    LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer B
 		    ON B.id = A.customerid 
+		    LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}supplier C
+		    ON C.id = A.supplierid 
 		    WHERE A.login = '$login' 
 		    AND A.passwd = '$md5password' 
 		   	AND A.accepted = 'Y'
@@ -1106,8 +1171,9 @@ function login($login, $password, $redirect = true) {
 			$_SESSION['SESS_DRIVER_ID'] = $member['driverid'];
 			$_SESSION['SESS_CUSTOMER_ID'] = $member['customerid'];
 			$_SESSION['SESS_CUSTOMER_NAME'] = $member['name'];
+			$_SESSION['SESS_SUPPLIER_ID'] = $member['supplierid'];
+			$_SESSION['SESS_SUPPLIER_NAME'] = $member['suppliername'];
 			$_SESSION['SESS_IMAGE_ID'] = $member['imageid'];
-			
 			
 			$qry = "SELECT * FROM {$_SESSION['DB_PREFIX']}userroles WHERE memberid = " . $_SESSION['SESS_MEMBER_ID'] . "";
 			$result=mysql_query($qry);
@@ -1232,6 +1298,10 @@ function isMobileUserAgent() {
 	}
 	
 	return false;
+}
+
+function getBookingReference($id) {
+	return getSiteConfigData()->bookingprefix . sprintf("%06d", $id);
 }
 
 function cache_function($functionname, $arguments = array()) {

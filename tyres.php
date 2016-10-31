@@ -2,57 +2,44 @@
 	require_once("crud.php");
 	require_once("datafilter.php");
 	
-	class VehicleCrud extends Crud {
+	class TrailerCrud extends Crud {
 		
 		function __construct() {
 			parent::__construct();
 			
-			$this->title = "Vehicles";
-			$this->table = "{$_SESSION['DB_PREFIX']}vehicleunavailability";
+			$this->title = "Tyres";
+			$this->table = "{$_SESSION['DB_PREFIX']}tyreunavailability";
 			$this->dialogwidth = 800;
 			$this->pagesize = 30;
 			$this->torow = 30;
 			$this->validateForm = "validateCrudForm";
 			$this->document = array(
 					'primaryidname'	 => 	"maintenanceid",
-					'tablename'		 =>		"vehicleunavailabilitydocs"
+					'tablename'		 =>		"tyreunavailabilitydocs"
 				);
 			
 			if (isset($_GET['date'])) {
 				$date = convertStringToDate($_GET['date']);
-				$and = "AND DATE(A.startdate) <= '$date' 
-						AND DATE(A.enddate)   >= '$date'";
+				$where = "WHERE DATE(A.startdate) <= '$date' 
+						  AND DATE(A.enddate)   >= '$date'";
 				
 			} else {
-				$and = "";
+				$where = "";
 			}
 			
-			$supplierid = getLoggedOnSupplierID();
-			
-			if ($supplierid != 0) {
-				$this->sql = 
-					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS vehiclename 
-					 FROM {$_SESSION['DB_PREFIX']}vehicleunavailability A 
-					 INNER JOIN {$_SESSION['DB_PREFIX']}vehicleunavailabilityreasons B
-					 ON B.id = A.reasonid 
-					 INNER JOIN {$_SESSION['DB_PREFIX']}vehicle C
-					 ON C.id = A.vehicleid 
-					 WHERE A.supplierid = $supplierid
-					 $and
-					 ORDER BY A.startdate";
-					 
-			} else {
-				$this->sql = 
-					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS vehiclename 
-					 FROM {$_SESSION['DB_PREFIX']}vehicleunavailability A 
-					 INNER JOIN {$_SESSION['DB_PREFIX']}vehicleunavailabilityreasons B
-					 ON B.id = A.reasonid 
-					 INNER JOIN {$_SESSION['DB_PREFIX']}vehicle C
-					 ON C.id = A.vehicleid 
-					 WHERE 1 = 1
-					 $and
-					 ORDER BY A.startdate";
-			}
+			$this->sql = 
+				"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, 
+				 C.registration AS trailername,
+				 D.registration AS vehiclename
+				 FROM {$_SESSION['DB_PREFIX']}tyreunavailability A 
+				 INNER JOIN {$_SESSION['DB_PREFIX']}tyreunavailabilityreasons B
+				 ON B.id = A.reasonid 
+				 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer C
+				 ON C.id = A.trailerid 
+				 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}vehicle D
+				 ON D.id = A.vehicleid 
+				 $where
+				 ORDER BY A.startdate";
 		 	
 			$this->columns = array(
 					array(
@@ -76,11 +63,14 @@
 						'table_name' => 'registration'
 					),
 					array(
-						'name'       => 'supplierid',
-						'label' 	 => 'Supplier',
-						'editable'	 => false,
-						'showInView' => false,
-						'default'	 => getLoggedOnSupplierID()
+						'name'       => 'trailerid',
+						'type'       => 'DATACOMBO',
+						'length' 	 => 30,
+						'label' 	 => 'Trailer',
+						'table'		 => 'trailer',
+						'table_id'	 => 'id',
+						'alias'		 => 'trailername',
+						'table_name' => 'registration'
 					),
 					array(
 						'name'       => 'startdate',
@@ -160,7 +150,7 @@
 						'type'       => 'DATACOMBO',
 						'length' 	 => 30,
 						'label' 	 => 'Reason',
-						'table'		 => 'vehicleunavailabilityreasons',
+						'table'		 => 'tyreunavailabilityreasons',
 						'table_id'	 => 'id',
 						'showInVIew' => false,
 						'alias'		 => 'name',
@@ -218,7 +208,7 @@
 		}
 		
 		public function editScreenSetup() {
-			include("vehicleunavailabilityform.php");
+			include("tyreunavailabilityform.php");
 		}
 		
 		public function afterInsertRow() {
@@ -277,6 +267,6 @@
 		}
 	}
 	
-	$crud = new VehicleCrud();
+	$crud = new TrailerCrud();
 	$crud->run();
 ?>
