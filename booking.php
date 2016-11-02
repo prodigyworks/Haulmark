@@ -429,7 +429,7 @@
 
 					setupEvents();
 
-					moveNowPoint();
+					scheduleCheck();
 				}
 			);
   	    
@@ -457,13 +457,39 @@
 				$(".nowpointer").css("height", ($("#scheduler_here").attr("offsetHeight") - 20) + "px");
 			}
 		}
+
+		function checkForOverdueBookings() {
+			$.ajax({
+					url: "checkoverduebookings.php",
+					dataType: 'html',
+					async: true,
+					data: { 
+					},
+					type: "POST",
+					error: function(jqXHR, textStatus, errorThrown) {
+						pwAlert("ERROR :" + errorThrown);
+					},
+					success: function(data) {
+						if (data != "") {
+							$("#appwarning").html(data);
+							$("#appwarning").show();
+							$("#appwarningclose").show();
+
+						} else {
+							$("#appwarning").hide();
+							$("#appwarningclose").hide();
+						}
+					}
+				});
+		}
 		
-		function moveNowPoint() {
+		function scheduleCheck() {
 			positionNowPoint();
+			checkForOverdueBookings();
 
 			setTimeout(
 					function() {
-						moveNowPoint();
+						scheduleCheck();
 					},
 					1000 * 60 * 2					
 				);
@@ -528,6 +554,7 @@
 						toplace: $("#toplace").val()
 					},
 					function(data) {
+						checkForOverdueBookings();
 					},
 					false
 				);
@@ -554,6 +581,8 @@
 			scheduler.config.mark_now = true;			
 			scheduler.config.first_hour = 6;
 			scheduler.config.last_hour = 23;
+			scheduler.config.container_autoresize = false;
+			scheduler.config.dy = 20;
 			//===============
 			//Configuration
 			//===============
@@ -609,7 +638,8 @@
 						x_length:	24,
 						y_unit:	sections,
 						y_property:	"section_id",
-						render:"bar"
+						render:"bar",
+						dy: 25
 					});
 
 			} else {
@@ -623,7 +653,8 @@
 					    x_length:7,    //number of 'x_step's that will be scrolled at a time
 						y_unit:	sections,
 						y_property:	"section_id",
-						render:"bar"
+						render:"bar",
+						dy: 25
 					});
 			}
 
@@ -683,7 +714,9 @@
 								mode: "<?php echo $mode; ?>"
 							},
 							function(data) {
-							}
+								checkForOverdueBookings();
+							},
+							true
 						);
 				});
 			scheduler.attachEvent("onDblClick",function(){return false;})
@@ -871,6 +904,7 @@
 						id: $("#bookingid").val()
 					},
 					function(data) {
+						checkForOverdueBookings();
 					},
 					false
 				);

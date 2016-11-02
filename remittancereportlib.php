@@ -9,7 +9,7 @@
 		function newPage() {
 			$this->AddPage();
 			
-			$this->Image("images/logomain2.png", 158.6, 6);
+			$this->Image("images/logoreport.png", 158.6, 6);
 			
 			$this->addText( 15, 13, "Allegro Transport Ltd", 12, 4, 'B') + 5;
 			$dynamicY = $this->addText(15, 20, getSiteConfigData()->address, 8, 3) + 4;

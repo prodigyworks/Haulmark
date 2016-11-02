@@ -63,6 +63,14 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	      <td><input required="true" name="confirmemail" type="email" class="textfield60" id="confirmemail" /></td>
 	    </tr>
 	    <tr>
+	      <td>Holiday Entitlement</td>
+	      <td><input type="text" size=2 id="holidayentitlement" name="holidayentitlement" /></td>
+	    </tr>
+	    <tr>
+	      <td>Start Date</td>
+	      <td><input type="text" id="startdate" name="startdate" class="datepicker" /></td>
+	    </tr>
+	    <tr>
 	      <td>Image</td>
 	      <td><input name="image" type="file" class="textfield60" id="image" /></td>
 	    </tr>

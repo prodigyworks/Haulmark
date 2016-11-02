@@ -88,10 +88,14 @@
 	}
 	
 	$crud = new RoleCrud();
-	$crud->dialogwidth = 500;
+	$crud->dialogwidth = 900;
 	$crud->title = "Roles";
 	$crud->table = "{$_SESSION['DB_PREFIX']}roles";
-	$crud->sql = "SELECT * FROM {$_SESSION['DB_PREFIX']}roles ORDER BY roleid";
+	$crud->sql = "SELECT A.*, B.label
+				  FROM {$_SESSION['DB_PREFIX']}roles A
+				  LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}pages B
+				  ON B.pageid = A.defaultpageid
+				  ORDER BY A.roleid";
 	$crud->subapplications = array(
 			array(
 				'title'		  => 'User Roles',
@@ -113,6 +117,29 @@
 				'name'       => 'roleid',
 				'length' 	 => 40,
 				'label' 	 => 'Role'
+			),
+			array(
+				'name'       => 'priority',
+				'length' 	 => 10,
+				'align'		 => 'right',
+				'label' 	 => 'Priority'
+			),
+			array(
+				'name'       => 'defaultpageid',
+				'type'       => 'DATACOMBO',
+				'length' 	 => 20,
+				'label' 	 => 'Default Page',
+				'table'		 => 'pages',
+				'table_id'	 => 'pageid',
+				'showInVIew' => false,
+				'alias'		 => 'label',
+				'required'	 => false,
+				'table_name' => 'label'
+			),
+			array(
+				'name'       => 'description',
+				'length' 	 => 120,
+				'label' 	 => 'Usage'
 			),
 			array(
 				'name'       => 'systemrole',

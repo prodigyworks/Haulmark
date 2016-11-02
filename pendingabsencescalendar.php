@@ -14,11 +14,13 @@
 
 <script>
 	$(document).ready(function() {
-	
+		$(".content").css("height", ($("body").attr("offsetHeight") - 200) + "px");
+		
 		$('#calendar').fullCalendar({
 			editable: true,
 			aspectRatio: 2.1,
 			allDayDefault: false, 
+			height: ($("body").attr("offsetHeight") - 200),
 			header: {
 				left: 'prev,next today',
 				center: 'title',
@@ -102,6 +104,8 @@
 				?>
 			]
 		});
+
+//		$('#calendar').fullCalendar('option', 'height', $("body").attr("offsetHeight") - 300);
 		
 	});
 	

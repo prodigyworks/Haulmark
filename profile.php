@@ -13,9 +13,16 @@
 		$memberid = $_GET['id'];
 	}
 	
-	$qry = "SELECT A.* " .
-			"FROM {$_SESSION['DB_PREFIX']}members A " .
-			"WHERE A.member_id = $memberid ";
+	$qry = "SELECT A.*,
+			(
+			 	SELECT SUM(D.daystaken) 
+			 	FROM {$_SESSION['DB_PREFIX']}holiday D 
+			 	WHERE YEAR(D.startdate) = YEAR(NOW()) 
+			 	AND D.memberid = A.member_id 
+			 	AND D.acceptedby IS NOT NULL
+			) AS daysremaining 
+			FROM {$_SESSION['DB_PREFIX']}members A 
+			WHERE A.member_id = $memberid ";
 	$result = mysql_query($qry);
 
 	//Check whether the query was successful or not
@@ -46,6 +53,14 @@
 	      	<input required="true" name="email" type="text" class="textfield60" id="email"  value="<?php echo $member['email']; ?>" />
 	      	<input name="confirmemail" type="hidden" class="textfield60" id="confirmemail" />
 	      </td>
+	    </tr>
+	    <tr>
+	      <td>Holiday Entitlement (Pro Rata)</td>
+	      <td><input readonly type="text" size=2 id="prorataholidayentitlement" value="<?php echo $member['prorataholidayentitlement']; ?>" /></td>
+	    </tr>
+	    <tr>
+	      <td>Holidays Remaining</td>
+	      <td><input readonly type="text" size=2 id="daysremaining" value="<?php echo $member['prorataholidayentitlement'] - $member['daysremaining']; ?>" /></td>
 	    </tr>
 	    <tr>
 	      <td>Image</td>
@@ -183,6 +198,9 @@
 	</form>
 <?php
 		}
+		
+	} else {
+		logError("$qry - " . mysql_error());
 	}
 			
 ?>

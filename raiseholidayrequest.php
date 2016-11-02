@@ -9,7 +9,14 @@
 			<tr>
 				<td width='200px'>Staff Member</td>
 				<td>
-					<?php createCombo("memberid", "member_id", "fullname", "{$_SESSION['DB_PREFIX']}members"); ?>
+					<?php 
+						if (isUserInRole("ADMIN")) {
+							createCombo("memberid", "member_id", "fullname", "{$_SESSION['DB_PREFIX']}members", "WHERE member_id IN (SELECT memberid FROM {$_SESSION['DB_PREFIX']}userroles WHERE roleid IN ('ALLEGRO', 'DRIVER'))"); 
+							
+						} else {
+							createCombo("memberid", "member_id", "fullname", "{$_SESSION['DB_PREFIX']}members", "WHERE member_id = " . getLoggedOnMemberID(), true, false, array(), false); 
+						}
+					?>
 				</td>
 			</tr>
 			<tr>

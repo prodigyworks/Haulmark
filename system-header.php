@@ -27,7 +27,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <link rel="shortcut icon" href="favicon.ico">
 
-<link href="css/style-18102016.css" rel="stylesheet" type="text/css" />
+<link href="css/style-31102016.css" rel="stylesheet" type="text/css" />
 <link href="css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
 <link href="css/dcmegamenu.css" rel="stylesheet" type="text/css" />
 <link href="css/skins/white.css" rel="stylesheet" type="text/css" />
@@ -38,7 +38,7 @@
 <script src="js/jquery-ui.min.js" type="text/javascript"></script>
 <script src='js/jquery.hoverIntent.minified.js' type='text/javascript'></script>
 <script src='js/jquery.dcmegamenu.1.3.3.js' type='text/javascript'></script>
-<script src="js/prodigyworks-20161018.js" language="javascript" ></script>
+<script src="js/prodigyworks-20161031.js" language="javascript" ></script>
 <!--[if lt IE 7]>
 <script type="text/javascript" src="js/ie_png.js"></script>
 <script type="text/javascript">
@@ -55,83 +55,96 @@
 		$_POST['command']();
 	}
 ?>
-<form method="post" id="commandForm" name="commandForm">
-	<input type="hidden" id="command" name="command" />
-	<input type="hidden" id="pk1" name="pk1" />
-	<input type="hidden" id="pk2" name="pk2" />
-	<input type="hidden" id="pk3" name="pk3" />
-</form>
-			<TABLE style="BORDER-COLLAPSE: collapse" cellSpacing=0 cellPadding=0 width='100%' align=left >
-				<TR>
-					<TD>
-						<div class="tail-top">
-						<!-- header -->
-						<?php 
-							if (isAuthenticated()) {
+	<form method="post" id="commandForm" name="commandForm">
+		<input type="hidden" id="command" name="command" />
+		<input type="hidden" id="pk1" name="pk1" />
+		<input type="hidden" id="pk2" name="pk2" />
+		<input type="hidden" id="pk3" name="pk3" />
+	</form>
+	
+	<div id="appwarning">
+	</div>
+	<div id="appwarningclose">
+	</div>
+
+	<TABLE style="BORDER-COLLAPSE: collapse" cellSpacing=0 cellPadding=0 width='100%' align=left >
+		<TR>
+			<TD>
+				<div class="tail-top">
+				<!-- header -->
+				<?php 
+					if (isAuthenticated()) {
+				?>
+					<div id="header" class='header1'>
+						<?php		
+							$memberid = getLoggedOnMemberID();
+							$auditid = $_SESSION['SESS_LOGIN_AUDIT'];
+							
+							$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET 
+									lastaccessdate = NOW(), 
+									metamodifieddate = NOW(), 
+									metamodifieduserid = $memberid
+									WHERE member_id = $memberid";
+							$result = mysql_query($qry);
+							
+							$qry = "UPDATE {$_SESSION['DB_PREFIX']}loginaudit SET 
+									timeoff = NOW(), 
+									metamodifieddate = NOW(), 
+									metamodifieduserid = $memberid
+									WHERE id = $auditid";
+							$result = mysql_query($qry);
 						?>
-							<div id="header" class='header1'>
-								<?php		
-									$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET " .
-											"lastaccessdate = NOW(), metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-											"WHERE member_id = " . $_SESSION['SESS_MEMBER_ID'] . "";
-									$result = mysql_query($qry);
-									
-									$qry = "UPDATE {$_SESSION['DB_PREFIX']}loginaudit SET " .
-											"timeoff = NOW(), metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-											"WHERE id = " . $_SESSION['SESS_LOGIN_AUDIT'] . "";
-									$result = mysql_query($qry);
-								?>
-								<div id="toppanel">
-									<div class="profileimage">
-									<?php 
+						<div id="toppanel">
+							<div class="profileimage">
+							<?php 
 										if (getLoggedOnImageID() != null && getLoggedOnImageID() != 0) {
 ?>	  
-											<img id="profileimage_img" src='system-imageviewer.php?id=<?php echo getLoggedOnImageID(); ?>' />
+									<img id="profileimage_img" src='system-imageviewer.php?id=<?php echo getLoggedOnImageID(); ?>' />
 <?php 
 										} else {
 ?>	  
-											<img id="profileimage_img" src='images/noprofile.png'  />
+									<img id="profileimage_img" src='images/noprofile.png'  />
 <?php 
 										}
 ?>									
-										<div class='profileimageselector'>
-											<img src='images/minimize.gif' />
-										</div>
-										<ul id="profileimageselectormenu" class="submenu">
-											<li onclick='navigate("profile.php");'>&nbsp;&nbsp;<img src='images/edit.png' />&nbsp;Edit Profile&nbsp;&nbsp;</a></li>
-											<li onclick='navigate("system-logout.php");'>&nbsp;&nbsp;<img src='images/logout2.png' />&nbsp;Log Out&nbsp;&nbsp;</a></li>
-										</ul>
-									</div>
+								<div class='profileimageselector'>
+									<img src='images/minimize.gif' />
 								</div>
+								<ul id="profileimageselectormenu" class="submenu">
+									<li onclick='navigate("profile.php");'>&nbsp;&nbsp;<img src='images/edit.png' />&nbsp;Edit Profile&nbsp;&nbsp;</a></li>
+									<li onclick='navigate("system-logout.php");'>&nbsp;&nbsp;<img src='images/logout2.png' />&nbsp;Log Out&nbsp;&nbsp;</a></li>
+								</ul>
 							</div>
-						<?php		
-							}
-						?>
-						<!-- content -->
-							<div id="content">
-								<div class="row-1">
-									<div class="inside">
-										<div class="container">
-											<div class="menu2">
-												<div>
-													<?php
-														if (isAuthenticated()) {
-															showMenu();
-														}
-													?>
-												</div>
-											</div>
-											<?php 
+						</div>
+					</div>
+				<?php		
+					}
+				?>
+				<!-- content -->
+					<div id="content">
+						<div class="row-1">
+							<div class="inside">
+								<div class="container">
+									<div class="menu2">
+										<div>
+											<?php
 												if (isAuthenticated()) {
-													
-										    		if (isset($_GET['callee'])) {
-														cache_function("showBreadCrumb", array("pageid" => $_SESSION['pageid'], "callee" => $_GET['callee']));
-														
-										    		} else {
-														cache_function("showBreadCrumb", array("pageid" => $_SESSION['pageid']));
-										    		}
-												
-													echo "<hr>\n";
+													showMenu();
 												}
 											?>
-											<div class="content">
+										</div>
+									</div>
+									<?php 
+										if (isAuthenticated()) {
+											
+								    		if (isset($_GET['callee'])) {
+												cache_function("showBreadCrumb", array("pageid" => $_SESSION['pageid'], "callee" => $_GET['callee']));
+												
+								    		} else {
+												cache_function("showBreadCrumb", array("pageid" => $_SESSION['pageid']));
+								    		}
+										
+											echo "<hr>\n";
+										}
+									?>
+									<div class="content">

@@ -21,15 +21,16 @@
 			$this->addCols(
 					28, 
 					array( 
-							"Booking"	=> 20,
-							"Agency"	=> 48,
-				            "Vehicle"  	=> 20,
-							"Driver"  	=> 30,
-							"Date"  	=> 17,
-				            "Load"  	=> 29,
-							"Journey"  	=> 83,
-				            "Hours"  	=> 15,
-				            "Cost"  	=> 15,
+							"Booking"		=> 20,
+							"Agency"		=> 41,
+				            "Vehicle"  		=> 20,
+				            "Registration"	=> 20,
+							"Driver"  		=> 30,
+							"Date"  		=> 17,
+				            "Load"  		=> 29,
+							"Journey"  		=> 70,
+				            "Hours"  		=> 15,
+				            "Cost"  		=> 15,
 					)
 				);
 				
@@ -40,6 +41,7 @@
 				            "Date"  	=> "L",
 				            "Load"  	=> "L",
 				            "Vehicle"  	=> "L",
+				            "Registration"	=> "L",
 							"Journey"  	=> "L",
 				            "Driver"  	=> "L",
 				            "Hours"  	=> "R",
@@ -69,6 +71,7 @@
 				
 				$sql = "SELECT A.*, DATE_FORMAT(A.startdatetime, '%d/%m/%Y') AS startdatetime,
 						DATEDIFF(A.enddatetime, A.startdatetime) AS days,
+						B.name AS drivername,
 						C.name AS loadname, C.agencydayrate,
 						D.description AS agencyname, D.registration
 						FROM  {$_SESSION['DB_PREFIX']}booking A
@@ -103,6 +106,7 @@
 								            "Date"  	=> $member['startdatetime'],
 								            "Load"  	=> $member['loadname'],
 								            "Vehicle"  	=> $member['registration'],
+								            "Registration"	=> $member['agencyvehicleregistration'],
 											"Journey"  	=> $member['legsummary'],
 								            "Driver"  	=> $member['drivername'],
 								            "Hours"  	=> $member['duration'],

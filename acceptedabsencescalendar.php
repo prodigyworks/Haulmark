@@ -19,6 +19,7 @@
 			editable: true,
 			aspectRatio: 2.1,
 			allDayDefault: false, 
+			height: ($("body").attr("offsetHeight") - 200),
 			header: {
 				left: 'prev,next today',
 				center: 'title',

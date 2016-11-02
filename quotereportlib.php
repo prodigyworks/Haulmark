@@ -9,7 +9,7 @@
 		function newPage() {
 			$this->AddPage();
 			
-			$this->Image("images/logomain2.png", 158.6, 6);
+			$this->Image("images/logoreport.png", 158.6, 6);
 //			$this->Image("images/footer.png", 80, 262);
 			
 			$this->addText( 83.5, 272, "Valid for 30 days", 8, 3, 'B');

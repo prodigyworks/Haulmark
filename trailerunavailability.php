@@ -226,16 +226,16 @@
 			var status = rowData['status'];
 
 			if (status == "Scheduled") {
-				$(this).jqGrid('setCell', rowid, 4, '', { background: '#AAAAFF' });
+				$(this).jqGrid('setCell', rowid, 4, '', { 'color': 'black', 'font-weight': 'bold', border: '1px solid grey', background: 'linear-gradient(to bottom, #b7deed 0%,#71ceef 50%,#21b4e2 51%,#b7deed 100%)' });
 			
 			} else if (status == "Awaiting Order Number") {
-				$(this).jqGrid('setCell', rowid, 4, '', { background: 'yellow' });
+				$(this).jqGrid('setCell', rowid, 4, '', { 'color': 'black', 'font-weight': 'bold', border: '1px solid grey', background: 'linear-gradient(to bottom, #fceabb 0%,#fccd4d 50%,#f8b500 51%,#fbdf93 100%)' });
 			
 			} else if (status == "In Progress") {
-				$(this).jqGrid('setCell', rowid, 4, '', { background: 'orange' });
+				$(this).jqGrid('setCell', rowid, 4, '', { 'color': 'black', 'font-weight': 'bold', border: '1px solid grey', background: 'linear-gradient(to bottom, #ffb76b 0%,#ffa73d 50%,#ff7c00 51%,#ff7f04 100%)' });
 			
 			} else {
-				$(this).jqGrid('setCell', rowid, 4, '', { background: '#99FF99' });
+				$(this).jqGrid('setCell', rowid, 4, '', { 'color': 'black', 'font-weight': 'bold', border: '1px solid grey', background: ' linear-gradient(to bottom, #bfd255 0%,#8eb92a 50%,#72aa00 51%,#9ecb2d 100%)' });
 			}
 			<?php
 		}

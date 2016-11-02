@@ -12,7 +12,7 @@
 			$this->addPage();
 			
 			$this->SetDrawColor(180, 180, 180);
-			$this->Image("images/logomain.png", 10, 6);
+			$this->Image("images/logoreport2.png", 10, 6);
 			$this->Image("images/report-footer.png", 75, 280);
 				
 			$y = $this->GetY() + 38;

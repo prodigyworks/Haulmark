@@ -21,6 +21,9 @@
 				<table>
 					<tr>
 						<td><b>Include Reasons (Vehicle)</b></td>
+						<td>
+							<input type="checkbox" id="togglevehicle"  />
+						</td>
 					</tr>
 <?php 
 		$sql = "SELECT id, name
@@ -38,7 +41,7 @@
 			?>
 			</td>
 			<td>
-				<input type="checkbox" name="vehiclereason[]" value="<?php echo $member['id']; ?>" checked />
+				<input type="checkbox" name="vehiclereason[]" value="<?php echo $member['id']; ?>"  />
 			</td>
 		</tr>
 <?php				
@@ -54,6 +57,9 @@
 				<table>
 					<tr>
 						<td><b>Include Reasons (Trailer)</b></td>
+						<td>
+							<input type="checkbox" id="toggletrailer"  />
+						</td>
 					</tr>
 <?php 
 		$sql = "SELECT id, name
@@ -71,7 +77,7 @@
 			?>
 			</td>
 			<td>
-				<input type="checkbox" name="trailerreason[]" value="<?php echo $member['id']; ?>" checked />
+				<input type="checkbox" name="trailerreason[]" value="<?php echo $member['id']; ?>"  />
 			</td>
 		</tr>
 <?php				
@@ -93,6 +99,33 @@
 	</table>
 </form>
 <script>
+	$(document).ready(
+			function() {
+				$("#toggletrailer").click(toggletrailer_change);
+				$("#togglevehicle").click(togglevehicle_change);
+			}
+		);
+	
+	function toggletrailer_change() {
+		var value = $("#toggletrailer").attr("checked");
+
+		$("input[name='trailerreason[]']").each(
+				function() {
+					$(this).attr("checked", value);
+				}
+			);
+	}
+	
+	function togglevehicle_change() {
+		var value = $("#togglevehicle").attr("checked");
+
+		$("input[name='vehiclereason[]']").each(
+				function() {
+					$(this).attr("checked", value);
+				}
+			);
+	}
+	
 	function submit(e) {
 		$('#searchform').submit();
 		e.preventDefault();

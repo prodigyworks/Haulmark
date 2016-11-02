@@ -40,7 +40,7 @@
 <script src="js/jquery-ui.min.js" type="text/javascript"></script>
 <script src='js/jquery.hoverIntent.minified.js' type='text/javascript'></script>
 <script src='js/jquery.dcmegamenu.1.3.3.js' type='text/javascript'></script>
-<script src="js/prodigyworks-20161018.js" language="javascript" ></script>
+<script src="js/prodigyworks-20161031.js" language="javascript" ></script>
 <!--[if lt IE 7]>
 <script type="text/javascript" src="js/ie_png.js"></script>
 <script type="text/javascript">

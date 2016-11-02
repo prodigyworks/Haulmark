@@ -857,7 +857,7 @@ function redirectWithoutRole($role, $location) {
 }
 
 function getEmailHeader() {
-	return "<img src='" . getSiteConfigData()->domainurl . "/images/logomain2.png' />";
+	return "<img src='" . getSiteConfigData()->domainurl . "/images/logoreport.png' />";
 }
 
 function getEmailFooter() {

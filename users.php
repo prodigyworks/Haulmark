@@ -145,6 +145,10 @@
 				return (node.firstname + " " + node.lastname);
 			}
 			
+			function daysRemaining(node) {
+				return node.prorataholidayentitlement - node.daysremaining;
+			}
+			
 			function holidayentitlement_onchange() {
 				var startDateStr = $("#startdate").val();
 				
@@ -307,7 +311,14 @@
 	$crud->table = "{$_SESSION['DB_PREFIX']}members";
 	
 	$crud->sql = 
-			"SELECT A.*, B.name, C.name AS suppliername
+			"SELECT A.*, B.name, C.name AS suppliername,
+			 (
+			 	SELECT SUM(D.daystaken) 
+			 	FROM {$_SESSION['DB_PREFIX']}holiday D 
+			 	WHERE YEAR(D.startdate) = YEAR(NOW()) 
+			 	AND D.memberid = A.member_id 
+			 	AND D.acceptedby IS NOT NULL
+			 ) AS daysremaining 
 			 FROM {$_SESSION['DB_PREFIX']}members A 
 			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer B
 			 ON B.id = A.customerid 
@@ -418,8 +429,19 @@
 				'label' 	 => 'Holidays (Pro Rata)'
 			),
 			array(
+				'name'       => 'remaining',
+				'type'		 => 'DERIVED',
+				'length' 	 => 12,
+				'filter'	 => false,
+				'bind'		 => false,
+				'editable' 	 => false,
+				'function'   => 'daysRemaining',
+				'align'		 => 'center',
+				'label' 	 => 'Days Remainings'
+			),
+			array(
 				'name'       => 'address',
-				'type'		 => 'TEXTAREA',
+				'type'		 => 'BASICTEXTAREA',
 				'required'	 => false,
 				'showInView' => false,
 				'filter'     => false,

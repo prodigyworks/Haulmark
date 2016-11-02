@@ -259,29 +259,41 @@
 			$this->dialogwidth = 500;
 			$this->onClickCallback = "checkStatus";
 	
-			if (isset($_GET['id'])) {
+			if (! isUserInRole("ADMIN")) {
+				$memberid = getLoggedOnMemberID();
+				
 				$this->sql = 
-					"SELECT A.*, " .
-					"B.prorataholidayentitlement," .
-					"B.fullname, " .
-					"(SELECT SUM(D.daystaken) FROM {$_SESSION['DB_PREFIX']}holiday D WHERE YEAR(D.startdate) = YEAR(A.startdate) AND D.memberid = A.memberid AND D.acceptedby IS NOT NULL) AS daysremaining " .
-					"FROM {$_SESSION['DB_PREFIX']}holiday A " .
-					"INNER JOIN {$_SESSION['DB_PREFIX']}members B " .
-					"ON B.member_id = A.memberid " .
-					"WHERE B.id = " . $_GET['id'];
+					"SELECT A.*, 
+					 B.prorataholidayentitlement,
+					 B.fullname, 
+					 (
+					 	SELECT SUM(D.daystaken) 
+					 	FROM {$_SESSION['DB_PREFIX']}holiday D 
+					 	WHERE YEAR(D.startdate) = YEAR(A.startdate) 
+					 	AND D.memberid = A.memberid 
+					 	AND D.acceptedby IS NOT NULL
+					 ) AS daysremaining 
+					 FROM {$_SESSION['DB_PREFIX']}holiday A 
+					 INNER JOIN {$_SESSION['DB_PREFIX']}members B 
+					 ON B.member_id = A.memberid 
+					 WHERE B.member_id = $memberid";
 				
 			} else {
 				$this->sql = 
-					"SELECT A.*, " .
-					"B.prorataholidayentitlement," .
-					"B.fullname, " .
-					"(SELECT SUM(D.daystaken) FROM {$_SESSION['DB_PREFIX']}holiday D WHERE YEAR(D.startdate) = YEAR(A.startdate) AND D.memberid = A.memberid AND D.acceptedby IS NOT NULL) AS daysremaining " .
-					"FROM {$_SESSION['DB_PREFIX']}holiday A " .
-					"INNER JOIN {$_SESSION['DB_PREFIX']}members B " .
-					"ON B.member_id = A.memberid";
+					"SELECT A.*, 
+					 B.prorataholidayentitlement,
+					 B.fullname, 
+					 (
+					 	SELECT SUM(D.daystaken) 
+					 	FROM {$_SESSION['DB_PREFIX']}holiday D 
+					 	WHERE YEAR(D.startdate) = YEAR(A.startdate) 
+					 	AND D.memberid = A.memberid 
+					 	AND D.acceptedby IS NOT NULL
+					 ) AS daysremaining 
+					 FROM {$_SESSION['DB_PREFIX']}holiday A 
+					 INNER JOIN {$_SESSION['DB_PREFIX']}members B 
+					 ON B.member_id = A.memberid";
 			}
-			
-			$this->sql = ($this->sql);
 			
 			$this->messages = array(
 					array('id'		  => 'holidayid'),

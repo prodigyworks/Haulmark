@@ -211,25 +211,24 @@
 			$this->dialogwidth = 940;
 			$this->onClickCallback = "checkStatus";
 	
-			if (isset($_GET['id'])) {
+			if (! isUserInRole("ADMIN")) {
+				$memberid = getLoggedOnMemberID();
+				
 				$this->sql = 
 					"SELECT A.*,
 					 B.fullname
 					 FROM {$_SESSION['DB_PREFIX']}absence A 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}members B 
 					 ON B.member_id = A.memberid 
-					 WHERE A.memberid = {$_GET['id']}";
+					 WHERE A.memberid = $memberid";
 				
 			} else {
 				$this->sql = 
-					"SELECT A.*,
-					 B.fullname
+					"SELECT A.*, B.fullname
 					 FROM {$_SESSION['DB_PREFIX']}absence A 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}members B 
 					 ON B.member_id = A.memberid";
 			}
-			
-			$this->sql = ($this->sql);
 			
 			$this->messages = array(
 					array('id'		  => 'absenceid'),

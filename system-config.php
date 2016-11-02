@@ -409,7 +409,7 @@
 		return $menuHTML;
     }
 	
-		function createDocumentLink() {
+	function createDocumentLink() {
 		?>
 		<div class='modal documentmodal' id='documentDialog'>
 		<iframe width=100% height=100% src='' id='documentiframe' frameborder='0' scrolling='no' src='' ></iframe>
