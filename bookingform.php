@@ -81,7 +81,7 @@
 		<tr valign="center">
 			<td>Trailer</td>
 			<td>
-				<?php createCombo("trailerid", "id", "registration", "{$_SESSION['DB_PREFIX']}trailer", "", false); ?>
+				<?php createCombo("trailerid", "id", "registration", "{$_SESSION['DB_PREFIX']}trailer", "WHERE active = 'Y'", false); ?>
 			</td>
 		</tr>
 		<tr class="drivernamerow">

@@ -10,7 +10,7 @@
 	$crud = new ContactCrud();
 	$crud->title = "Vehicle Types";
 	$crud->table = "{$_SESSION['DB_PREFIX']}vehicletype";
-	$crud->dialogwidth = 400;
+	$crud->dialogwidth = 600;
 	$crud->sql = 
 			"SELECT A.* FROM {$_SESSION['DB_PREFIX']}vehicletype A 
 			 ORDER BY A.name";
@@ -35,6 +35,15 @@
 				'name'       => 'name',
 				'length' 	 => 30,
 				'label' 	 => 'Name'
+			),
+			array(
+				'name'       => 'imageid',
+				'type'		 => 'IMAGE',
+				'length' 	 => 64,
+				'required'	 => false,
+				'showInView' => false,
+				'filter'	 => false,
+				'label' 	 => 'Image'
 			),
 			array(
 				'name'       => 'allegrodayrate',

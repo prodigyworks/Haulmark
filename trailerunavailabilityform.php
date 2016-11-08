@@ -7,7 +7,7 @@
 		<tr>
 			<td>Trailer <span class="requiredmarker">*</span></td>
 			<td>
-				<?php createCombo("trailerid", "id", "registration", "{$_SESSION['DB_PREFIX']}trailer"); ?>
+				<?php createCombo("trailerid", "id", "registration", "{$_SESSION['DB_PREFIX']}trailer", "WHERE active = 'Y'"); ?>
 			</td>
 		</tr>
 		<tr>

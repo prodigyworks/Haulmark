@@ -21,6 +21,7 @@
 		$trafficemail = mysql_escape_string($_POST['trafficemail']);
 		$website = mysql_escape_string($_POST['website']);
 		$vatregnumber = mysql_escape_string($_POST['vatregnumber']);
+		$timezoneoffset = mysql_escape_string($_POST['timezoneoffset']);
 		$vatprefix = mysql_escape_string($_POST['vatprefix']);
 		$ssl = mysql_escape_string($_POST['ssl']);
 		$companynumber = mysql_escape_string($_POST['companynumber']);
@@ -54,6 +55,7 @@
 				trafficemail = '$trafficemail', 
 				website = '$website', 
 				vatregnumber = '$vatregnumber', 
+				timezoneoffset = '$timezoneoffset',
 				vatprefix = '$vatprefix', 
 				sslencryption = '$ssl',
 				companynumber = '$companynumber', 
@@ -131,6 +133,9 @@
 
 	<label>Web Site</label>
 	<input type="url" class="textbox90" id="website" name="website" value="<?php echo $member['website']; ?>" />
+
+	<label>Timezone Offset</label>
+	<input type="text" class="textbox20" id="timezoneoffset" name="timezoneoffset" value="<?php echo $member['timezoneoffset']; ?>" />
 
 	<label>VAT Reg Number</label>
 	<input type="text" class="textbox20" id="vatregnumber" name="vatregnumber" value="<?php echo $member['vatregnumber']; ?>" />

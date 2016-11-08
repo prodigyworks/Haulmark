@@ -11,7 +11,7 @@
 			$this->addPage();
 			
 			$this->addHeading( 10, 6, "Report Bookings - Summary");
-			$this->Image("images/logomainmed.png", 150, 2);
+			$this->Image("images/logomain2.png", 173, 2);
 			$this->Image("images/report-footer.png", 55, 280);
 				
 			$y = $this->GetY() + 4;

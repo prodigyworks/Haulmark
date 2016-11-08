@@ -17,6 +17,16 @@
 	
 	class ContactCrud extends Crud {
 		
+		public function afterInsertRow() {
+?>
+			var status = rowData['active'];
+
+			if (status == "No") {
+				$(this).jqGrid('setRowData', rowid, false, { 'text-decoration': 'line-through', 'color': 'red' });
+		   	}
+<?php
+		}
+		
 		/* Post header event. */
 		public function postHeaderEvent() {
 			createConfirmDialog("disabledialog", "Disable Vehicle ?", "confirmDisableVehicle");

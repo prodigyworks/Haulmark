@@ -19,6 +19,7 @@ class SiteConfigClass {
 	public $vatprefix;
 	public $ssl;
 	public $vatregnumber;
+	public $timezoneoffset;
 	public $website;
 	public $trafficemail;
 	public $accountsemail;
@@ -104,6 +105,7 @@ function start_db() {
 					$data->trafficemail = $member['trafficemail'];
 					$data->website = $member['website'];
 					$data->vatregnumber = $member['vatregnumber'];
+					$data->timezoneoffset = $member['timezoneoffset'];
 					$data->vatprefix = $member['vatprefix'];
 					$data->ssl = $member['sslencryption'];
 					$data->companynumber = $member['companynumber'];
@@ -126,6 +128,8 @@ function start_db() {
 		}
 	    
 	}
+	
+	mysql_query("SET SESSION time_zone = '" . getSiteConfigData()->timezoneoffset . "'");
 }
 
 function GetOfficeID($userid) {

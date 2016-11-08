@@ -464,7 +464,7 @@
 		);
 	$crud->subapplications = array(
 			array(
-				'title'		  => 'Nav',
+				'title'		  => 'Navigate',
 				'imageurl'	  => 'images/minimize.gif',
 				'application' => 'managepages.php'
 			),

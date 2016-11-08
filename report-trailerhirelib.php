@@ -13,7 +13,7 @@
 			
 			$this->Image("images/logomain2.png", 260.6, 6);
 			
-			$this->addText( 10, 13, "Agency Report", 11, 'B');
+			$this->addText( 10, 13, "Trailer Hire Report", 11, 'B');
 			$this->addText( 10, 18, "For the period " . $this->dateFrom . " to " . $this->dateTo, 8, 'B');
 			
 		    $this->SetFont('Arial','', 6);
@@ -21,15 +21,16 @@
 			$this->addCols(
 					28, 
 					array( 
-							"Booking"	=> 20,
-							"Agency"	=> 48,
-				            "Vehicle"  	=> 20,
-							"Driver"  	=> 30,
-							"Date"  	=> 17,
-				            "Load"  	=> 29,
-							"Journey"  	=> 83,
-				            "Hours"  	=> 15,
-				            "Cost"  	=> 15,
+							"Booking"		=> 20,
+							"Agency"		=> 51,
+				            "Trailer"  		=> 20,
+				            "Registration"	=> 20,
+							"Driver"  		=> 30,
+							"Date"  		=> 17,
+				            "Load"  		=> 19,
+							"Journey"  		=> 70,
+				            "Hours"  		=> 15,
+				            "Cost"  		=> 15,
 					)
 				);
 				
@@ -39,7 +40,8 @@
 							"Agency"	=> "L",
 				            "Date"  	=> "L",
 				            "Load"  	=> "L",
-				            "Vehicle"  	=> "L",
+				            "Trailer"  	=> "L",
+				            "Registration"	=> "L",
 							"Journey"  	=> "L",
 				            "Driver"  	=> "L",
 				            "Hours"  	=> "R",
@@ -69,20 +71,20 @@
 				
 				$sql = "SELECT A.*, DATE_FORMAT(A.startdatetime, '%d/%m/%Y') AS startdatetime,
 						DATEDIFF(A.enddatetime, A.startdatetime) AS days,
-						B.name AS agencyname, 
+						B.name AS drivername,
 						C.name AS loadname, C.agencydayrate,
-						D.registration
+						D.description AS agencyname, D.registration
 						FROM  {$_SESSION['DB_PREFIX']}booking A
 					    INNER JOIN  {$_SESSION['DB_PREFIX']}driver B
 					    ON B.id = A.driverid
-					    INNER JOIN  {$_SESSION['DB_PREFIX']}vehicletype C
-					    ON C.id = A.vehicletypeid
-					    INNER JOIN  {$_SESSION['DB_PREFIX']}vehicle D
-					    ON D.id = A.vehicleid
+					    INNER JOIN  {$_SESSION['DB_PREFIX']}trailer D
+					    ON D.id = A.trailerid
+					    INNER JOIN  {$_SESSION['DB_PREFIX']}trailertype C
+					    ON C.id = D.trailertypeid
 					    WHERE DATE(A.startdatetime) >= '$dateFrom'
 					    AND DATE(A.startdatetime) <= '$dateTo'
 					    AND A.statusid >= 7
-					    AND B.agencydriver = 'Y'
+					    AND D.subcontractor = 'Y'
 					    ORDER BY A.id";
 				$result = mysql_query($sql);
 				
@@ -92,7 +94,7 @@
 							$this->AddPage();
 						}
 						
-						$cost = (ceil($member['duration']) * $member['agencydayrate']);
+						$cost = (($member['days'] + 1) * 80);
 						
 						$this->setY(
 								$this->GetY() +
@@ -103,7 +105,8 @@
 											"Agency"	=> $member['agencyname'],
 								            "Date"  	=> $member['startdatetime'],
 								            "Load"  	=> $member['loadname'],
-								            "Vehicle"  	=> $member['registration'],
+								            "Trailer"  	=> $member['registration'],
+								            "Registration"	=> $member['registration'],
 											"Journey"  	=> $member['legsummary'],
 								            "Driver"  	=> $member['drivername'],
 								            "Hours"  	=> $member['duration'],

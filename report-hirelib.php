@@ -11,9 +11,9 @@
 		function AddPage($orientation='', $size='') {
 			parent::AddPage($orientation, $size);
 			
-			$this->Image("images/logomain2.png", 244.6, 6);
+			$this->Image("images/logomain2.png", 260.6, 6);
 			
-			$this->addText( 10, 13, "Hire Report", 11, 'B');
+			$this->addText( 10, 13, "Vehicle Hire Report", 11, 'B');
 			$this->addText( 10, 18, "For the period " . $this->dateFrom . " to " . $this->dateTo, 8, 'B');
 			
 		    $this->SetFont('Arial','', 6);

@@ -35,6 +35,62 @@
 		div[aria-labelledby=ui-dialog-title-keydialog] {
 			opacity: 0.6 ! important;
 		}
+		.utilisation {
+			position: relative;
+			opacity: 0.4; 
+			background-color: white;
+			background: repeating-linear-gradient(
+			  45deg,
+			  #FFCCCC,
+			  #FFCCCC 10px,
+			  white 10px,
+			  white 20px
+			);
+			margin-top:-18px;
+			height:20px;
+			float:right;
+			margin-right:5px;
+			z-index:2022200;
+			border-left: 4px solid red;
+		}
+		.crap {
+			opacity: 0.5;
+		}
+		.utilisation2 {
+			opacity: 0.4; 
+			background-color: white;
+			background: repeating-linear-gradient(
+			  45deg,
+			  #FFCCCC,
+			  #FFCCCC 10px,
+			  white 10px,
+			  white 20px
+			);
+		}
+		.bookingcell2 {
+			position: absolute;
+			width:calc(100% - 15px);
+		}
+		.bookingcell4 {
+			text-align:right;
+			opacity: 0.4; 
+			width:calc(100% - 15px);
+			position: absolute;
+		}
+		.bookingcell3 {
+			display:inline-block;
+			background-color: white;
+			background: repeating-linear-gradient(
+			  45deg,
+			  #FFCCCC,
+			  #FFCCCC 10px,
+			  white 10px,
+			  white 20px
+			);
+		}
+		.bookingcell {
+			width:100%;
+		}
 		.nowpointer {
 			position: relative;
 			height:400px;
@@ -200,7 +256,6 @@
 <?php
 					}
 ?>
-
 					$("#xweek_tab").click(
 							function(e) {
 								call("vehiclemode", {
@@ -467,7 +522,7 @@
 					},
 					type: "POST",
 					error: function(jqXHR, textStatus, errorThrown) {
-						pwAlert("ERROR :" + errorThrown);
+//						pwAlert("ERROR :" + errorThrown);
 					},
 					success: function(data) {
 						if (data != "") {
@@ -554,13 +609,20 @@
 						toplace: $("#toplace").val()
 					},
 					function(data) {
+						scheduler.clearAll();
+						scheduler.setCurrentView(null, "timeline");
+						
 						checkForOverdueBookings();
+						setTimeout(
+								function() {
+//							        showUtilisations();
+								},
+								0
+							);
 					},
 					false
 				);
 
-			scheduler.clearAll();
-			scheduler.setCurrentView(null, "timeline");
 		}
 		
   	    function calculateRate2() {
@@ -589,7 +651,7 @@
 			var sections=[
 <?php 
 				if ($mode == "V") {
-					$sql = "SELECT A.id, CONCAT(B.name, CONCAT(' - ', A.registration)) AS name 
+					$sql = "SELECT A.id, B.imageid, A.registration AS name, B.name AS typename 
 							FROM {$_SESSION['DB_PREFIX']}vehicle A 
 							INNER JOIN {$_SESSION['DB_PREFIX']}vehicletype B 
 							ON B.id = A.vehicletypeid 
@@ -597,12 +659,13 @@
 							ORDER BY B.code, A.registration";
 
 				} else if ($mode == "T") {
-					$sql = "SELECT id, registration AS name 
+					$sql = "SELECT id, registration AS name, '' AS typename
 							FROM {$_SESSION['DB_PREFIX']}trailer 
+							WHERE A.active = 'Y' 
 							ORDER BY registration";
 					
 				} else if ($mode == "D") {
-					$sql = "SELECT id, CASE WHEN agencydriver = 'Y' THEN CONCAT('(Agency) - ', name) ELSE name END name 
+					$sql = "SELECT id, CASE WHEN agencydriver = 'Y' THEN CONCAT('(Agency) - ', name) ELSE name END name, '' AS typename 
 							FROM {$_SESSION['DB_PREFIX']}driver 
 							ORDER BY agencydriver, name";
 				}
@@ -618,9 +681,20 @@
 						} else {
 							echo ", ";
 						}
+						
+						if ($member['imageid'] != null) {
+?>
+						{key:<?php echo $member['id']; ?>, label:"<img src='system-imageviewer.php?id=<?php echo $member['imageid'] . "' />&nbsp;". $member['name']; ?>"}
+<?php
+						} else if ($member['typename'] != "") {
+?>
+						{key:<?php echo $member['id']; ?>, label:"<?php echo $member['typename'] . " - " . $member['name']; ?>"}
+<?php
+						} else {
 ?>
 						{key:<?php echo $member['id']; ?>, label:"<?php echo $member['name']; ?>"}
 <?php
+						}
 					}
 				}
 		
@@ -673,16 +747,31 @@
 			scheduler.attachEvent("onBeforeViewChange", function (old_mode, old_date, mode, date) {
 			    if (old_mode != mode || +old_date != +date)
 			        scheduler.clearAll();
+
+				setTimeout(
+						function() {
+//					        showUtilisations();
+						},
+						0
+					);
+						
 			    return true;
 			});
 			
-			scheduler.attachEvent("onSchedulerResize", positionNowPoint);
+			scheduler.attachEvent("onSchedulerResize", function() {
+				positionNowPoint();
+//				showUtilisations();
+			});
 			
 			scheduler.attachEvent("onOptionsLoadFinal", function () {
 				if (timemode == "D") {
 					$("#scheduler_here").append("<div class='nowpointer'></div>");
 					positionNowPoint();
 				}
+			});
+			
+			scheduler.attachEvent("onTimelineCreated", function (){
+			    return true; 
 			});
 			
 			scheduler.attachEvent("onViewChange", function (m, d) {
@@ -697,6 +786,8 @@
 						$(".nowpointer").hide();
 					}
 				}
+
+//				showUtilisations();
 			});
 			
 			scheduler.attachEvent("onBeforeEventCreated",function(){return false;})
@@ -715,6 +806,8 @@
 							},
 							function(data) {
 								checkForOverdueBookings();
+								showUtilisations();
+								
 							},
 							true
 						);
@@ -862,6 +955,16 @@
 			});
 			var dp = new dataProcessor("events.php");
 			dp.init(scheduler);
+		}
+
+		function showUtilisations(ev) {
+			$(".bookingcell3").each(
+					function() {
+						var width = new Number((($(this).parent().attr("offsetWidth") * ($(this).attr("utilisation") / 100))) - 5).toFixed(0) + "px";
+
+						$(this).css("width", width);
+					}
+				);
 		}
 		
 		function modSchedHeight(){
