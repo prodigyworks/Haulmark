@@ -64,7 +64,6 @@
 			<td>Charge</td>
 			<td>
 				<input required="true" type="text" style="width:72px" id="charge" name="charge"><div class="bubble" title="Required field"></div>
-				<input type="hidden" id="bookingtype" name="bookingtype">
 				<input type="hidden" id="worktypeid" name="worktypeid">
 				<input type="hidden" id="weight" name="weight">
 				<input type="hidden" id="vehiclecostoverhead" name="vehiclecostoverhead">

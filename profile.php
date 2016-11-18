@@ -37,8 +37,8 @@
 <?php
 			}
 ?>
-	<form id="loginForm" class="manualform" enctype="multipart/form-data" name="loginForm" method="post" action="system-register-exec.php?id=<?php echo $memberid; ?>">
-	  <table border="0" align="left" width='100%'>
+	<form id="loginForm" class="manualform entryform" enctype="multipart/form-data" name="loginForm" method="post" action="system-register-exec.php?id=<?php echo $memberid; ?>">
+	  <table border="0" align="left">
 	    <tr>
 	      <td>First Name </td>
 	      <td><input required="true" name="fname" type="text" class="textfield" id="fname" value="<?php echo $member['firstname']; ?>" /></td>
@@ -48,9 +48,15 @@
 	      <td><input required="true" name="lname" type="text" class="textfield" id="lname" value="<?php echo $member['lastname']; ?>" /></td>
 	    </tr>
 	    <tr>
+	      <td>Mobile Phone</td>
+	      <td>
+	      	<input required="true" name="mobile" type="tel" class="textfield20" id="mobile"  value="<?php echo $member['mobile']; ?>" />
+	      </td>
+	    </tr>
+	    <tr>
 	      <td>Email</td>
 	      <td>
-	      	<input required="true" name="email" type="text" class="textfield60" id="email"  value="<?php echo $member['email']; ?>" />
+	      	<input required="true" name="email" type="email" class="textfield60" id="email"  value="<?php echo $member['email']; ?>" />
 	      	<input name="confirmemail" type="hidden" class="textfield60" id="confirmemail" />
 	      </td>
 	    </tr>

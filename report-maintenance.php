@@ -16,6 +16,18 @@
 				<input type="text" id="todate" name="todate" class="datepicker" required="true" />
 			</td>
 		</tr>
+		<tr>
+			<td>Status</td>
+			<td>
+				<SELECT id="statusid" name="statusid">
+					<OPTION value="">All</OPTION>
+					<OPTION value="S">Scheduled</OPTION>
+					<OPTION value="A">Awaiting Order Number</OPTION>
+					<OPTION value="I">In Progress</OPTION>
+					<OPTION value="C">Complete</OPTION>
+				</SELECT>
+			</td>
+		</tr>
 		<tr valign='top'>
 			<td>
 				<table>
@@ -93,7 +105,7 @@
 		<tr>
 			<td>&nbsp;</td>
 			<td>
-				<a href="javascript: if (verifyStandardForm('#searchform')) submit();" class="link1"><em><b>Run</b></em></a>
+				<a href="javascript: if (verifyStandardForm('#searchform')) submit();" class="link2"><em><b>Run</b></em></a>
 			</td>
 		</tr>
 	</table>

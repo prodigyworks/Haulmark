@@ -11,8 +11,7 @@
 			$this->addPage();
 			
 			$this->addHeading( 10, 6, "Report Bookings - Summary");
-			$this->Image("images/logomain2.png", 173, 2);
-			$this->Image("images/report-footer.png", 55, 280);
+			$this->Image("images/logomain2.png", 258, 5);
 				
 			$y = $this->GetY() + 4;
 			
@@ -61,16 +60,18 @@
 				}
 			}
 			
-		    $this->SetFont('Arial','', 6);
-			$cols=array( "Registration"    => 18,
+		    $this->SetFont('Arial','', 7);
+			$cols=array( "Booking Reference" => 30,
+						 "Registration"    => 18,
 			             "Phone"  => 25,
 			             "Trailer"  => 20,
 			             "Driver"  => 55,
 			             "Date / Time"  => 24,
-			             "Delivery Point"  => 58);
+			             "Delivery Point"  => 128);
 		
 			$this->addCols( 30, $cols);
-			$cols=array( "Registration"    => "L",
+			$cols=array( "Booking Reference" => "L",
+						 "Registration"    => "L",
 			             "Phone"  => "L",
 			             "Trailer"  => "L",
 			             "Driver"  => "L",
@@ -87,10 +88,6 @@
 			global $y;
 			
 			$and = "";
-			
-			if (isset($_POST['status']) && $_POST['status'] != "") {
-				$and .= " AND A.bookingtype = '" . $_POST['status'] . "' ";
-			}
 			
 			if (isset($_POST['datefrom']) && $_POST['datefrom'] != "") {
 				$and .= " AND A.startdatetime >= '" . convertStringToDate($_POST['datefrom']) . "' ";
@@ -111,19 +108,19 @@
 			$orderid = "A.id";
 			
 			if ($_POST['orderby'] == "V") {
-				$orderby = "C.registration, AA.departuretime";
+				$orderby = "C.registration, A.id, AA.departuretime";
 
 			} else if ($_POST['orderby'] == "T") {
-				$orderby = "AA.departuretime";
+				$orderby = "AA.departuretime, A.id ";
 
 			} else if ($_POST['orderby'] == "D") {
-				$orderby = "D.name, AA.departuretime";
+				$orderby = "D.name, A.id, AA.departuretime";
 							
 			} else if ($_POST['orderby'] == "R") {
-				$orderby = "B.name, AA.departuretime";
+				$orderby = "B.name, A.id, AA.departuretime";
 			}				
 				
-			$sql = "SELECT A.*, AA.place, DATE_FORMAT(AA.departuretime, '%d/%m/%Y %H:%i') AS departuretime, " .
+			$sql = "SELECT A.*, AA.place, DATE_FORMAT(AA.arrivaltime, '%d/%m/%Y %H:%i') AS departuretime, " .
 					"B.registration AS trailername, C.registration, D.name AS drivername, D.telephone " .
 					"FROM {$_SESSION['DB_PREFIX']}booking A " .
 					"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}bookingleg AA " .
@@ -140,14 +137,21 @@
 			
 			if ($result) {
 				$first = true;
+				$ref = "";
 				
 				while (($member = mysql_fetch_assoc($result))) {
 					if ($first) {
 						$this->newPage();
 						$first = false;
+						
+					} else {
+						if ($ref != $member['id']) {
+							$y += 5;
+						}
 					}
 					
 					$line=array( 
+							 "Booking Reference"    => getBookingReference($member['id']),
 							 "Registration"    => $member['registration'],
 				             "Phone"  => $member['telephone'],
 				             "Trailer"  => $member['trailername'],
@@ -159,7 +163,9 @@
 					$size = $this->addLine( $y, $line );
 					$y += $size;
 					
-					if ($y > 265) {
+					$ref = $member['id'];
+					
+					if ($y > 175) {
 						$this->newPage();
 					}
 		 		}
@@ -170,6 +176,6 @@
 		}
 	}
 	
-	$pdf = new BookingSummaryReport( 'P', 'mm', 'A4');
+	$pdf = new BookingSummaryReport( 'L', 'mm', 'A4');
 	$pdf->Output();
 ?>

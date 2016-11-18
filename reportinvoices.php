@@ -44,7 +44,7 @@
 				&nbsp;
 			</td>
 			<td>
-				<a class="link1" href="javascript: runreport();"><em><b>Run Report</b></em></a>
+				<a class="link2" href="javascript: runreport();"><em><b>Run Report</b></em></a>
 			</td>
 		</tr>
 	</table>	

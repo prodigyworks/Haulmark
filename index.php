@@ -15,7 +15,6 @@
 				WHERE roleid in ($roles)
 				ORDER BY priority
 				LIMIT 1";
-				logError($sql, false);
 		$result = mysql_query($sql);
 		
 		while (($member = mysql_fetch_assoc($result))) {

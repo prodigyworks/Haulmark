@@ -47,12 +47,16 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	    <tr id="drivertype" class="hidden usertype">
 	      <td>Driver</td>
 	      <td>
-	      	<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "", false)?>
+	      	<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "WHERE active = 'Y'", false)?>
 	      </td>
 	    </tr>
 	    <tr>
 	      <td>Login</td>
 	      <td><input required="true" name="login" type="text" class="textfield logintext" id="login" /></td>
+	    </tr>
+	    <tr>
+	      <td>Mobile Phone</td>
+	      <td><input required="true" name="mobile" type="tel" class="textfield20" id="mobile" /></td>
 	    </tr>
 	    <tr>
 	      <td>Email</td>
@@ -76,7 +80,6 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	    </tr>
 	    <tr>
 	    	<td colspan="2">
-	    		<br />
 	    		<h4>Security</h4>
 	    		<hr />
 	    	</td>

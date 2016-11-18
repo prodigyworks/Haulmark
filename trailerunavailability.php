@@ -31,24 +31,28 @@
 			
 			if ($supplierid != 0) {
 				$this->sql = 
-					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS trailername 
+					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS trailername, D.name AS suppliername
 					 FROM {$_SESSION['DB_PREFIX']}trailerunavailability A 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}trailerunavailabilityreasons B
 					 ON B.id = A.reasonid 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}trailer C
 					 ON C.id = A.trailerid 
+					 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}supplier D
+					 ON D.id = A.supplierid 
 					 WHERE A.supplierid = $supplierid
 					 $and
 					 ORDER BY A.startdate";
 					 
 			} else {
 				$this->sql = 
-					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS trailername 
+					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS trailername, D.name AS suppliername
 					 FROM {$_SESSION['DB_PREFIX']}trailerunavailability A 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}trailerunavailabilityreasons B
 					 ON B.id = A.reasonid 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}trailer C
 					 ON C.id = A.trailerid 
+					 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}supplier D
+					 ON D.id = A.supplierid 
 					 WHERE 1 = 1
 					 $and
 					 ORDER BY A.startdate";
@@ -66,13 +70,6 @@
 						'label' 	 => 'ID'
 					),
 					array(
-						'name'       => 'supplierid',
-						'label' 	 => 'Supplier',
-						'editable'	 => false,
-						'showInView' => false,
-						'default'	 => getLoggedOnSupplierID()
-					),
-					array(
 						'name'       => 'trailerid',
 						'type'       => 'DATACOMBO',
 						'length' 	 => 30,
@@ -81,6 +78,19 @@
 						'table_id'	 => 'id',
 						'alias'		 => 'trailername',
 						'table_name' => 'registration'
+					),
+					array(
+						'name'       => 'supplierid',
+						'label' 	 => 'Supplier',
+						'type'       => 'DATACOMBO',
+						'length' 	 => 30,
+						'editable'	 => isUserInRole("ADMIN"),
+						'showInView' => isUserInRole("ADMIN"),
+						'table'		 => 'supplier',
+						'table_id'	 => 'id',
+						'alias'		 => 'suppliername',
+						'table_name' => 'name',
+						'default'	 => getLoggedOnSupplierID()
 					),
 					array(
 						'name'       => 'startdate',
@@ -98,7 +108,7 @@
 					),
 					array(
 						'name'       => 'status',
-						'length' 	 => 20,
+						'length' 	 => 22,
 						'label' 	 => 'Status',
 						'type'       => 'COMBO',
 						'options'    => array(

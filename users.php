@@ -46,6 +46,16 @@
 	
 	class UserCrud extends Crud {
 		
+		public function afterInsertRow() {
+?>
+			var status = rowData['status'];
+
+			if (status == "No") {
+				$(this).jqGrid('setRowData', rowid, false, { 'text-decoration': 'line-through', 'color': 'red' });
+		   	}
+<?php
+		}
+		
 		/* Pre command event. */
 		public function preCommandEvent() {
 			if (isset($_POST['rolecmd'])) {
@@ -147,6 +157,17 @@
 			
 			function daysRemaining(node) {
 				return node.prorataholidayentitlement - node.daysremaining;
+			}
+			
+			function checkClick(node) {
+				if (node.status != "Yes") {
+					$("#enablebutton").show();
+					$("#disablebutton").hide();
+					
+				} else {
+					$("#disablebutton").show();
+					$("#enablebutton").hide();
+				}				
 			}
 			
 			function holidayentitlement_onchange() {
@@ -289,13 +310,15 @@
 				'script' 	  => 'userRoles'
 			),
 			array(
-				'title'		  => 'Expire',
-				'imageurl'	  => 'images/cancel.png',
+				'id'		  => 'disablebutton',
+				'title'		  => 'De-activate',
+				'imageurl'	  => 'images/delete.png',
 				'script' 	  => 'expire'
 			),
 			array(
-				'title'		  => 'Live',
-				'imageurl'	  => 'images/heart.png',
+				'id'		  => 'enablebutton',
+				'title'		  => 'Activate',
+				'imageurl'	  => 'images/thumbs_up.gif',
 				'script' 	  => 'live'
 			),
 			array(
@@ -308,6 +331,7 @@
 	$crud->allowAdd = false;
 	$crud->dialogwidth = 950;
 	$crud->title = "Users";
+	$crud->onClickCallback = "checkClick";
 	$crud->table = "{$_SESSION['DB_PREFIX']}members";
 	
 	$crud->sql = 
@@ -387,21 +411,21 @@
 				'name'       => 'mobile',
 				'required'	 => false,
 				'length' 	 => 13,
-				'label' 	 => 'Cell phone'
+				'label' 	 => 'Mobile Phone'
 			),
 			array(
 				'name'       => 'status',
-				'length' 	 => 20,
-				'label' 	 => 'Status',
+				'length' 	 => 10,
+				'label' 	 => 'Active',
 				'type'       => 'COMBO',
 				'options'    => array(
 						array(
 							'value'		=> 'Y',
-							'text'		=> 'Live'
+							'text'		=> 'Yes'
 						),
 						array(
 							'value'		=> 'N',
-							'text'		=> 'Expired'
+							'text'		=> 'No'
 						),
 					)
 			),

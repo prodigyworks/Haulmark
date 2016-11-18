@@ -70,11 +70,12 @@
 		<tr valign="center">
 			<td>Driver / Agency</td>
 			<td>
-				<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "", false, false, array(), true, "agencydriver, name"); ?>
+				<?php createCombo("driverid", "id", "name", "{$_SESSION['DB_PREFIX']}driver", "WHERE active = 'Y'", false, false, array(), true, "agencydriver, name"); ?>
 				<input type="hidden" id="agencydriver" name="agencydriver" />
 				<input type="hidden" id="bookingid" name="bookingid" />
 				<input type="hidden" id="originalstatusid" name="originalstatusid" />
 				<input type="hidden" id="nominalledgercodeid" name="nominalledgercodeid" />
+				<input type="hidden" id="confirmed" name="confirmed" value="Y" />
 				<label id="driverphonenumber"></label>
 			</td>
 		</tr>
@@ -183,7 +184,7 @@
 		<tr valign="center">
 			<td>Total Weight</td>
 			<td colspan=2>
-				<input required="true" type="text" style="width:72px" id="weight" name="weight"> (Kg)
+				<input type="text" style="width:72px" id="weight" name="weight"> (Kg)
 				<input type="hidden" id="vehiclecostoverhead" name="vehiclecostoverhead">
 				<input type="hidden" id="allegrodayrate" name="allegrodayrate">
 				<input type="hidden" id="agencydayrate" name="agencydayrate">

@@ -246,28 +246,28 @@
 				<table>
 					<tr>
 						<td>
-							<a class="link1" id="convertquote" onclick="convertQuote()"><em><b><img src='images/accept.png' />&nbsp;Convert Quote</b></em></a>
+							<a class="link2" id="convertquote" onclick="convertQuote()"><em><b><img src='images/accept.png' />&nbsp;Convert Quote</b></em></a>
 						</td>
 						<td>
-							<a class="link1" onclick="saveHeader()"><em><b><img src='images/save.png' />&nbsp;Save</b></em></a>
+							<a class="link2" onclick="saveHeader()"><em><b><img src='images/save.png' />&nbsp;Save</b></em></a>
 						</td>
 						<td>
-							<a class="link1" id="creditbutton" onclick="credit()"><em><b><img src='images/back2.png' />&nbsp;Credit</b></em></a>
+							<a class="link2" id="creditbutton" onclick="credit()"><em><b><img src='images/back2.png' />&nbsp;Credit</b></em></a>
 						</td>
 						<td>
-							<a class="link1" id="refundbutton" onclick="refunds()"><em><b><img src='images/back2.png' />&nbsp;Refunds</b></em></a>
+							<a class="link2" id="refundbutton" onclick="refunds()"><em><b><img src='images/back2.png' />&nbsp;Refunds</b></em></a>
 						</td>
 						<td>
-							<a class="link1" id="addinvoicebutton" onclick="addInvoiceItem()"><em><b><img src='images/add.png' />&nbsp;Add Item</b></em></a>
+							<a class="link2" id="addinvoicebutton" onclick="addInvoiceItem()"><em><b><img src='images/add.png' />&nbsp;Add Item</b></em></a>
 						</td>
 						<td>
-							<a class="link1" id="printbutton" onclick="printInvoice()"><em><b><img src='images/print.png' />&nbsp;Print</b></em></a>
+							<a class="link2" id="printbutton" onclick="printInvoice()"><em><b><img src='images/print.png' />&nbsp;Print</b></em></a>
 						</td>
 						<td>
-							<a class="link1" id="descriptionbutton" onclick="showDescription()"><em><b><img src='images/document.gif' />&nbsp;Description</b></em></a>
+							<a class="link2" id="descriptionbutton" onclick="showDescription()"><em><b><img src='images/document.gif' />&nbsp;Description</b></em></a>
 						</td>
 						<td>
-							<a class="link1" id="emailbutton" onclick="emailInvoice()"><em><b><img src='images/email.gif' />&nbsp;E-Mail</b></em></a>
+							<a class="link2" id="emailbutton" onclick="emailInvoice()"><em><b><img src='images/email.gif' />&nbsp;E-Mail</b></em></a>
 						</td>
 					</tr>
 				</table>

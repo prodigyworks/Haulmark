@@ -14,8 +14,65 @@
 	$pallets = $_POST['pallets'];
 	$baselng = $_POST['base_lng'];
 	$baselat = $_POST['base_lat'];
+	$duration = $_POST['duration'];
+	$miles = $_POST['miles'];
+	
+	$allegrodayrate = 0;
+	$agencydayrate = 0;
+	$vehiclecostoverhead = 0;
+	$fuelcostoverhead = 0;
+	$maintenanceoverhead = 0;
+	$customercostpermile = 0;
+	$wages = 0;
+	$rate = 0;
+	$charge = 0;
+
+	$sql = "SELECT A.* 
+			FROM {$_SESSION['DB_PREFIX']}vehicletype A 
+			WHERE A.id = $vehicletypeid";
+	
+	$result = mysql_query($sql);
+	
+	if ($result) {
+		while (($member = mysql_fetch_assoc($result))) {
+			$allegrodayrate = $member['allegrodayrate'];
+			$agencydayrate = $member['agencydayrate'];
+			$vehiclecostoverhead = $member['vehiclecostpermile'];
+			$fuelcostoverhead = $member['fuelcostpermile'];
+			$maintenanceoverhead = $member['overheadcostpermile'];
+		}
+	}
+	
+	$sql = "SELECT A.* 
+			FROM {$_SESSION['DB_PREFIX']}customer A 
+			WHERE A.id = $customerid";
+	
+	$result = mysql_query($sql);
+	
+	if ($result) {
+		while (($member = mysql_fetch_assoc($result))) {
+			$customercostpermile = $member['customercostpermile'];
+			
+			if ($customercostpermile == null) {
+				$customercostpermile = 0;
+			}
+		}
+	}
+	
+	$wages = ($duration * $allegrodayrate) * (1 + (getSiteConfigData()->defaultwagesmargin / 100));
+	
+	if ($customercostpermile != 0) {
+		$rate = $customercostpermile * $miles;
+		
+	} else {
+		$rate = $wages + (($vehiclecostoverhead + $fuelcostoverhead + $maintenanceoverhead) * $miles);
+	}
+	
+	$charge = $rate * (1 + (getSiteConfigData()->defaultprofitmargin / 100));
+	
 	$base = getSiteConfigData()->basepostcode;
 	$notes = mysql_escape_string($_POST['notes']);
+	$worktypeid = getSiteConfigData()->defaultworktype;
 	
 	$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}booking
 			(
@@ -25,7 +82,12 @@
 				fromplace_phone, fromplace_ref,
 				toplace, toplace_lat, toplace_lng,
 				toplace_phone, toplace_ref,
-				memberid, notes,
+				memberid, notes, bookingtype,
+				miles, duration, allegrodayrate,
+				agencydayrate, vehiclecostoverhead,
+				fuelcostoverhead, maintenanceoverhead,
+				customercostpermile, 
+				charge, rate, confirmed, worktypeid,
 				metacreateddate, metamodifieddate,
 				metamodifieduserid, metacreateduserid
 			)
@@ -37,17 +99,24 @@
 				'', '',
 				'$base', '$base_lat', '$base_lng',
 				'', '',
-				$memberid, '$notes',
+				$memberid, '$notes', 'W',
+				$miles, $duration, $allegrodayrate,
+				$agencydayrate, $vehiclecostoverhead,
+				$fuelcostoverhead, $maintenanceoverhead,
+				$customercostpermile,
+				$charge, $rate, 'N', '$worktypeid',
 				NOW(), NOW(),
 				$memberid, $memberid
 			)";
+
+//	logError($sql, false);				
 				
 	if (! mysql_query($sql)) {
 		logError("$sql - " . mysql_error());
 	}
 	
 	$bookingid = mysql_insert_id();
-
+	
 	for ($i = 1; ; $i++) {
 		if (isset($_POST['point_' . $i])) {
 			$point = $_POST['point_' . $i];

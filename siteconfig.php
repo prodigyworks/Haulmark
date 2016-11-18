@@ -26,6 +26,7 @@
 		$ssl = mysql_escape_string($_POST['ssl']);
 		$companynumber = mysql_escape_string($_POST['companynumber']);
 		$currentrhaterms = mysql_escape_string($_POST['currentrhaterms']);
+		$deliveryconfirmationmessage = mysql_escape_string($_POST['deliveryconfirmationmessage']);
 		$termsandconditions = mysql_escape_string($_POST['termsandconditions']);
 		$webbookingconfirmation = mysql_escape_string($_POST['webbookingconfirmation']);
 		$financialyearend = convertStringToDate($_POST['financialyearend']);
@@ -61,6 +62,7 @@
 				companynumber = '$companynumber', 
 				currentrhaterms = '$currentrhaterms', 
 				termsandconditions = '$termsandconditions', 
+				deliveryconfirmationmessage = '$deliveryconfirmationmessage',
 				webbookingconfirmation = '$webbookingconfirmation', 
 				financialyearend = '$financialyearend', 
 				rhamembershipnumber = '$rhamembershipnumber', 
@@ -161,6 +163,9 @@
 	<label>Web Booking Confirmation</label>
 	<textarea id="webbookingconfirmation" name="webbookingconfirmation" rows="15" cols="60" style="height:340px;width: 340px" class="tinyMCE"></textarea>
 
+	<label>Booking Confirmation Message</label>
+	<textarea id="deliveryconfirmationmessage" name="deliveryconfirmationmessage" rows="15" cols="60" style="height:340px;width: 340px" class="tinyMCE"></textarea>
+
 	<label>Financial Year</label>
 	<input type="text" class="datepicker" id="financialyearend" name="financialyearend" value="<?php echo $member['financialyearend']; ?>" />
 
@@ -199,7 +204,7 @@
 	
 	<br>
 	<br>
-	<span class="wrapper"><a class='link1' href="javascript:if (verifyStandardForm('#contentForm')) $('#contentForm').submit();"><em><b>Update</b></em></a></span>
+	<span class="wrapper"><a class='link2' href="javascript:if (verifyStandardForm('#contentForm')) $('#contentForm').submit();"><em><b>Update</b></em></a></span>
 </form>
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -208,6 +213,7 @@
 			$("#currentrhaterms").val("<?php echo escape_notes($member['currentrhaterms']); ?>");
 			$("#termsandconditions").val("<?php echo escape_notes($member['termsandconditions']); ?>");
 			$("#webbookingconfirmation").val("<?php echo escape_notes($member['webbookingconfirmation']); ?>");
+			$("#deliveryconfirmationmessage").val("<?php echo escape_notes($member['deliveryconfirmationmessage']); ?>");
 			$("#defaultworktype").val("<?php echo escape_notes($member['defaultworktype']); ?>");
 			$("#ssl").val("<?php echo escape_notes($member['sslencryption']); ?>");
 		});

@@ -7,6 +7,8 @@
 	$startdate = ($_GET['from']);
 	$enddate = ($_GET['to']);
 	
+	$_SESSION['BOOKING_GANTT'] = $startdate;
+	
 	if ($_GET['mode'] == "V") {
 		$sectionid = "vehicleid";
 
@@ -19,12 +21,13 @@
 	$json = array();
 	
 	$sql ="SELECT A.id, A.startdatetime, A.enddatetime, A.trailerid, A.driverid, 
-		   A.vehicleid, A.ordernumber, A.bookingtype, A.fromplace, A.toplace, A.legsummary,
+		   A.vehicleid, A.ordernumber, A.fromplace, A.toplace, A.legsummary,
 		   B.name AS drivername, 
 		   C.registration AS vehiclename, C.registration, 
 		   D.registration AS trailername,
 		   E.fgcolour, E.bgcolour,
 		   F.accountcode AS customername,
+		   F.name AS accountname,
 		   (TIMEDIFF(enddatetime, startdatetime) / 10000) AS totalhours
 		   FROM {$_SESSION['DB_PREFIX']}booking A 
 		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver B 
@@ -37,7 +40,8 @@
 		   ON E.id = A.statusid
 		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer F 
 		   ON F.id = A.customerid 
-		   WHERE (A.startdatetime < '$enddate' AND A.enddatetime > '$startdate')";
+		   WHERE (A.startdatetime < '$enddate' AND A.enddatetime > '$startdate')
+		   AND A.statusid > 1";
 	$result = mysql_query($sql);
 	
 	//Check whether the query was successful or not
@@ -67,9 +71,11 @@
 			$lefthours = 100 - $hours;
 			
 			$tooltip = "Booking: " . getBookingReference($member['id']) . "\n" . 
+					   "Customer: " . $member['accountname'] . "\n" . 
 					   "Vehicle: " . $member['vehiclename'] . "\n" . 
 					   "Trailer: " . $member['trailername'] . "\n" .
-					   "Driver: " . $member['drivername'];
+					   "Driver: " . $member['drivername'] . "\n" .
+					   "Utilisation: $lefthours %";
 			
 			array_push(
 				$json, 
@@ -81,7 +87,7 @@
 						"textColor" => $member['fgcolour'],
 						"start_date" => $member['startdatetime'],
 						"end_date" => $member['enddatetime'],
-						"text" => "<div class='bookingcell2' title='$tooltip'>" . $member['customername'] . ": " . $member['legsummary'] . "</div><div class='bookingcell4'  title='$tooltip'><div utilisation='$hours' style='width:$hours%' class='bookingcell3' title='$tooltip'>&nbsp;</div></div>",
+						"text" => "<div bookingid='$id' class='bookingcell2' title='$tooltip'>" . $member['customername'] . ": " . $member['legsummary'] . "</div><div class='bookingcell4' bookingid='$id' title='$tooltip'><div bookingid='$id' utilisation='$hours' style='width:$hours%' class='bookingcell3'>&nbsp;</div></div>",
 						"section_id" => $member[$sectionid]
 					)
 			);

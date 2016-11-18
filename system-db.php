@@ -34,6 +34,7 @@ class SiteConfigClass {
 	public $defaultworktype;
 	public $webbookingconfirmation;
 	public $termsandconditions;
+	public $deliveryconfirmationmessage;
 }
 
 function start_db() {
@@ -97,6 +98,7 @@ function start_db() {
 					$data->bookingprefix = $member['bookingprefix'];
 					$data->defaultworktype = $member['defaultworktype'];
 					$data->termsandconditions = $member['termsandconditions'];
+					$data->deliveryconfirmationmessage = $member['deliveryconfirmationmessage'];
 					$data->webbookingconfirmation = $member['webbookingconfirmation'];
 					$data->trafficofficetelephone1 = $member['trafficofficetelephone1'];
 					$data->trafficofficetelephone2 = $member['trafficofficetelephone2'];
@@ -1150,7 +1152,9 @@ function login($login, $password, $redirect = true) {
 	
 	//Create query
 	$md5password = md5($password);
-	$qry = "SELECT DISTINCT A.*, B.name, C.name AS suppliername
+	$qry = "SELECT DISTINCT A.*, 
+			C.imageid AS supplierimageid, C.name AS suppliername, 
+			B.name, B.imageid AS customerimageid
 		    FROM {$_SESSION['DB_PREFIX']}members A 
 		    LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer B
 		    ON B.id = A.customerid 
@@ -1175,8 +1179,10 @@ function login($login, $password, $redirect = true) {
 			$_SESSION['SESS_DRIVER_ID'] = $member['driverid'];
 			$_SESSION['SESS_CUSTOMER_ID'] = $member['customerid'];
 			$_SESSION['SESS_CUSTOMER_NAME'] = $member['name'];
+			$_SESSION['SESS_CUSTOMER_IMAGEID'] = $member['customerimageid'];
 			$_SESSION['SESS_SUPPLIER_ID'] = $member['supplierid'];
 			$_SESSION['SESS_SUPPLIER_NAME'] = $member['suppliername'];
+			$_SESSION['SESS_SUPPLIER_IMAGEID'] = $member['supplierimageid'];
 			$_SESSION['SESS_IMAGE_ID'] = $member['imageid'];
 			
 			$qry = "SELECT * FROM {$_SESSION['DB_PREFIX']}userroles WHERE memberid = " . $_SESSION['SESS_MEMBER_ID'] . "";

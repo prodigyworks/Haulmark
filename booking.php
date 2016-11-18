@@ -29,7 +29,7 @@
 	<script src='js/jquery.ui.timepicker.js'></script>
 	<link rel='STYLESHEET' type='text/css' href='./codebase/dhtmlxscheduler_glossy.css'>
 	<link href="bookingform.css" rel="stylesheet" type="text/css" />
-	<script src='bookingscriptlibrary-20161018.js' type="text/javascript" charset="utf-8"></script>
+	<script src='bookingscriptlibrary-20161116.js' type="text/javascript" charset="utf-8"></script>
 	
 	<style type="text/css" media="screen">
 		div[aria-labelledby=ui-dialog-title-keydialog] {
@@ -151,8 +151,43 @@
 				    }
 				);            
 		}
+		
+		function showMap(id) {
+			callAjax(
+					"finddata.php", 
+					{ 
+						sql: "SELECT B.id, A.fromplace, A.toplace, B.place FROM <?php echo $_SESSION['DB_PREFIX'];?>booking A " +
+							 "LEFT OUTER JOIN <?php echo $_SESSION['DB_PREFIX'];?>bookingleg B " + 
+							 "ON B.bookingid = A.id " +
+							 "WHERE A.id = " + id + " " +
+							 "ORDER BY B.id"
+					},
+					function(data) {
+						if (data.length > 0) {
+							var waypoints = [];
+							
+							for (var i = 0; i < data.length - 1; i++) {
+								var node = data[i];
+								
+								if (node.place != null && node.place != "") {
+									waypoints.push({
+											stopover: true,
+											location: node.place
+										});
+								}
+							}
+							
+							initializeMap2(node.fromplace, data[data.length - 1].place, waypoints, 0);
+							  
+							$("#mapDialog").dialog("open");
+						}
+					
+					}
+				);
+		
+		}
 
-	    function initializeMap(start, end, waypoints, startIndex) {
+	    function initializeMap(start, end, waypoints, startIndex, ingoreLast) {
 	    	if (map == null) {
 			    directionsService = new google.maps.DirectionsService();
 			    directionsDisplay = new google.maps.DirectionsRenderer(); 
@@ -169,11 +204,20 @@
 	      			origin: start, 
 	      			destination: end, 
 	      			waypoints: waypoints,
-	      			travelMode: google.maps.DirectionsTravelMode.DRIVING 
+	      			provideRouteAlternatives: false,
+	      			travelMode: google.maps.DirectionsTravelMode.DRIVING,
+					drivingOptions: {
+						    departureTime: new Date(),
+						    trafficModel: 'pessimistic'
+						},
+					unitSystem: google.maps.UnitSystem.IMPERIAL									
 	      		};
 	      
 	      	directionsService.route(request, function(response, status) {
-	        		if (status == google.maps.DirectionsStatus.OK) {
+	        		if (status == google.maps.DirectionsStatus.NOT_FOUND) {
+	        			pwAlert("Location not found, please provide more detail, e.g. Post code");
+	        			
+	        		} else if (status == google.maps.DirectionsStatus.OK) {
 		        		directionsDisplay.setDirections(response);
 						google.maps.event.trigger(map, "resize");
 						
@@ -186,33 +230,37 @@
 					        totalDistance += legs[i].distance.value;
 					        totalDuration += legs[i].duration.value / 0.9;
 					    }
-					    
+
 					    var prevTime = $("#startdatetime_time"); 
 					    var prevDate = $("#startdatetime");
 					    var cnt = 0;
 
 						$(".pointcontainer").each(
 								function() {
-									var index = parseInt($(this).attr("index"));
-									var startdate = $(this).find(".arrivaldate");
-									var starttime = $(this).find(".arrivaltime");
-									var departuredate = $(this).find(".departuredate");
-									var departuretime = $(this).find(".departuretime");
-									
-									if (startIndex <= index) {
-    				    				getJourneyTime(
-    				    						prevTime.val(), 
-    				    						prevDate.val(), 
-    				    						startdate.attr("id"), 
-    				    						starttime.attr("id"), 
-    				    						departuredate.attr("id"),
-    				    						departuretime.attr("id"),
-    				    						(legs[cnt].duration.value / 0.9)
-	    					    			);
+									var location = $(this).find(".point").val();
+
+									if (location != "") {
+										var index = parseInt($(this).attr("index"));
+										var startdate = $(this).find(".arrivaldate");
+										var starttime = $(this).find(".arrivaltime");
+										var departuredate = $(this).find(".departuredate");
+										var departuretime = $(this).find(".departuretime");
+										
+										if (startIndex <= index) {
+	    				    				getJourneyTime(
+	    				    						prevTime.val(), 
+	    				    						prevDate.val(), 
+	    				    						startdate.attr("id"), 
+	    				    						starttime.attr("id"), 
+	    				    						departuredate.attr("id"),
+	    				    						departuretime.attr("id"),
+	    				    						(legs[cnt].duration.value / 0.9)
+		    					    			);
+										}
+										
+									    prevTime = departuretime; 
+									    prevDate = departuredate;
 									}
-									
-								    prevTime = departuretime; 
-								    prevDate = departuredate;
 
 								    cnt++;
 								}
@@ -256,6 +304,20 @@
 <?php
 					}
 ?>
+					$("#mapDialog").dialog({
+							autoOpen: false,
+							modal: true,
+							width: 800,
+							title: "Map",
+							buttons: {
+								"Instructions": function() {
+									$("#map_steps").slideToggle();
+								},
+								"Close": function() {
+									$(this).dialog("close");
+								}
+							}
+						});
 					$("#xweek_tab").click(
 							function(e) {
 								call("vehiclemode", {
@@ -404,6 +466,9 @@
 									$("#copyordernumber").val("");
 									$("#copyDialog").dialog("open");
 								},
+								"Map": function() {
+									showMap($("#bookingid").val());
+								},
 								"Delivery Note": function() {
 									window.open("deliverynotereport.php?id=" + $("#bookingid").val());
 								},
@@ -415,7 +480,7 @@
 									if (! validateForm($("#bookingid").val())) {
 										return;
 									}
-
+									
 									if ($("#statusid").val() == 7 && 
 										$("#statusid").val() != $("#originalstatusid").val()) {
 										
@@ -483,8 +548,25 @@
 					$("#worktypeid").change(worktypeid_onchange);
 
 					setupEvents();
+					
+				    new google.maps.places.Autocomplete(
+				    		document.getElementById("fromplace"), 
+				    		{
+				        		region: "uk",
+				        		componentRestrictions: {country: ["uk"]}       
+				        	}
+				        );
+
+				    new google.maps.places.Autocomplete(
+				    		document.getElementById("toplace"), 
+				    		{
+				        		region: "uk",
+				        		componentRestrictions: {country: ["uk"]}       
+				        	}
+				        );
 
 					scheduleCheck();
+					
 				}
 			);
   	    
@@ -613,12 +695,6 @@
 						scheduler.setCurrentView(null, "timeline");
 						
 						checkForOverdueBookings();
-						setTimeout(
-								function() {
-//							        showUtilisations();
-								},
-								0
-							);
 					},
 					false
 				);
@@ -660,7 +736,7 @@
 
 				} else if ($mode == "T") {
 					$sql = "SELECT id, registration AS name, '' AS typename
-							FROM {$_SESSION['DB_PREFIX']}trailer 
+							FROM {$_SESSION['DB_PREFIX']}trailer A 
 							WHERE A.active = 'Y' 
 							ORDER BY registration";
 					
@@ -747,20 +823,12 @@
 			scheduler.attachEvent("onBeforeViewChange", function (old_mode, old_date, mode, date) {
 			    if (old_mode != mode || +old_date != +date)
 			        scheduler.clearAll();
-
-				setTimeout(
-						function() {
-//					        showUtilisations();
-						},
-						0
-					);
 						
 			    return true;
 			});
 			
 			scheduler.attachEvent("onSchedulerResize", function() {
 				positionNowPoint();
-//				showUtilisations();
 			});
 			
 			scheduler.attachEvent("onOptionsLoadFinal", function () {
@@ -786,8 +854,6 @@
 						$(".nowpointer").hide();
 					}
 				}
-
-//				showUtilisations();
 			});
 			
 			scheduler.attachEvent("onBeforeEventCreated",function(){return false;})
@@ -805,9 +871,10 @@
 								mode: "<?php echo $mode; ?>"
 							},
 							function(data) {
-								checkForOverdueBookings();
-								showUtilisations();
+								scheduler.clearAll();
+								scheduler.setCurrentView(null, "timeline");
 								
+								checkForOverdueBookings();
 							},
 							true
 						);
@@ -869,13 +936,6 @@
 								$("#ordernumber").val(node.ordernumber);
 								$("#ordernumber2").val(node.ordernumber2);
 
-								$("#startdatetime").val(node.startdatetime.substring(0, 10));
-								$("#startdatetime_time").val(node.startdatetime.substring(11, 16));
-								$("#fromplace").val(node.fromplace);
-								$("#enddatetime").val(node.enddatetime.substring(0, 10));
-								$("#enddatetime_time").val(node.enddatetime.substring(11, 16));
-								$("#toplace").val(node.fromplace);
-
 								$(".pointcontainer").remove();
 								
 								counter = 1;
@@ -920,6 +980,9 @@
 
 								driverid_onchange();
 								vehicleid_onchange();
+								$("#agencydriver").val(node.agencydriver);
+								$("#driverid").val(node.driverid);
+								$("#vehicleid").val(node.vehicleid);
 
 								$("#miles").val(node.miles);
 								$("#duration").val(node.duration);
@@ -927,9 +990,13 @@
 								$("#weight").val(node.weight);
 								$("#rate").val(node.rate);
 								$("#charge").val(node.charge);
-								$("#agencydriver").val(node.agencydriver);
-								$("#driverid").val(node.driverid);
-								$("#vehicleid").val(node.vehicleid);
+
+								$("#startdatetime").val(node.startdatetime.substring(0, 10));
+								$("#startdatetime_time").val(node.startdatetime.substring(11, 16));
+								$("#fromplace").val(node.fromplace);
+								$("#enddatetime").val(node.enddatetime.substring(0, 10));
+								$("#enddatetime_time").val(node.enddatetime.substring(11, 16));
+								$("#toplace").val(node.toplace);
 
 								$("#fixedprice").attr("checked", node.fixedprice == 1);
 
@@ -943,8 +1010,21 @@
 		      		
 			      	return false;
 		      	});
-			
+
+<?php 
+	if (isset($_SESSION['BOOKING_GANTT'])) {
+?>
+			var strDate = "<?php echo $_SESSION['BOOKING_GANTT']; ?>".split('-');
+			var date = new Date(strDate[0], strDate[1] - 1, strDate[2]);
+
+			scheduler.init('scheduler_here',date,"timeline");
+<?php 
+	} else {
+?>
 			scheduler.init('scheduler_here',new Date(),"timeline");
+<?php 
+	}
+?>
 			scheduler.setLoadMode("day");
 			scheduler.config.show_loading = true;
 
@@ -955,16 +1035,6 @@
 			});
 			var dp = new dataProcessor("events.php");
 			dp.init(scheduler);
-		}
-
-		function showUtilisations(ev) {
-			$(".bookingcell3").each(
-					function() {
-						var width = new Number((($(this).parent().attr("offsetWidth") * ($(this).attr("utilisation") / 100))) - 5).toFixed(0) + "px";
-
-						$(this).css("width", width);
-					}
-				);
 		}
 		
 		function modSchedHeight(){
@@ -1024,7 +1094,12 @@
 	<?php 
 		createConfirmDialog("confirmremovedialog", "Confirm removal ?", "confirmremoval");
 	?>
-	<div id="map_canvas" class="modal"></div>
+	<div id="mapDialog" class="modal">
+     	<div id="map_canvas" style="width:780px;height:350px; border:1px solid grey; ">
+		</div>
+     	<div id="map_steps" style="width:780px;height:150px; border:1px solid grey; overflow:auto ">
+		</div>
+	</div>
 	<div id="copyDialog" class="modal">
 		<form id="copyform">
 			<table cellpadding=5 cellspacing=5 style="table-layout: fixed" width=400>

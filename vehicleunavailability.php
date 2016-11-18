@@ -31,24 +31,28 @@
 			
 			if ($supplierid != 0) {
 				$this->sql = 
-					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS vehiclename 
+					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS vehiclename, D.name AS suppliername
 					 FROM {$_SESSION['DB_PREFIX']}vehicleunavailability A 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}vehicleunavailabilityreasons B
 					 ON B.id = A.reasonid 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}vehicle C
 					 ON C.id = A.vehicleid 
+					 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}supplier D
+					 ON D.id = A.supplierid 
 					 WHERE A.supplierid = $supplierid
 					 $and
 					 ORDER BY A.startdate";
 					 
 			} else {
 				$this->sql = 
-					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS vehiclename 
+					"SELECT A.*, A.workcarriedout AS workcarriedout2, B.name, C.registration AS vehiclename, D.name AS suppliername
 					 FROM {$_SESSION['DB_PREFIX']}vehicleunavailability A 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}vehicleunavailabilityreasons B
 					 ON B.id = A.reasonid 
 					 INNER JOIN {$_SESSION['DB_PREFIX']}vehicle C
 					 ON C.id = A.vehicleid 
+					 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}supplier D
+					 ON D.id = A.supplierid 
 					 WHERE 1 = 1
 					 $and
 					 ORDER BY A.startdate";
@@ -78,8 +82,14 @@
 					array(
 						'name'       => 'supplierid',
 						'label' 	 => 'Supplier',
-						'editable'	 => false,
-						'showInView' => false,
+						'type'       => 'DATACOMBO',
+						'length' 	 => 30,
+						'editable'	 => isUserInRole("ADMIN"),
+						'showInView' => isUserInRole("ADMIN"),
+						'table'		 => 'supplier',
+						'table_id'	 => 'id',
+						'alias'		 => 'suppliername',
+						'table_name' => 'name',
 						'default'	 => getLoggedOnSupplierID()
 					),
 					array(

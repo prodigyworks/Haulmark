@@ -45,7 +45,7 @@
 			$this->SetY(36);
 		}
 
-		function __construct($orientation, $metric, $size, $dateFrom, $dateTo) {
+		function __construct($orientation, $metric, $size, $dateFrom, $dateTo, $statusid) {
 			start_db();
 			
 			$this->headertitle = "Vehicle";
@@ -63,6 +63,16 @@
 				try {
 					$totalcost = 0;
 					$reasoncodes = ArrayToInClause($_POST['vehiclereason']);
+					$supplierid = getLoggedOnSupplierID();
+					$and = "";
+					
+					if ($supplierid != 0) {
+						$and .= "AND A.supplierid = $supplierid";
+					}
+					
+					if ($statusid != "") {
+						$and .= "AND A.status = '$statusid'";
+					}
 					
 					$sql = "SELECT A.*, 
 							DATE_FORMAT(A.startdate, '%d/%m/%Y') AS startdate,
@@ -77,6 +87,7 @@
 						    WHERE DATE(A.enddate) >= '$dateFrom'
 						    AND DATE(A.enddate) <= '$dateTo'
 						    AND A.reasonid IN ($reasoncodes)
+						    $and
 						    ORDER BY A.enddate";
 					$result = mysql_query($sql);
 					
@@ -133,6 +144,16 @@
 				try {
 					$totalcost = 0;
 					$reasoncodes = ArrayToInClause($_POST['trailerreason']);
+					$supplierid = getLoggedOnSupplierID();
+					$and = "";
+					
+					if ($supplierid != 0) {
+						$and .= "AND A.supplierid = $supplierid";
+					}
+					
+					if ($statusid != "") {
+						$and .= "AND A.status = '$statusid'";
+					}
 					
 					$sql = "SELECT A.*, 
 							DATE_FORMAT(A.startdate, '%d/%m/%Y') AS startdate,
@@ -147,6 +168,7 @@
 						    WHERE DATE(A.enddate) >= '$dateFrom'
 						    AND DATE(A.enddate) <= '$dateTo'
 						    AND A.reasonid IN ($reasoncodes)
+						    $and
 						    ORDER BY A.enddate";
 					$result = mysql_query($sql);
 					
@@ -205,7 +227,8 @@
 			'mm', 
 			'A4', 
 			$_POST['fromdate'], 
-			$_POST['todate']
+			$_POST['todate'],
+			$_POST['statusid']
 		);
 	$pdf->Output();
 ?>

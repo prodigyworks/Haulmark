@@ -50,7 +50,7 @@
 		<tr>
 			<td>&nbsp;</td>
 			<td>
-				<a href="javascript: if (verifyStandardForm('.reportform')) submit();" class="link1"><em><b>Run</b></em></a>
+				<a href="javascript: if (verifyStandardForm('.reportform')) submit();" class="link2"><em><b>Run</b></em></a>
 			</td>
 		</tr>
 	</table>	

@@ -175,6 +175,15 @@
 				'label' 	 => 'Owner'
 			),			
 			array(
+				'name'       => 'imageid',
+				'type'		 => 'IMAGE',
+				'length' 	 => 64,
+				'required'	 => false,
+				'showInView' => false,
+				'filter'	 => false,
+				'label' 	 => 'Logo'
+			),
+			array(
 				'name'       => 'invoiceaddress1',
 				'length' 	 => 60,
 				'required'	 => false,

@@ -27,7 +27,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <link rel="shortcut icon" href="favicon.ico">
 
-<link href="css/style-31102016.css" rel="stylesheet" type="text/css" />
+<link href="css/style-13112016.css" rel="stylesheet" type="text/css" />
 <link href="css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
 <link href="css/dcmegamenu.css" rel="stylesheet" type="text/css" />
 <link href="css/skins/white.css" rel="stylesheet" type="text/css" />
@@ -76,6 +76,18 @@
 					if (isAuthenticated()) {
 				?>
 					<div id="header" class='header1'>
+<?php		
+							if (($_SESSION['SESS_CUSTOMER_IMAGEID'] != null && $_SESSION['SESS_CUSTOMER_IMAGEID'] != 0) ||
+								($_SESSION['SESS_SUPPLIER_IMAGEID'] != null && $_SESSION['SESS_SUPPLIER_IMAGEID'] != 0)) {
+?>
+						<div id="partnerimage">
+							<label>In Partnership With:</label>
+							<br>
+								<img src="system-imageviewer.php?id=<?php echo $_SESSION['SESS_CUSTOMER_IMAGEID'] | $_SESSION['SESS_SUPPLIER_IMAGEID']; ?>" />
+						</div>
+<?php		
+							}
+?>
 						<?php		
 							$memberid = getLoggedOnMemberID();
 							$auditid = $_SESSION['SESS_LOGIN_AUDIT'];

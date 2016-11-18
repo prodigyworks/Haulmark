@@ -3,6 +3,33 @@
 	require_once("bookingshared.php");
 	require_once("bookingscopy.php");
 	
+	function confirmBooking() {
+		$id = $_POST['copy_id'];
+		$sql = "SELECT customerid 
+				FROM {$_SESSION['DB_PREFIX']}booking
+				WHERE id = $id";
+		
+		$result = mysql_query($sql);
+		
+		if (! $result) {
+			throw new Exception(mysql_error());
+		}
+		
+		while (($member = mysql_fetch_assoc($result))) {
+			$message = "Booking " . getBookingReference($id) . " has been confirmed";
+			
+			sendCustomerMessage($member['customerid'], "Booking acknowledgement", $message);
+		}
+		
+		$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET
+				confirmed = 'Y'
+				WHERE id = $id";
+		
+		if (! mysql_query($sql)) {
+			throw new Exception(mysql_error());
+		}
+	}
+	
 	function copybooking() {
 		createNewBookingFromExisting(
 				$_POST['copy_id'], 
@@ -21,7 +48,7 @@
 			
 			if (isset($_GET['date'])) {
 				$date = convertStringToDate($_GET['date']);
-				$and = "AND DATE(A.startdatetime) = '$date' ";
+				$and = "AND (DATE(A.startdatetime) = '$date' OR DATE(A.enddatetime) = '$date') ";
 			}
 			
 			$this->validateForm = "validateCrudForm";
@@ -88,6 +115,7 @@
 						'type'       => 'DATACOMBO',
 						'length' 	 => 30,
 						'readonly'   => true,
+						'filter'	 => false,
 						'label' 	 => 'Status',
 						'table'		 => 'bookingstatus',
 						'table_id'	 => 'id',
@@ -260,10 +288,21 @@
 						'label' 	 => 'Order Number'
 					),
 					array(
-						'name'       => 'ordernumber2',
-						'length' 	 => 15,
-						'required'	 => false,
-						'label' 	 => 'Order Number 2'
+						'name'       => 'confirmed',
+						'length' 	 => 20,
+						'label' 	 => 'Confirmed',
+						'editable'	 => false,
+						'type'       => 'COMBO',
+						'options'    => array(
+								array(
+									'value'		=> 'Y',
+									'text'		=> 'Yes'
+								),
+								array(
+									'value'		=> 'N',
+									'text'		=> 'No'
+								)
+							)
 					),
 					array(
 						'name'       => 'maintenanceoverhead',
@@ -322,12 +361,6 @@
 						'label' 	 => 'Customer Cost Per Mile'
 					),
 					array(
-						'name'       => 'items',
-						'length' 	 => 12,
-						'align'		 => 'right',
-						'label' 	 => 'Items'
-					),
-					array(
 						'name'       => 'pallets',
 						'length' 	 => 12,
 						'required'   => false,
@@ -338,6 +371,7 @@
 					array(
 						'name'       => 'weight',
 						'length' 	 => 12,
+						'required'   => false,
 						'datatype'	 => 'double',
 						'align'		 => 'right',
 						'label' 	 => 'Weight'
@@ -390,6 +424,30 @@
 						'table_name' => 'fullname'
 					),
 					array(
+						'name'       => 'ordernumber2',
+						'length' 	 => 15,
+						'required'	 => false,
+						'label' 	 => 'Order Number 2'
+					),
+					array(
+						'name'       => 'bookingtype',
+						'length' 	 => 20,
+						'label' 	 => 'Source',
+						'editable'	 => false,
+						'bind'		 => false,
+						'type'       => 'COMBO',
+						'options'    => array(
+								array(
+									'value'		=> 'W',
+									'text'		=> 'Online Booking'
+								),
+								array(
+									'value'		=> 'M',
+									'text'		=> 'Manual Booking'
+								)
+							)
+					),
+					array(
 						'name'       => 'notes',
 						'length' 	 => 50,
 						'type'		 => 'TEXTAREA',
@@ -418,6 +476,11 @@
 						'title'		  => 'Copy',
 						'imageurl'	  => 'images/copy.png',
 						'script' 	  => 'copy'
+					),
+					array(
+						'title'		  => 'Confirm',
+						'imageurl'	  => 'images/thumbs_up.gif',
+						'script' 	  => 'confirmBooking'
 					)
 				);
 				
@@ -479,12 +542,22 @@
 			loadLegs(id);
 <?php			
 		}
-	
+		
+		public function afterInsertRow() {
+?>
+			var status = rowData['confirmed'];
+
+			if (status == "No") {
+				$(this).jqGrid('setRowData', rowid, false, { 'color': 'red' });
+		   	}
+<?php
+		}
+		
 		/* Post header event. */
 		public function postHeaderEvent() {
 ?>
 			<script type="text/javascript" src="js/html2canvas.js"></script>
-			<script type="text/javascript" src="bookingscriptlibrary-20161018.js"></script>
+			<script type="text/javascript" src="bookingscriptlibrary-20161116.js"></script>
 			<link href="bookingform.css" rel="stylesheet" type="text/css" />
 			<style>
 				#dateswitch {
@@ -514,9 +587,10 @@
 				</div>
 			</div>
 			<div id="mapDialog" class="modal">
-     			<div id="map_canvas" style="width:780px;height:500px; border:1px solid grey; ">
+		     	<div id="map_canvas" style="width:780px;height:350px; border:1px solid grey; ">
 				</div>
-				<br>
+		     	<div id="map_steps" style="width:780px;height:150px; border:1px solid grey; overflow:auto ">
+				</div>
 			</div>
 			<div id="copyDialog" class="modal">
 				<form id="copyform">
@@ -592,7 +666,8 @@
 			$legsummary = getJourneyDescription($id);
 			
 			$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET 
-					legsummary = '$legsummary' 
+					legsummary = '$legsummary',
+					bookingtype = 'M'
 					WHERE id = $id";
 			
 			if (! mysql_query($sql)) {
@@ -691,68 +766,89 @@
 				    directionsService = new google.maps.DirectionsService();
 				    directionsDisplay = new google.maps.DirectionsRenderer(); 
 				    
-				    var mapOptions = { mapTypeId: google.maps.MapTypeId.ROADMAP, disableDefaultUI: true }
+				    var mapOptions = { 
+				    		mapTypeId: google.maps.MapTypeId.ROADMAP, 
+				    		disableDefaultUI: true
+				    	};
 				    map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 				    var bounds = new google.maps.LatLngBounds();
 				    
 				    directionsDisplay.setMap(map);
 				    google.maps.event.addListenerOnce(map, 'idle', function () { });
 		    	}
-		    	
+
 		      	var request = { 
 		      			origin: start, 
 		      			destination: end, 
 		      			waypoints: waypoints,
-		      			travelMode: google.maps.DirectionsTravelMode.DRIVING 
+		      			provideRouteAlternatives: false,
+		      			travelMode: google.maps.DirectionsTravelMode.DRIVING,
+						drivingOptions: {
+							    departureTime: new Date(),
+							    trafficModel: 'pessimistic'
+							},
+						unitSystem: google.maps.UnitSystem.IMPERIAL									
 		      		};
-		      
+		      		
 		      	directionsService.route(request, function(response, status) {
-		        		if (status == google.maps.DirectionsStatus.OK) {
+						var totalDistance = 0;
+					    var totalDuration = 0;
+					    var duration = 0;
+					    var lastLegDuration = 0;
+					    var cnt = 0;
+					    var prevTime = $("#startdatetime_time"); 
+					    var prevDate = $("#startdatetime");
+						    
+		        		if (status == google.maps.DirectionsStatus.NOT_FOUND) {
+		        			pwAlert("Location not found, please provide more detail, e.g. Post code");
+		        			
+		        		} else if (status == google.maps.DirectionsStatus.OK) {
 			        		directionsDisplay.setDirections(response);
 							google.maps.event.trigger(map, "resize");
 							
-							var totalDistance = 0;
-						    var totalDuration = 0;
 						    var legs = response.routes[0].legs;
-							var METERS_TO_MILES = 0.000621371192;
+							var METERS_TO_MILES = 0.000621371;
 							
 						    for(var i=0; i < legs.length; ++i) {
 						        totalDistance += legs[i].distance.value;
 						        totalDuration += (legs[i].duration.value / 0.9);
-						    }
-						    
-						    var prevTime = $("#startdatetime_time"); 
-						    var prevDate = $("#startdatetime");
-						    var cnt = 0;
-						    
+							}
+							
+							lastLegDuration = legs[legs.length - 1].duration.value;
+					    
 							$(".pointcontainer").each(
 									function() {
-										var index = parseInt($(this).attr("index"));
-										var startdate = $(this).find(".arrivaldate");
-										var starttime = $(this).find(".arrivaltime");
-										var departuredate = $(this).find(".departuredate");
-										var departuretime = $(this).find(".departuretime");
-										
-										if (startIndex <= index) {
-    					    				getJourneyTime(
-    					    						prevTime.val(), 
-    					    						prevDate.val(), 
-    					    						startdate.attr("id"), 
-    					    						starttime.attr("id"), 
-    					    						departuredate.attr("id"),
-    					    						departuretime.attr("id"),
-    					    						(legs[cnt].duration.value / 0.9)
-    					    					);
-										}
-										
-									    prevTime = departuretime; 
-									    prevDate = departuredate;
+										var location = $(this).find(".point").val();
+
+										if (location != "") {
+											var index = parseInt($(this).attr("index"));
+											var startdate = $(this).find(".arrivaldate");
+											var starttime = $(this).find(".arrivaltime");
+											var departuredate = $(this).find(".departuredate");
+											var departuretime = $(this).find(".departuretime");
+	
+											duration = legs[cnt].duration.value;
+											
+											if (startIndex <= index) {
+		    				    				getJourneyTime(
+		    				    						prevTime.val(), 
+		    				    						prevDate.val(), 
+		    				    						startdate.attr("id"), 
+		    				    						starttime.attr("id"), 
+		    				    						departuredate.attr("id"),
+		    				    						departuretime.attr("id"),
+		    				    						(duration / 0.9)
+		    				    					);
+											}
+											
+										    prevTime = departuretime; 
+										    prevDate = departuredate;
+									    }
 									    
 									    cnt++;
 									}
 								);
-						    
-						       	
+								
 	        				getJourneyTime(
 	        						prevTime.val(), 
 	        						prevDate.val(), 
@@ -760,17 +856,22 @@
 	        						"enddatetime_time", 
 	        						null,
 	        						null,
-	        						(legs[legs.length - 1].duration.value / 0.9)
-    			    			);
-							
-							var mins = Math.round( totalDuration / 60 ) % 60;
-							var hours = Math.round( totalDuration / 3600 );
-
+	        						(lastLegDuration / 0.9)
+	    		    			);
+	    		    			
 							$('#miles').val((Math.round( totalDistance * METERS_TO_MILES * 10 ) / 10));						    
-							$('#duration').val(new Number(hours + "." + mins).toFixed(2));	
+							$('#duration').val(
+									getTotalDuration(
+			    		    				$("#startdatetime").val(), 
+			    		    				$("#startdatetime_time").val(),
+			    		    				$("#enddatetime").val(), 
+			    		    				$("#enddatetime_time").val()
+										)
+								);	
 							
 							fetchOverHeadRates();					    
-		        		}
+						}
+					       	
 		      		});
 		      		
       	    }	
@@ -788,7 +889,7 @@
 		    
 			$(document).ready(function() {
 					$("#crudaddbutton span").html("New Booking");
-
+					
 					$("#customerid").change(customerid_onchange);
 					$("#vehicleid").change(vehicleid_onchange);
 					$("#vehicletypeid").change(vehicletypeid_onchange);
@@ -821,6 +922,9 @@
 							width: 800,
 							title: "Map",
 							buttons: {
+								"Instructions": function() {
+									$("#map_steps").slideToggle();
+								},
 								"Close": function() {
 									$(this).dialog("close");
 								}
@@ -904,6 +1008,23 @@
 				$("#copyDialog").dialog("open");
 			}
 			
+			function confirmBooking(id) {
+				post("editform", "confirmbooking", "submitframe", 
+						{ 
+							copy_id: id, 
+						}
+					);
+			}			
+			
+			function copy(id) {
+				currentID = id;
+				
+				$("#copyordernumber").val("");
+				$("#copyvehicleid").val("0");
+				
+				$("#copyDialog").dialog("open");
+			}
+			
 			function route(id) {
 				$("#mapDialog").dialog("open");
 			}
@@ -933,23 +1054,22 @@
 						function(data) {
 							if (data.length > 0) {
 								var waypoints = [];
+								var node = data[0];
 								
-								for (var i = 0; i < data.length; i++) {
-									var node = data[i];
+								for (var i = 0; i < data.length - 1; i++) {
+									node = data[i];
 									
-									if (node.place != null) {
+									if (node.place != null && node.place != "") {
 										waypoints.push({
 												stopover: true,
 												location: node.place
 											});
 									}
 								}
-								
-								initializeMap(node.fromplace, node.toplace, waypoints, 0);
+
+								initializeMap2(node.fromplace, data[data.length - 1].place, waypoints, 0);
 								  
 								$("#mapDialog").dialog("open");
-								
-//								saveMapToDataUrl();
 							}
 						
 						}

@@ -7,6 +7,7 @@
 	
 	$id = $_POST['id'];
 	$legs = $_POST['legs'];
+	$originalstatusid = $_POST['originalstatusid'];
 	$startdatetime = convertStringToDateTime($_POST['startdatetime'] . " " . $_POST['startdatetime_time']);
 	$enddatetime = convertStringToDateTime($_POST['enddatetime'] . " " . $_POST['enddatetime_time']);
 	$customerid = $_POST['customerid'];
@@ -54,7 +55,10 @@
 		}
 	}
 	
-	if (($statusid == 7 && $currentstatusid < 7 && $charge != 0) ||
+	if ($statusid == 4 && $currentstatusid < 4) {
+		sendCustomerMessage($customerid, "Delivery scheduled", getSiteConfigData()->deliveryconfirmationmessage);
+		
+	} else if (($statusid == 7 && $currentstatusid < 7 && $charge != 0) ||
 	    ($statusid == 7 && $currentcharge == 0 && $charge != 0)) {
 		/* Completed. */
 		$sql = "SELECT A.selfbilledinvoices, A.taxcodeid

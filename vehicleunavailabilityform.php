@@ -10,6 +10,18 @@
 				<?php createCombo("vehicleid", "id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", "WHERE active = 'Y'"); ?>
 			</td>
 		</tr>
+<?php 
+	if (isUserInRole("ADMIN")) {
+?>
+		<tr>
+			<td>Supplier <span class="requiredmarker">*</span></td>
+			<td>
+				<?php createCombo("supplierid", "id", "name", "{$_SESSION['DB_PREFIX']}supplier"); ?>
+			</td>
+		</tr>
+<?php 
+	}
+?>
 		<tr>
 			<td>Start Date / Time <span class="requiredmarker">*</span></td>
 			<td>

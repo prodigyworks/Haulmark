@@ -24,9 +24,9 @@
 							"Booking Number"	=> 24,
 				            "Date"  			=> 20,
 				            "Company Name"  	=> 44,
-				            "Journey"  			=> 129,
+				            "Journey"  			=> 124,
 				            "Pallets"  			=> 20,
-				            "Weight (Kg)"  			=> 20,
+				            "Weight (Kg)"  		=> 25,
 				            "Revenue"  			=> 20
 						)
 				);
@@ -38,7 +38,7 @@
 				            "Company Name"  	=> "L",
 				            "Journey"  			=> "L",
 				            "Pallets"  			=> "R",
-				            "Weight (Kg)"  			=> "R",
+				            "Weight (Kg)"  		=> "R",
 				            "Revenue"  			=> "R"
 						)
 				);
@@ -61,6 +61,7 @@
 			
 			try {
 				$cumulativetotal = 0;
+				$grouptotal = 0;
 				$prevcustomername = "";
 				
 				$and = "";
@@ -91,10 +92,15 @@
 									$this->GetY() + 4 +
 									$this->addLine(
 											$this->getY() + 2, 
-											array("Revenue" => "£ " . number_format($cumulativetotal, 2))
+											array(
+													"Weight (Kg)" 	=> "Customer Total :",
+													"Revenue" 		=> "£ " . number_format($grouptotal, 2)
+												)
 										)
 								);
 				    		$this->SetFont('Arial','', 6);
+				    		
+				    		$grouptotal = 0;
 						}
 						
 						if ($this->GetY() > 175) {
@@ -111,7 +117,7 @@
 									            "Company Name"  	=> $member['customername'],
 									            "Journey"  			=> $member['legsummary'],
 									            "Pallets"  			=> $member['pallets'],
-									            "Weight (Kg)"  			=> $member['weight'],
+									            "Weight (Kg)"  		=> $member['weight'],
 									            "Revenue"  			=> "£ " . $member['charge']
 											)
 									)
@@ -119,18 +125,36 @@
 						             
 						$prevcustomername = $member['customername'];
 					    $cumulativetotal += $member['charge'];
+					    $grouptotal += $member['charge'];
 					}
 					
 					if ($prevcustomername != "") {
 						$this->Line(10, $this->GetY(), 287, $this->GetY());
-					}
 					
+						$this->Line(10, $this->GetY(), 287, $this->GetY());
+			    		$this->SetFont('Arial','B', 6);
+						$this->setY(
+								$this->GetY() + 4 +
+								$this->addLine(
+										$this->getY() + 2, 
+										array(
+												"Weight (Kg)" 	=> "Customer Total :",
+												"Revenue" 		=> "£ " . number_format($grouptotal, 2)
+											)
+									)
+							);
+					}
+						
+					$this->Line(10, $this->GetY(), 287, $this->GetY());
 					$this->SetFont('Arial','B', 6);
 					$this->setY(
 							$this->GetY() + 4 +
 							$this->addLine(
 									$this->getY() + 2, 
-									array("Revenue" => "£ " . number_format($cumulativetotal, 2))
+									array(
+											"Weight (Kg)" 	=> "Total :",
+											"Revenue" 		=> "£ " . number_format($cumulativetotal, 2)
+										)
 								)
 						);
 					

@@ -1,7 +1,7 @@
 <?php 
 	require_once("system-header.php"); 
 ?>
-<form method="POST" id="searchform" class="reportform" action="report-hirelib.php" target="_new">
+<form method="POST" id="searchform" class="reportform" action="report-despatchnoteslib.php" target="_new">
 	<h4><?php echo $_SESSION['title']; ?></h4>
 	<table>
 		<tr>

@@ -41,7 +41,7 @@
 					DATE_ADD(enddatetime, INTERVAL $diff SECOND), DATE_ADD(dsdatetime, INTERVAL $diff SECOND), 
 					rate, charge, 0, miles, vehiclecostoverhead, allegrodayrate, 
 					agencydayrate, wages, fuelcostoverhead, maintenanceoverhead, profitmargin, 
-					customercostpermile, 0, postedtosage, 1, legsummary, duration, 
+					customercostpermile, 'M', postedtosage, 1, legsummary, duration, 
 					'$ordernumber', '', '', '', fromplace, toplace, 
 					fromplace_lat, fromplace_lng, fromplace_phone, fromplace_ref, toplace_lat, 
 					toplace_lng, toplace_phone, toplace_ref, totalmiles, totaltimehrs, notes, 

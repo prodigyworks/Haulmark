@@ -24,6 +24,7 @@
 	$password = clean($_POST['password']);
 	$cpassword = clean($_POST['cpassword']);
 	$email = clean($_POST['email']);
+	$mobile = clean($_POST['mobile']);
 	$cemail = clean($_POST['confirmemail']);
 	
 	if (isset($_POST['customerid'])) {
@@ -46,8 +47,6 @@
 	} else {
 		$driverid = 0;
 	}
-	
-	$mobile = "";
 	
 	//Input Validations
 	if($fname == '') {
@@ -120,14 +119,14 @@
 		$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}members 
 				(
 					firstname, lastname, login, passwd, fullname, 
-					email, imageid, accepted, guid, status, customerid,
+					email, mobile, imageid, accepted, guid, status, customerid,
 					driverid, supplierid,
 					metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid
 				) 
 				VALUES
 				(
 					'$fname','$lname','$login', '$md5passwd', '$fullname', 
-					'$email', $imageid, 'Y', '$guid', 'Y', $customerid,
+					'$email', '$mobile', $imageid, 'Y', '$guid', 'Y', $customerid,
 					$driverid, $supplierid,
 					NOW(), $currentmemberid, NOW(), $currentmemberid
 				)";
@@ -197,19 +196,19 @@
 		
 	} else {
 		$memberid = $_GET['id'];
-		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members " .
-				"SET email = '$email', " .
-				"firstname = '$fname', " .
-				"lastname = '$lname', " .
-				"imageid = $imageid, " .
-				"lastaccessdate = NOW(), ";
-				
-		if (isset($_POST['postcode'])) {
-			$qry .= "postcode = '$postcode', ";
-		}
-		
-		$qry .= "passwd = '" . md5($password) . "', metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-				"WHERE member_id = " . $_GET['id'];
+		$md5 = md5($password);
+		$me = getLoggedOnMemberID();
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET
+				email = '$email', 
+				firstname = '$fname', 
+				lastname = '$lname', 
+				imageid = $imageid, 
+				mobile = '$mobile',
+				lastaccessdate = NOW(),  
+				passwd = '$md5passwd', 
+				metamodifieddate = NOW(), 
+				metamodifieduserid = $memberid
+				WHERE member_id = $memberid";
 		$result = mysql_query($qry);
 
 		if (! $result) {
@@ -224,7 +223,6 @@
 		$_SESSION['SESS_LAST_NAME'] = $lname;
 		$_SESSION['SESS_IMAGE_ID'] = $imageid;
 		
-		sendRoleMessage("ADMIN", "User Amendment", "<h3>User amendment.</h3><br>Your details have been amended by the System Administration.<br>Your password has been changed to: <i>$password</i>.");
 		sendUserMessage($memberid, "User Amendment", "<h3>User amendment.</h3><br>Your details have been amended by the System Administration.<br>Your password has been changed to: <i>$password</i>.");
 		
 		header("location: system-register-amend.php");
