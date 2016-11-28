@@ -5,7 +5,6 @@
 			require_once('system-db.php');
 			
 			start_db();
-			initialise_db();
 		}
 		
 		/* Fetch the SQL into a JSON array. */

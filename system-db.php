@@ -3,6 +3,7 @@
 class SiteConfigClass {
 	public $domainurl;
 	public $emailfooter;
+	public $autotimecalculation;
 	public $lastschedulerun;
 	public $vatrate;
 	public $runscheduledays;
@@ -74,7 +75,7 @@ function start_db() {
 			logError("Unable to select database:" . DB_DATABASE);
 		}
 		
-		mysql_query("BEGIN");
+		mysql_query("START TRANSACTION");
 	
 		if (! isset($_SESSION['SITE_CONFIG'])) {
 			$qry = "SELECT * FROM {$_SESSION['DB_PREFIX']}siteconfig";
@@ -89,6 +90,7 @@ function start_db() {
 					$data->domainurl = $member['domainurl'];
 					$data->vatrate = $member['vatrate'];
 					$data->emailfooter = $member['emailfooter'];
+					$data->autotimecalculation = $member['autotimecalculation'];
 					$data->lastschedulerun = $member['lastschedulerun'];
 					$data->runscheduledays = $member['runscheduledays'];
 					$data->address = $member['address'];
@@ -144,24 +146,6 @@ function GetOfficeID($userid) {
 		if($result) {
 			while (($member = mysql_fetch_assoc($result))) {
 				$name = $member['officeid'];
-			}
-		}
-		
-		return $name;
-}
-
-function GetOfficeName($userid) {
-		$qry = "SELECT B.name FROM {$_SESSION['DB_PREFIX']}members A " .
-				"INNER JOIN {$_SESSION['DB_PREFIX']}offices B " .
-				"ON B.id = A.officeid " .
-				"WHERE A.member_id = $userid ";
-		$result = mysql_query($qry);
-		$name = "0";
-	
-		//Check whether the query was successful or not
-		if($result) {
-			while (($member = mysql_fetch_assoc($result))) {
-				$name = $member['name'];
 			}
 		}
 		
@@ -243,36 +227,6 @@ function GetEmail($userid) {
 	}
 	
 	return $name;
-}
-
-function GetSQLValueString($theValue, $theType, $theDefinedValue = "", $theNotDefinedValue = "")  
-{ 
-  $theValue = get_magic_quotes_gpc() ? stripslashes($theValue) : $theValue; 
- 
-  $theValue = function_exists("mysql_real_escape_string") ? mysql_real_escape_string($theValue) : mysql_escape_string($theValue); 
- 
-  switch ($theType) { 
-    case "text": 
-      $theValue = ($theValue != "") ? "'" . $theValue . "'" : "NULL"; 
-      break;     
-    case "long": 
-    case "int": 
-      $theValue = ($theValue != "") ? intval($theValue) : "NULL"; 
-      break; 
-    case "double": 
-      $theValue = ($theValue != "") ? "'" . doubleval($theValue) . "'" : "NULL"; 
-      break; 
-    case "date": 
-      $theValue = ($theValue != "") ? "'" . $theValue . "'" : "NULL"; 
-      break; 
-    case "defined": 
-      $theValue = ($theValue != "") ? $theDefinedValue : $theNotDefinedValue; 
-      break; 
-  } 
-  return $theValue; 
-} 
-
-function initialise_db() {
 }
 	
 function dateStampString($oldnotes, $newnotes, $prefix = "") {
@@ -855,7 +809,6 @@ function getSiteConfigData() {
 
 function redirectWithoutRole($role, $location) {
 	start_db();
-	initialise_db();
 	
 	if (! isUserInRole($role)) {
 		header("location: $location");
@@ -916,7 +869,6 @@ function getLoggedOnMemberID() {
 
 function authenticate() {
 	start_db();
-	initialise_db();
 	
 	if (! isAuthenticated()) {
 		header("location: system-login.php?callback=" . base64_encode($_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']));
@@ -1174,6 +1126,7 @@ function login($login, $password, $redirect = true) {
 			$member = mysql_fetch_assoc($result);
 			
 			$_SESSION['SESS_MEMBER_ID'] = $member['member_id'];
+			$_SESSION['SESS_TIMEOUT'] = $member['timeoutperiod'];
 			$_SESSION['SESS_FIRST_NAME'] = $member['firstname'];
 			$_SESSION['SESS_LAST_NAME'] = $member['lastname'];
 			$_SESSION['SESS_DRIVER_ID'] = $member['driverid'];

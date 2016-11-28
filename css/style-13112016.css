@@ -4,6 +4,18 @@
 	padding: 0
 }
 
+.booking_pointdelivery {
+	margin-right:12px;
+}
+
+.hoverimage {
+	border:1px solid transparent;
+}
+
+.hoverimage:hover {
+	border:1px dotted #888888;
+}
+
 ul,ol {
 	list-style: none;
 }

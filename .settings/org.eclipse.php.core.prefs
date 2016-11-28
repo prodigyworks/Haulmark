@@ -1,3 +1,5 @@
-#Mon Aug 25 20:45:42 BST 2014
+#Sat Nov 19 18:27:55 GMT 2016
 eclipse.preferences.version=1
 include_path=0;/Haulmark
+phpVersion=php5
+use_asp_tags_as_php=false

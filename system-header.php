@@ -22,7 +22,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>Haulage Planner</title>
+<title>Truck-Net</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <link rel="shortcut icon" href="favicon.ico">
@@ -39,6 +39,8 @@
 <script src='js/jquery.hoverIntent.minified.js' type='text/javascript'></script>
 <script src='js/jquery.dcmegamenu.1.3.3.js' type='text/javascript'></script>
 <script src="js/prodigyworks-20161031.js" language="javascript" ></script>
+<script src="js/businessobject-20161120.js" language="javascript" ></script>
+
 <!--[if lt IE 7]>
 <script type="text/javascript" src="js/ie_png.js"></script>
 <script type="text/javascript">
@@ -62,11 +64,6 @@
 		<input type="hidden" id="pk3" name="pk3" />
 	</form>
 	
-	<div id="appwarning">
-	</div>
-	<div id="appwarningclose">
-	</div>
-
 	<TABLE style="BORDER-COLLAPSE: collapse" cellSpacing=0 cellPadding=0 width='100%' align=left >
 		<TR>
 			<TD>

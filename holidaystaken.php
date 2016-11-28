@@ -3,7 +3,6 @@
 	require_once("viewholiday.php"); 
 	
 	start_db();
-	initialise_db();
 	
 	viewHoliday(
 			"SELECT A.*, " .

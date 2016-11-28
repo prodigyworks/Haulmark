@@ -95,15 +95,17 @@
 	$crud->table = "{$_SESSION['DB_PREFIX']}vehicle";
 	$crud->dialogwidth = 970;
 	$crud->sql = 
-			"SELECT A.*, B.registration AS trailername, C.name AS drivername, D.name AS vehicletypename " .
-			"FROM {$_SESSION['DB_PREFIX']}vehicle A " .
-			"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer B " .
-			"ON B.id = A.usualtrailerid " .
-			"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver C " .
-			"ON C.id = A.usualdriverid " .
-			"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}vehicletype D " .
-			"ON D.id = A.vehicletypeid " .
-			"ORDER BY A.registration";
+			"SELECT A.*, B.registration AS trailername, C.name AS drivername, D.name AS vehicletypename, E.name AS suppliername
+			 FROM {$_SESSION['DB_PREFIX']}vehicle A 
+			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer B 
+			 ON B.id = A.usualtrailerid 
+			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver C 
+			 ON C.id = A.usualdriverid 
+			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}vehicletype D 
+			 ON D.id = A.vehicletypeid 
+			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}supplier E
+			 ON E.id = A.supplierid 
+			 ORDER BY A.registration";
 	
 	$crud->messages = array(
 			array('id'		  => 'vehicle_id')
@@ -243,6 +245,17 @@
 							'text'		=> "No"
 						)
 					)
+			),
+			array(
+				'name'       => 'supplierid',
+				'type'       => 'DATACOMBO',
+				'length' 	 => 20,
+				'required'   => false,
+				'label' 	 => 'Supplier',
+				'table'		 => 'supplier',
+				'table_id'	 => 'id',
+				'alias'		 => 'suppliername',
+				'table_name' => 'name'
 			),
 			array(
 				'name'       => 'usualdriverid',

@@ -185,7 +185,7 @@
 				'length' 	 => 17,
 				'required'	 => false,
 				'datatype'	 => 'tel',
-				'label' 	 => 'Telephone'
+				'label' 	 => 'Telephone 1'
 			),
 			array(
 				'name'       => 'telephone2',
@@ -200,7 +200,7 @@
 				'length' 	 => 12,
 				'showInView' => false,
 				'required'	 => false,
-				'label' 	 => 'Fax'
+				'label' 	 => 'Mobile'
 			),
 			array(
 				'name'       => 'contact1',

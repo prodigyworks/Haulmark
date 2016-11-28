@@ -117,7 +117,6 @@ error_reporting(E_ALL);
 		public function postAddScriptEvent() {
 ?>
 			$("#revision").val("1");
-			$("#deliverycharge").val("0.00");
 			$("#discount").val("0.00");
 			$("#total").val("0.00");
 			$("#orderdate").val("<?php echo date("d/m/Y"); ?>");
@@ -243,14 +242,11 @@ error_reporting(E_ALL);
 			
 			function calculate_total() {
 				var total;
-				var deliverycharge;
 				var discount;
 				
-				deliverycharge = parseFloat($("#deliverycharge").val());
 				discount = parseFloat($("#discount").val());
 				
 				total = parseFloat($("#total").val());
-				total -= deliverycharge;
 				
 				if (total < 0) {
 					total = 0;
@@ -259,7 +255,6 @@ error_reporting(E_ALL);
 				total -= (total * (discount) / 100);
 				
 				$("#discount").val(new Number(discount).toFixed(2));
-				$("#deliverycharge").val(new Number(deliverycharge).toFixed(2));
 				$("#total").val(new Number(total).toFixed(2));
 			}
 			
@@ -371,15 +366,6 @@ error_reporting(E_ALL);
 							
 							total += parseFloat(node.linetotal);
 						}
-					}
-				}
-				
-				if ($("#deliverycharge").val() == "6.50" || $("#deliverycharge").val() == "0.00") {
-					if (total < 75) {
-						$("#deliverycharge").val("6.50");
-						
-					} else {
-						$("#deliverycharge").val("0.00");
 					}
 				}
 				
@@ -660,13 +646,6 @@ error_reporting(E_ALL);
 				'table_name' => 'fullname'
 			),
 			array(
-				'name'       => 'deliverycharge',
-				'length' 	 => 13,
-				'datatype'   => 'double',
-				'align'		 => 'right',
-				'label' 	 => 'Delivery Charge'
-			),
-			array(
 				'name'       => 'discount',
 				'length' 	 => 12,
 				'align'		 => 'right',
@@ -697,11 +676,6 @@ error_reporting(E_ALL);
 				'title'		  => 'Print',
 				'imageurl'	  => 'images/print.png',
 				'script' 	  => 'printQuote'
-			),
-			array(
-				'title'		  => 'Remittance',
-				'imageurl'	  => 'images/print.png',
-				'script' 	  => 'printRemittance'
 			)
 		);
 		

@@ -2,6 +2,7 @@
 	require_once("crud.php");
 	require_once("bookingshared.php");
 	require_once("bookingscopy.php");
+	require_once("businessobjects/BookingLegClass.php");
 	
 	function confirmBooking() {
 		$id = $_POST['copy_id'];
@@ -52,6 +53,7 @@
 			}
 			
 			$this->validateForm = "validateCrudForm";
+			$this->onClickCallback = "checkClick";
 			$this->title = "Bookings";
 			$this->table = "{$_SESSION['DB_PREFIX']}booking";
 			$this->allowView = true;
@@ -64,7 +66,14 @@
 				   "SELECT A.*, B.registration AS trailername, C.name AS driversname, D.name AS customername, 
 				    E.registration AS vehiclename, F.name AS vehicletypename, 
 				    H.name AS statusname, I.fullname, J.name AS worktypename,
-				    L.name AS nominalledgercodename
+				    L.name AS nominalledgercodename,
+				    (
+				    	SELECT M.arrivaltime 
+				    	FROM {$_SESSION['DB_PREFIX']}bookingleg M  
+				    	WHERE M.bookingid = A.id
+				    	ORDER BY M.id
+				    	LIMIT 1
+				    ) AS startlegdatetime
 					FROM {$_SESSION['DB_PREFIX']}booking A 
 					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer B 
 					ON B.id = A.trailerid 
@@ -134,15 +143,16 @@
 						'table_name' => 'name'
 					),
 					array(
-						'name'       => 'driverid',
+						'name'       => 'vehicletypeid',
 						'type'       => 'DATACOMBO',
 						'onchange'	 => 'checkBookingStatus',
-						'length' 	 => 34,
-						'label' 	 => 'Driver / Agency',
-						'table'		 => 'driver',
+						'length' 	 => 19,
+						'label' 	 => 'Vehicle Type',
+						'table'		 => 'vehicletype',
+						'required'	 => true,
+						'onchange'	 => 'vehicletypeid_onchange',
 						'table_id'	 => 'id',
-						'required'	 => false,
-						'alias'		 => 'driversname',
+						'alias'		 => 'vehicletypename',
 						'table_name' => 'name'
 					),
 					array(
@@ -159,16 +169,15 @@
 						'table_name' => 'registration'
 					),
 					array(
-						'name'       => 'vehicletypeid',
+						'name'       => 'driverid',
 						'type'       => 'DATACOMBO',
 						'onchange'	 => 'checkBookingStatus',
-						'length' 	 => 19,
-						'label' 	 => 'Vehicle Type',
-						'table'		 => 'vehicletype',
-						'required'	 => true,
-						'onchange'	 => 'vehicletypeid_onchange',
+						'length' 	 => 34,
+						'label' 	 => 'Driver / Agency',
+						'table'		 => 'driver',
 						'table_id'	 => 'id',
-						'alias'		 => 'vehicletypename',
+						'required'	 => false,
+						'alias'		 => 'driversname',
 						'table_name' => 'name'
 					),
 					array(
@@ -246,8 +255,20 @@
 						'label' 	 => 'From Phone'
 					),
 					array(
+						'name'       => 'collectionRef',
+						'function'   => 'collectionReference',
+						'sortcolumn' => 'A.startdatetime',
+						'type'		 => 'DERIVED',
+						'length' 	 => 18,
+						'editable'	 => false,
+						'bind' 	 	 => false,
+						'filter'	 => false,
+						'label' 	 => 'Collection Date'
+					),
+					array(
 						'name'       => 'startdatetime',
 						'datatype'	 => 'datetime',
+						'hidden'	 => true,
 						'length' 	 => 18,
 						'label' 	 => 'Collection Date'
 					),
@@ -468,6 +489,7 @@
 						'application' => 'managebookinglegs.php'
 					),
 					array(
+						'id'		  => 'deliverynotebutton',
 						'title'		  => 'Delivery Note',
 						'imageurl'	  => 'images/print.png',
 						'script' 	  => 'printDeliveryNote'
@@ -533,7 +555,10 @@
 			$("#memberid").attr("disabled", true);
 			
 			driverid_onchange();
-			vehicleid_onchange();
+			vehicletypeid_onchange();
+			
+			$("#editpanel #driverid").val(node.driverid);
+			$("#editpanel #vehicleid").val(node.vehicleid);
 			
 			loadAddress($("#customerid").val());
 			
@@ -557,7 +582,7 @@
 		public function postHeaderEvent() {
 ?>
 			<script type="text/javascript" src="js/html2canvas.js"></script>
-			<script type="text/javascript" src="bookingscriptlibrary-20161116.js"></script>
+			<script type="text/javascript" src="bookingscriptlibrary-20161123.js"></script>
 			<link href="bookingform.css" rel="stylesheet" type="text/css" />
 			<style>
 				#dateswitch {
@@ -626,37 +651,17 @@
 		public function postInsertEvent($id) {
 			for ($i = 1; ; $i++) {
 				if (isset($_POST['point_' . $i])) {
-					$point = $_POST['point_' . $i];
-					$pointlat = $_POST['point_' . $i . "_lat"];
-					$pointlng = $_POST['point_' . $i . "_lng"];
-					$pointdeparturedate = convertStringToDate($_POST['pointdeparturedate_' . $i]);
-					$pointdeparturetime = $_POST['pointdeparturetime_' . $i];
-					$pointdeparturedate = $pointdeparturedate . " " . $pointdeparturetime;
-					$pointarrivaldate = convertStringToDate($_POST['pointarrivaldate_' . $i]);
-					$pointarrivaltime = $_POST['pointarrivaltime_' . $i];
-					$pointarrivaldate = $pointarrivaldate . " " . $pointarrivaltime;
-					$phone = $_POST['point_' . $i . "_phone"];
-					$reference = $_POST['point_' . $i . "_ref"];
+					$leg = new BookingLegClass();
 					
-					$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg
-							(
-							bookingid, place, place_lng, place_lat, 
-							arrivaltime, 
-							departuretime, 
-							phone, reference
-							)
-							VALUES
-							(
-							$id, '$point', $pointlng, $pointlat, 
-							'$pointarrivaldate', 
-							'$pointdeparturedate', 
-							'$phone', '$reference'
-							)";
-					$result = mysql_query($sql);
-			
-					if (! $result) {
-						logError($sql . " - " . mysql_error());
-					}
+			    	$leg->bookingid = $id;
+					$leg->place = $_POST['point_' . $i];
+					$leg->place_lat = $_POST['point_' . $i . "_lat"];
+					$leg->place_lng = $_POST['point_' . $i . "_lng"];
+					$leg->reference = $_POST['point_' . $i . "_ref"];
+					$leg->phone = $_POST['point_' . $i . "_phone"];
+					$leg->arrivaltime = convertStringToDate($_POST['pointarrivaldate_' . $i]) . " " . $_POST['pointarrivaltime_' . $i];
+					$leg->departuretime = convertStringToDate($_POST['pointdeparturedate_' . $i]) . " " . $_POST['pointdeparturetime_' . $i];
+					$leg->insert();
 					
 				} else {
 					break;
@@ -689,38 +694,17 @@
 			for ($i = 1; $counter < $points; $i++) {
 				if (isset($_POST['point_' . $i])) {
 					$counter++;
+					$leg = new BookingLegClass();
 					
-					$point = mysql_escape_string($_POST['point_' . $i]);
-					$pointlat = $_POST['point_' . $i . "_lat"];
-					$pointlng = $_POST['point_' . $i . "_lng"];
-					$pointdeparturedate = convertStringToDate($_POST['pointdeparturedate_' . $i]);
-					$pointdeparturetime = $_POST['pointdeparturetime_' . $i];
-					$pointdeparturedate = $pointdeparturedate . " " . $pointdeparturetime;
-					$pointarrivaldate = convertStringToDate($_POST['pointarrivaldate_' . $i]);
-					$pointarrivaltime = $_POST['pointarrivaltime_' . $i];
-					$pointarrivaldate = $pointarrivaldate . " " . $pointarrivaltime;
-					$phone = mysql_escape_string($_POST['point_' . $i . "_phone"]);
-					$reference = mysql_escape_string($_POST['point_' . $i . "_ref"]);
-					
-					$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg 
-							(
-							 	bookingid, place, place_lng, place_lat, 
-							 	arrivaltime, 
-							 	departuretime, 
-							 	phone, reference
-							)
-							VALUES
-							(
-							 	$id, '$point', $pointlng, $pointlat, 
-							 	'$pointarrivaldate', 
-							 	'$pointdeparturedate', 
-							 	'$phone', '$reference'
-							)";
-					$result = mysql_query($sql);
-						
-					if (! $result) {
-						logError($sql . " - " . mysql_error());
-					}
+			    	$leg->bookingid = $id;
+					$leg->place = $_POST['point_' . $i];
+					$leg->place_lat = $_POST['point_' . $i . "_lat"];
+					$leg->place_lng = $_POST['point_' . $i . "_lng"];
+					$leg->reference = $_POST['point_' . $i . "_ref"];
+					$leg->phone = $_POST['point_' . $i . "_phone"];
+					$leg->arrivaltime = convertStringToDate($_POST['pointarrivaldate_' . $i]) . " " . $_POST['pointarrivaltime_' . $i];
+					$leg->departuretime = convertStringToDate($_POST['pointdeparturedate_' . $i]) . " " . $_POST['pointdeparturetime_' . $i];
+					$leg->insert();
 						
 				} else {
 					break;
@@ -746,6 +730,15 @@
 			var directionsDisplay;
 		
 			var map = null;
+
+			function checkClick(node) {
+				if (node.statusid == "New Booking") {
+					$("#deliverynotebutton").hide();
+					
+				} else {
+					$("#deliverynotebutton").show();
+				}				
+			}
 		      
 			function saveMapToDataUrl() {
 			
@@ -815,7 +808,9 @@
 							}
 							
 							lastLegDuration = legs[legs.length - 1].duration.value;
-					    
+<?php 
+	if (getSiteConfigData()->autotimecalculation == "Y") {
+?>					    
 							$(".pointcontainer").each(
 									function() {
 										var location = $(this).find(".point").val();
@@ -858,6 +853,9 @@
 	        						null,
 	        						(lastLegDuration / 0.9)
 	    		    			);
+<?php 
+	}
+?>					    
 	    		    			
 							$('#miles').val((Math.round( totalDistance * METERS_TO_MILES * 10 ) / 10));						    
 							$('#duration').val(
@@ -1035,6 +1033,14 @@
 							? $("#crudid").val()
 							: null
 					);
+			}
+			
+			function collectionReference(node) {
+				if (node.fromplace == "<?php echo getSiteConfigData()->basepostcode; ?>" && node.startlegdatetime != null) {
+					return node.startlegdatetime;
+				}
+				
+				return node.startdatetime;
 			}
 			
 			function bookingReference(node) {

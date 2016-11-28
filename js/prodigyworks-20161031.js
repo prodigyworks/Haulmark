@@ -7,6 +7,12 @@ function pwAlert(body, callback) {
 	$("#alertdialog").dialog("open");
 }
 
+if (!String.prototype.trim) {
+	  String.prototype.trim = function () {
+	    return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+	  };
+	}
+
 function call(commandName, parameters) {
 	if (parameters) {
 		for (var param in parameters) {

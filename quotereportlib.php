@@ -76,7 +76,8 @@
 				$this->addText(55, $dynamicY + 38, "This is Order Revision No " . $this->headermember['revision'] . " and Supersedes all Previous Issues", 8, 3.5, 'B');
 			}
 			
-			$this->addText( 10, 270, "Company Reg No: 1202559", 7, 3);
+			$this->addText( 10, 270, "Company Reg No: " . getSiteConfigData()->companynumber, 7, 3);
+			$this->addText( 10, 273, "VAT Number: " . getSiteConfigData()->vatregnumber, 7, 3);
 			$this->addText( 170, 270, "Printed: " . date("d/m/Y H:i"), 7, 3);
 			$this->addText( 186, 273, "Page " . $this->PageNo() . " of {nb}", 7, 3);
 			

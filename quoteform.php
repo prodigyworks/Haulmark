@@ -54,12 +54,6 @@
 			</td>
 		</tr>
 		<tr valign="center">
-			<td>Delivery Charge</td>
-			<td colspan=2>
-				<input type="text" style="width:70px" id="deliverycharge" name="deliverycharge" onchange="total_onchange()" value="0.00">
-			</td>
-		</tr>
-		<tr valign="center">
 			<td>Discount %</td>
 			<td colspan=2>
 				<input type="text" style="width:70px" id="discount" name="discount" onchange="total_onchange()" value="0.00">

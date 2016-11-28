@@ -1,7 +1,8 @@
 <?php 
 	$mode = "V";
+
+	include("system-header.php");
 	
-	require_once("system-header.php");
 	require_once("tinymce.php");
 	require_once("bookingscopy.php");
 	
@@ -29,11 +30,15 @@
 	<script src='js/jquery.ui.timepicker.js'></script>
 	<link rel='STYLESHEET' type='text/css' href='./codebase/dhtmlxscheduler_glossy.css'>
 	<link href="bookingform.css" rel="stylesheet" type="text/css" />
-	<script src='bookingscriptlibrary-20161116.js' type="text/javascript" charset="utf-8"></script>
+	<script src='bookingscriptlibrary-20161123.js' type="text/javascript" charset="utf-8"></script>
 	
 	<style type="text/css" media="screen">
 		div[aria-labelledby=ui-dialog-title-keydialog] {
 			opacity: 0.6 ! important;
+		}
+		.sectionhighlight {
+			color: blue ! important;
+			font-style: italic ! important;
 		}
 		.utilisation {
 			position: relative;
@@ -234,6 +239,9 @@
 					    var prevTime = $("#startdatetime_time"); 
 					    var prevDate = $("#startdatetime");
 					    var cnt = 0;
+<?php 
+	if (getSiteConfigData()->autotimecalculation == "Y") {
+?>					    
 
 						$(".pointcontainer").each(
 								function() {
@@ -276,12 +284,21 @@
 	    						null,
 	    						(legs[legs.length - 1].duration.value / 0.9)
 			    			);
-						
+<?php
+	}
+?>						
 						var mins = Math.round( totalDuration / 60 ) % 60;
 						var hours = Math.round( totalDuration / 3600 );
 						
 						$('#miles').val((Math.round( totalDistance * METERS_TO_MILES * 10 ) / 10));						    
-						$('#duration').val(new Number(hours + "." + mins).toFixed(2));	
+						$('#duration').val(
+								getTotalDuration(
+		    		    				$("#startdatetime").val(), 
+		    		    				$("#startdatetime_time").val(),
+		    		    				$("#enddatetime").val(), 
+		    		    				$("#enddatetime_time").val()
+									)
+							);	
 						
 						fetchOverHeadRates();					    
 	        		}
@@ -727,7 +744,16 @@
 			var sections=[
 <?php 
 				if ($mode == "V") {
-					$sql = "SELECT A.id, B.imageid, A.registration AS name, B.name AS typename 
+					$sql = "SELECT 
+							A.id, 
+							B.imageid, 
+							CASE 
+								WHEN A.subcontractor = 'Y' 
+								THEN CONCAT('(Hired) - ', A.registration) 
+								ELSE A.registration 
+							END AS name, 
+							B.name AS typename, 
+							A.subcontractor AS highlight 
 							FROM {$_SESSION['DB_PREFIX']}vehicle A 
 							INNER JOIN {$_SESSION['DB_PREFIX']}vehicletype B 
 							ON B.id = A.vehicletypeid 
@@ -735,13 +761,29 @@
 							ORDER BY B.code, A.registration";
 
 				} else if ($mode == "T") {
-					$sql = "SELECT id, registration AS name, '' AS typename
+					$sql = "SELECT 
+							id, 
+							CASE 
+								WHEN subcontractor = 'Y' 
+								THEN CONCAT('(Hired) - ', registration) 
+								ELSE registration 
+							END AS name, 
+							'' AS typename, 
+							A.subcontractor AS highlight
 							FROM {$_SESSION['DB_PREFIX']}trailer A 
 							WHERE A.active = 'Y' 
-							ORDER BY registration";
+							ORDER BY A.subcontractor, registration";
 					
 				} else if ($mode == "D") {
-					$sql = "SELECT id, CASE WHEN agencydriver = 'Y' THEN CONCAT('(Agency) - ', name) ELSE name END name, '' AS typename 
+					$sql = "SELECT 
+							id, 
+							CASE 
+								WHEN agencydriver = 'Y' 
+								THEN CONCAT('(Agency) - ', name) 
+								ELSE name 
+							END name, 
+							'' AS typename, 
+							agencydriver AS highlight 
 							FROM {$_SESSION['DB_PREFIX']}driver 
 							ORDER BY agencydriver, name";
 				}
@@ -758,18 +800,35 @@
 							echo ", ";
 						}
 						
-						if ($member['imageid'] != null) {
+						if ($member['highlight'] == "Y") {
+							if ($member['imageid'] != null) {
+?>
+						{key:<?php echo $member['id']; ?>, label:"<img src='system-imageviewer.php?id=<?php echo $member['imageid'] . "' />&nbsp;<span class='sectionhighlight'>". $member['name']; ?></span>"}
+<?php
+							} else if ($member['typename'] != "") {
+?>
+						{key:<?php echo $member['id']; ?>, label:"<span class='sectionhighlight'><?php echo $member['typename'] . " - " . $member['name']; ?></span>"}
+<?php
+							} else {
+?>
+						{key:<?php echo $member['id']; ?>, label:"<span class='sectionhighlight'><?php echo $member['name']; ?></span>"}
+<?php
+							}
+							
+						} else {
+							if ($member['imageid'] != null) {
 ?>
 						{key:<?php echo $member['id']; ?>, label:"<img src='system-imageviewer.php?id=<?php echo $member['imageid'] . "' />&nbsp;". $member['name']; ?>"}
 <?php
-						} else if ($member['typename'] != "") {
+							} else if ($member['typename'] != "") {
 ?>
 						{key:<?php echo $member['id']; ?>, label:"<?php echo $member['typename'] . " - " . $member['name']; ?>"}
 <?php
-						} else {
+							} else {
 ?>
 						{key:<?php echo $member['id']; ?>, label:"<?php echo $member['name']; ?>"}
 <?php
+							}
 						}
 					}
 				}
@@ -881,133 +940,14 @@
 				});
 			scheduler.attachEvent("onDblClick",function(){return false;})
 	      	scheduler.attachEvent("onClick",function(parentnode) {
-	      		var event = scheduler.getEvent(parentnode);
+		      		var event = scheduler.getEvent(parentnode);
+	
+			      	if (event.type != "B") {
+				      	return;
+			      	}
 
-		      	if (event.type != "B") {
-			      	return;
-		      	}
-		      	
-				callAjax(
-						"finddata.php", 
-						{ 
-							sql: "SELECT A.*, B.street, B.address2, B.town, B.city, B.county, B.postcode, B.telephone " + 
-								 "FROM <?php echo $_SESSION['DB_PREFIX']; ?>booking A " +
-								 "LEFT OUTER JOIN <?php echo $_SESSION['DB_PREFIX']; ?>customer B " +
-								 "ON B.id = A.customerid " +
-								 "WHERE A.id = " + parentnode
-						},
-						function(data) {
-							if (data.length == 1) {
-								var node = data[0];
-								var address = node.street;
+			      	openBooking(parentnode);
 
-								if (node.address2 != null && node.address2 != "") address += "<br>" + node.address2;
-								if (node.town != null && node.town != "") address += "<br>" + node.town;
-								if (node.city != null && node.city != "") address += "<br>" + node.city;
-								if (node.county != null && node.county != "") address += "<br>" + node.county;
-								if (node.postcode != null && node.postcode != "") address += "<br>" + node.postcode;
-
-								address += "<br><b>Tel:</b>" + node.telephone;
-
-								$("#ui-dialog-title-bookingdialog").html("<i>Booking Number</i> : <b><?php echo getSiteConfigData()->bookingprefix; ?>" + padZero(node.id, 6) + "</b>");
-								$(".address").html(address);
-
-								$("#bookingid").val(parentnode);
-								$("#customerid").val(node.customerid);
-								$("#statusid").val(node.statusid);
-								$("#originalstatusid").val(node.statusid);
-								$("#memberid").val(node.memberid);
-								
-								$("#toplace_phone").val(node.toplace_phone);
-								$("#toplace_ref").val(node.toplace_ref);
-								$("#fromplace_phone").val(node.fromplace_phone);
-								$("#fromplace_ref").val(node.fromplace_ref);
-								$("#agencydriver").val(node.agencydriver);
-								$("#driverid").val(node.driverid);
-								$("#vehicleid").val(node.vehicleid);
-								$("#vehicletypeid").val(node.vehicletypeid);
-								$("#trailerid").val(node.trailerid);
-								$("#drivername").val(node.drivername);
-								$("#agencyvehicleregistration").val(node.agencyvehicleregistration);
-								$("#driverphone").val(node.driverphone);
-								$("#worktypeid").val(node.worktypeid);
-								$("#nominalledgercodeid").val(node.nominalledgercodeid);
-								$("#loadtypeid").val(node.loadtypeid);
-								$("#ordernumber").val(node.ordernumber);
-								$("#ordernumber2").val(node.ordernumber2);
-
-								$(".pointcontainer").remove();
-								
-								counter = 1;
-
-								loadLegs(parentnode);
-
-								if (node.statusid == 8) {
-									$("#bookinginnerform input").attr("disabled", true);
-									$("#bookinginnerform textarea").attr("disabled", true);
-									$("#bookinginnerform select").attr("disabled", true);
-									$("#bookinginnerform .bookingbutton").hide();
-									$("#bookinginnerform .pointimage").hide();
-									$("#ordernumber2").attr("disabled", false);
-									
-								} else {
-									$("#bookinginnerform input").attr("disabled", false);
-									$("#bookinginnerform textarea").attr("disabled", false);
-									$("#bookinginnerform select").attr("disabled", false);
-									$("#bookinginnerform .bookingbutton").show();
-									$("#bookinginnerform .pointimage").show();
-
-									day = $("#startdatetime").val().substring(0, 2) - 0;      
-									month= $("#startdatetime").val().substring(3, 5) - 1; // because months in JS start from 0     
-									year = $("#startdatetime").val().substring(6, 10) - 0; 
-
-									var startSeconds = (new Date(year, month, day)).getTime();      
-									var startToday = (new Date(<?php echo date("Y"); ?>, <?php echo date("m") - 1; ?>, <?php echo date("d"); ?>)).getTime();      
-
-									if (node.statusid < 7 && (startToday < startSeconds)) {
-										$("#statusid option[value='6']").attr("disabled", true);
-										$("#statusid option[value='7']").attr("disabled", true);
-										
-									} else {
-										$("#statusid option[value='6']").attr("disabled", false);
-										$("#statusid option[value='7']").attr("disabled", false);
-									}
-								}
-								
-								$("#memberid").attr("disabled", true);
-								
-								fetchOverHeadRates();
-
-								driverid_onchange();
-								vehicleid_onchange();
-								$("#agencydriver").val(node.agencydriver);
-								$("#driverid").val(node.driverid);
-								$("#vehicleid").val(node.vehicleid);
-
-								$("#miles").val(node.miles);
-								$("#duration").val(node.duration);
-								$("#pallets").val(node.pallets);
-								$("#weight").val(node.weight);
-								$("#rate").val(node.rate);
-								$("#charge").val(node.charge);
-
-								$("#startdatetime").val(node.startdatetime.substring(0, 10));
-								$("#startdatetime_time").val(node.startdatetime.substring(11, 16));
-								$("#fromplace").val(node.fromplace);
-								$("#enddatetime").val(node.enddatetime.substring(0, 10));
-								$("#enddatetime_time").val(node.enddatetime.substring(11, 16));
-								$("#toplace").val(node.toplace);
-
-								$("#fixedprice").attr("checked", node.fixedprice == 1);
-
-								tinyMCE.get("notes").setContent(node.notes);
-							}
-						},
-						false
-					);
-
-		      		$("#bookingdialog").dialog("open");
-		      		
 			      	return false;
 		      	});
 
@@ -1069,6 +1009,159 @@
 			$("#confirmremovedialog .confirmdialogbody").html("You are about to remove this booking.<br>Are you sure ?");
 			$("#confirmremovedialog").dialog("open");
 		}
+
+		function openBooking(parentnode) {
+			callAjax(
+					"finddata.php", 
+					{ 
+						sql: "SELECT A.*, " + 
+							 "B.street, B.address2, B.town, B.city, B.county, B.postcode, " + 
+							 "B.telephone, B.telephone2, B.fax AS mobile, " + 
+							 "C.fax, C.agencydriver " + 
+							 "FROM <?php echo $_SESSION['DB_PREFIX']; ?>booking A " +
+							 "LEFT OUTER JOIN <?php echo $_SESSION['DB_PREFIX']; ?>customer B " +
+							 "ON B.id = A.customerid " +
+							 "LEFT OUTER JOIN <?php echo $_SESSION['DB_PREFIX']; ?>driver C " +
+							 "ON C.id = A.driverid " +
+							 "WHERE A.id = " + parentnode
+					},
+					function(data) {
+						if (data.length == 1) {
+							var node = data[0];
+							var address = node.street;
+							var tel = "";
+
+							if (node.address2 != null && node.address2.trim() != "") address += "<br>" + node.address2;
+							if (node.town != null && node.town.trim() != "") address += "<br>" + node.town;
+							if (node.city != null && node.city.trim() != "") address += "<br>" + node.city;
+							if (node.county != null && node.county.trim() != "") address += "<br>" + node.county;
+							if (node.postcode != null && node.postcode.trim() != "") address += "<br>" + node.postcode;
+
+							if (node.telephone != null && node.telephone.trim() != "") tel = node.telephone.trim();
+							if (node.telephone2 != null && node.telephone2.trim() != "") {
+								if (tel != "") tel += ", ";
+								
+								tel += node.telephone2.trim();
+							}
+							if (node.mobile != null && node.mobile.trim() != "") {
+								if (tel != "") tel += ", ";
+								
+								tel += node.mobile.trim();
+							}
+							
+							address += "<br><b>Tel:</b><i>" + tel + "</i>";
+
+							$("#ui-dialog-title-bookingdialog").html("<i>Booking Number</i> : <b><?php echo getSiteConfigData()->bookingprefix; ?>" + padZero(node.id, 6) + "</b>");
+							$(".address").html(address);
+
+							$("#bookingid").val(parentnode);
+							$("#customerid").val(node.customerid);
+							$("#statusid").val(node.statusid);
+							$("#originalstatusid").val(node.statusid);
+							$("#memberid").val(node.memberid);
+							
+							$("#vehicletypeid").val(node.vehicletypeid).trigger("change");
+							$("#toplace_phone").val(node.toplace_phone);
+							$("#toplace_ref").val(node.toplace_ref);
+							$("#fromplace_phone").val(node.fromplace_phone);
+							$("#fromplace_ref").val(node.fromplace_ref);
+							$("#vehicleid").val(node.vehicleid);
+							$("#trailerid").val(node.trailerid);
+							$("#driverid").val(node.driverid);
+							$("#drivername").val(node.drivername);
+							$("#agencyvehicleregistration").val(node.agencyvehicleregistration);
+							$("#driverphone").val(node.driverphone);
+							$("#worktypeid").val(node.worktypeid);
+							$("#nominalledgercodeid").val(node.nominalledgercodeid);
+							$("#loadtypeid").val(node.loadtypeid);
+							$("#ordernumber").val(node.ordernumber);
+							$("#ordernumber2").val(node.ordernumber2);
+							
+							if (node.fax != "") {
+								$("#driverphonenumber").text(" (" + node.fax + ")");
+								
+							} else {
+								$("#driverphonenumber").text("");
+							}
+							
+							if (node.agencydriver == "Y") {
+								$(".drivernamerow").show();
+								$(".drivernamerow input").attr("required", true);
+			
+							} else {
+								$(".drivernamerow").hide();
+								$(".drivernamerow").hide();
+								$(".drivernamerow input").attr("required", false);
+								$("#drivername").val("");
+							}			
+							
+							$(".pointcontainer").remove();
+							
+							counter = 1;
+
+							loadLegs(parentnode);
+
+							if (node.statusid == 8) {
+								$("#bookinginnerform input").attr("disabled", true);
+								$("#bookinginnerform textarea").attr("disabled", true);
+								$("#bookinginnerform select").attr("disabled", true);
+								$("#bookinginnerform .bookingbutton").hide();
+								$("#bookinginnerform .pointimage").hide();
+								$("#ordernumber2").attr("disabled", false);
+								
+							} else {
+								$("#bookinginnerform input").attr("disabled", false);
+								$("#bookinginnerform textarea").attr("disabled", false);
+								$("#bookinginnerform select").attr("disabled", false);
+								$("#bookinginnerform .bookingbutton").show();
+								$("#bookinginnerform .pointimage").show();
+
+								day = $("#startdatetime").val().substring(0, 2) - 0;      
+								month= $("#startdatetime").val().substring(3, 5) - 1; // because months in JS start from 0     
+								year = $("#startdatetime").val().substring(6, 10) - 0; 
+
+								var startSeconds = (new Date(year, month, day)).getTime();      
+								var startToday = (new Date(<?php echo date("Y"); ?>, <?php echo date("m") - 1; ?>, <?php echo date("d"); ?>)).getTime();      
+
+								if (node.statusid < 7 && (startToday < startSeconds)) {
+									$("#statusid option[value='6']").attr("disabled", true);
+									$("#statusid option[value='7']").attr("disabled", true);
+									
+								} else {
+									$("#statusid option[value='6']").attr("disabled", false);
+									$("#statusid option[value='7']").attr("disabled", false);
+								}
+							}
+							
+							$("#memberid").attr("disabled", true);
+							
+							fetchOverHeadRates();
+
+							$("#agencydriver").val(node.agencydriver);
+							$("#miles").val(node.miles);
+							$("#duration").val(node.duration);
+							$("#pallets").val(node.pallets);
+							$("#weight").val(node.weight);
+							$("#rate").val(node.rate);
+							$("#charge").val(node.charge);
+
+							$("#startdatetime").val(node.startdatetime.substring(0, 10));
+							$("#startdatetime_time").val(node.startdatetime.substring(11, 16));
+							$("#fromplace").val(node.fromplace);
+							$("#enddatetime").val(node.enddatetime.substring(0, 10));
+							$("#enddatetime_time").val(node.enddatetime.substring(11, 16));
+							$("#toplace").val(node.toplace);
+
+							$("#fixedprice").attr("checked", node.fixedprice == 1);
+
+							tinyMCE.get("notes").setContent(node.notes);
+						}
+					},
+					false
+				);
+			
+	      		$("#bookingdialog").dialog("open");
+      	}
 		
 		function confirmremoval(crudID) {
 			callAjax(
@@ -1213,6 +1306,6 @@
 		<div class="dhx_cal_data">
 		</div>		
 	</div>
-<?php 
+<?php
 	include("system-footer.php");
 ?>

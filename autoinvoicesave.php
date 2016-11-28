@@ -9,8 +9,11 @@
 	$first = true;
 	$total = 0;
 	$statusid = 8;
+	$index = 0;	
 	
 	foreach ($_POST['selected'] AS $bookingid) {
+		$charge = $_POST['charge'][$index++];
+
 		/* Get existing status */
 		$sql = "SELECT A.* 
 				FROM {$_SESSION['DB_PREFIX']}booking A 
@@ -20,7 +23,6 @@
 		//Check whether the query was successful or not
 		if($result) {
 			while (($member = mysql_fetch_assoc($result))) {
-				$charge = $member['charge'];
 				$customerid = $member['customerid'];
 				$generatedbooking = getBookingReference($bookingid);
 				$legsummary = mysql_escape_string($member['legsummary']);
@@ -69,7 +71,9 @@
 				}
 				
 				$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET 
-						statusid = $statusid
+						statusid = $statusid,
+						charge = $charge,
+						fixedprice = 1
 						WHERE id = $bookingid";
 				
 				if (! mysql_query($sql)) {

@@ -22,7 +22,7 @@
 	
 	while (($member = mysql_fetch_assoc($result))) {
 		$alternate = ($index++ % 2 ? "alternate" : "");
-		$error .= "<span class='$alternate'>Booking: " . getBookingReference($member['id']) . " - " . $member['legsummary'] . " is overdue, </span>";
+		$error .= "<span class='$alternate'>Booking: <a href='javascript:openBooking(" . $member['id'] . ")'>" . getBookingReference($member['id']) . " - " . $member['legsummary'] . "</a> is overdue, </span>";
 	}
 	
 	$sql = "SELECT A.id, A.legsummary, B.name
@@ -42,7 +42,7 @@
 	
 	while (($member = mysql_fetch_assoc($result))) {
 		$alternate = ($index++ % 2 ? "alternate" : "");
-		$error .= "<span class='$alternate'>Booking: " . getBookingReference($member['id']) . " - " . $member['legsummary'] . " is late starting, </span>";
+		$error .= "<span class='$alternate'>Booking: <a href='javascript:openBooking(" . $member['id'] . ")'>" . getBookingReference($member['id']) . " - " . $member['legsummary'] . "</a> is late starting, </span>";
 	}
 	
 	if ($index == 0) {

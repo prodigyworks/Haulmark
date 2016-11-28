@@ -9,6 +9,7 @@
 		$runscheduledays = mysql_escape_string($_POST['runscheduledays']);
 		$domainurl = mysql_escape_string($_POST['domainurl']) ;
 		$emailfooter = mysql_escape_string($_POST['emailfooter']);
+		$autotimecalculation = $_POST['autotimecalculation'];
 		$address = mysql_escape_string($_POST['address']);
 		$maintelephone = mysql_escape_string($_POST['maintelephone']);
 		$defaultprofitmargin = $_POST['defaultprofitmargin'];
@@ -75,6 +76,7 @@
 				basepostcode = '$basepostcode', 
 				runscheduledays = '$runscheduledays', 
 				emailfooter = '$emailfooter', 
+				autotimecalculation = '$autotimecalculation',
 				metamodifieddate = NOW(), 
 				metamodifieduserid = $memberid" ;
 		$result = mysql_query($qry);
@@ -151,6 +153,12 @@
 		<OPTION value='Y'>Yes</OPTION>
 	</SELECT>
 
+	<label>Auto Time Calculation</label>
+	<SELECT id='autotimecalculation' name='autotimecalculation'>
+		<OPTION value='N'>No</OPTION>
+		<OPTION value='Y'>Yes</OPTION>
+	</SELECT>
+
 	<label>Company Number</label>
 	<input type="number" class="textbox20" id="companynumber" name="companynumber" value="<?php echo $member['companynumber']; ?>" />
 
@@ -216,6 +224,7 @@
 			$("#deliveryconfirmationmessage").val("<?php echo escape_notes($member['deliveryconfirmationmessage']); ?>");
 			$("#defaultworktype").val("<?php echo escape_notes($member['defaultworktype']); ?>");
 			$("#ssl").val("<?php echo escape_notes($member['sslencryption']); ?>");
+			$("#autotimecalculation").val("<?php echo escape_notes($member['autotimecalculation']); ?>");
 		});
 </script>
 	<?php

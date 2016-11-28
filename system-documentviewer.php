@@ -2,7 +2,6 @@
 	require_once('system-db.php');
 	
 	start_db();
-	initialise_db();
 
 	$id = $_GET['id'];
 	

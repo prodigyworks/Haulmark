@@ -108,31 +108,34 @@
 			$orderid = "A.id";
 			
 			if ($_POST['orderby'] == "V") {
-				$orderby = "C.registration, A.id, AA.departuretime";
+				$orderby = "C.registration, A.id, AA.arrivaltime";
 
 			} else if ($_POST['orderby'] == "T") {
-				$orderby = "AA.departuretime, A.id ";
+				$orderby = "AA.arrivaltime, A.id ";
 
 			} else if ($_POST['orderby'] == "D") {
-				$orderby = "D.name, A.id, AA.departuretime";
+				$orderby = "D.name, A.id, AA.arrivaltime";
 							
 			} else if ($_POST['orderby'] == "R") {
-				$orderby = "B.name, A.id, AA.departuretime";
+				$orderby = "B.name, A.id, AA.arrivaltime";
 			}				
 				
-			$sql = "SELECT A.*, AA.place, DATE_FORMAT(AA.arrivaltime, '%d/%m/%Y %H:%i') AS departuretime, " .
-					"B.registration AS trailername, C.registration, D.name AS drivername, D.telephone " .
-					"FROM {$_SESSION['DB_PREFIX']}booking A " .
-					"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}bookingleg AA " .
-					"ON AA.bookingid = A.id " .
-					"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer B " .
-					"ON B.id = A.trailerid " .
-					"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}vehicle C " .
-					"ON C.id = A.vehicleid " .
-					"LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver D " .
-					"ON D.id = A.driverid " .
-					"WHERE 1 = 1 $and " .
-					"ORDER BY $orderby";
+			$sql = "SELECT 
+					A.*, AA.place, 
+					DATE_FORMAT(A.startdatetime, '%d/%m/%Y %H:%i') AS startdatetime, 
+					DATE_FORMAT(AA.arrivaltime, '%d/%m/%Y %H:%i') AS arrivaltime, 
+					B.registration AS trailername, C.registration, D.name AS drivername, D.telephone  
+					FROM {$_SESSION['DB_PREFIX']}booking A  
+					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}bookingleg AA  
+					ON AA.bookingid = A.id  
+					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer B  
+					ON B.id = A.trailerid  
+					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}vehicle C  
+					ON C.id = A.vehicleid  
+					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver D  
+					ON D.id = A.driverid  
+					WHERE 1 = 1 $and  
+					ORDER BY $orderby";
 			$result = mysql_query($sql);
 			
 			if ($result) {
@@ -156,12 +159,27 @@
 				             "Phone"  => $member['telephone'],
 				             "Trailer"  => $member['trailername'],
 				             "Driver"  => $member['drivername'],
-				             "Date / Time"  => $member['departuretime'],
-				             "Delivery Point"  => $member['place']
+				             "Date / Time"  => $member['startdatetime'],
+				             "Delivery Point"  => $member['fromplace']
 				         );
 
 					$size = $this->addLine( $y, $line );
 					$y += $size;
+					
+					if ($member['place'] != null) {
+						$line=array( 
+								 "Booking Reference"    => getBookingReference($member['id']),
+								 "Registration"    => $member['registration'],
+					             "Phone"  => $member['telephone'],
+					             "Trailer"  => $member['trailername'],
+					             "Driver"  => $member['drivername'],
+					             "Date / Time"  => $member['arrivaltime'],
+					             "Delivery Point"  => $member['place']
+					         );
+	
+						$size = $this->addLine( $y, $line );
+						$y += $size;
+					}
 					
 					$ref = $member['id'];
 					

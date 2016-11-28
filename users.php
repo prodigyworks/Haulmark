@@ -464,6 +464,12 @@
 				'label' 	 => 'Days Remainings'
 			),
 			array(
+				'name'       => 'timeoutperiod',
+				'length' 	 => 12,
+				'align'		 => 'right',
+				'label' 	 => 'Time Out (Mins)'
+			),
+			array(
 				'name'       => 'address',
 				'type'		 => 'BASICTEXTAREA',
 				'required'	 => false,

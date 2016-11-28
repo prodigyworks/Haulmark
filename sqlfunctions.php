@@ -50,12 +50,26 @@ function getImageData($name, $maxHeight = 1000, $maxWidth = 1000) {
 	       
 	       $image = mysql_real_escape_string($binimage);
 	       $filename = mysql_escape_string($_FILES[$name]['name']);
-	       $description = mysql_escape_string($_POST['description']) ;
+	       $description = mysql_escape_string($_POST['description']);
+	       $memberid = getLoggedOnMemberID();
+	       $uuid = uniqid();
 	       
-			$result = mysql_query("INSERT INTO {$_SESSION['DB_PREFIX']}images " .
-					"(description, name, mimetype, image, imgwidth, imgheight, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) " .
-					"VALUES " .
-					"('$description', '$filename', '$mimetype', '$image', $width, $height, NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")");
+		   $result = mysql_query(
+					"INSERT INTO {$_SESSION['DB_PREFIX']}images 
+					 (
+					 	description, name, mimetype, uuid,
+					 	image, imgwidth, imgheight, 
+					 	metacreateddate, metacreateduserid, 
+					 	metamodifieddate, metamodifieduserid
+					 ) 
+					 VALUES 
+					 (
+					 	'$description', '$filename', '$mimetype', '$uuid',
+					 	'$image', $width, $height, 
+					 	NOW(), $memberid, 
+					 	NOW(), $memberid
+					 )"
+				);
 					
 			if (! $result) {
 				throw new Exception("Cannot persist image data ['$filename']:" . mysql_error());

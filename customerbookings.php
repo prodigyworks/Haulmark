@@ -29,7 +29,14 @@
 				   "SELECT A.*, B.registration AS trailername, C.name AS driversname, D.name AS customername, 
 				    E.registration AS vehiclename, F.name AS vehicletypename, 
 				    H.name AS statusname, I.fullname, J.name AS worktypename,
-				    L.name AS nominalledgercodename
+				    L.name AS nominalledgercodename,
+				    (
+				    	SELECT M.arrivaltime 
+				    	FROM {$_SESSION['DB_PREFIX']}bookingleg M  
+				    	WHERE M.bookingid = A.id
+				    	ORDER BY M.id
+				    	LIMIT 1
+				    ) AS startlegdatetime
 					FROM {$_SESSION['DB_PREFIX']}booking A 
 					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer B 
 					ON B.id = A.trailerid 
@@ -51,7 +58,7 @@
 					ON L.id = A.nominalledgercodeid
 					WHERE A.customerid = $customerid
 					$and
-					ORDER BY A.id DESC";
+					ORDER BY A.startdatetime DESC";
 			
 			$this->columns = array(
 					array(
@@ -136,9 +143,14 @@
 						'label' 	 => 'Invoiced'
 					),
 					array(
-						'name'       => 'startdatetime',
-						'datatype'	 => 'datetime',
+						'name'       => 'collectionRef',
+						'function'   => 'collectionReference',
+						'sortcolumn' => 'A.startdatetime',
+						'type'		 => 'DERIVED',
 						'length' 	 => 18,
+						'editable'	 => false,
+						'bind' 	 	 => false,
+						'filter'	 => false,
 						'label' 	 => 'Collection Date'
 					),
 					array(
@@ -231,6 +243,10 @@
 
 		public function postScriptEvent() {
 ?>
+			function collectionReference(node) {
+				return node.startlegdatetime;
+			}
+			
 			function refreshScreen() {
 				refreshData();
 				

@@ -8,5 +8,9 @@
 		</tr>
 	</table>
 </div>
+	<div id="appwarning">
+	</div>
+	<div id="appwarningclose">
+	</div>
 </body>
 </html>

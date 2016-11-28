@@ -3,7 +3,6 @@
 	require_once('system-db.php');
 	
 	start_db();
-	initialise_db();
 
 	$json = array();
 	$qry = ""; 

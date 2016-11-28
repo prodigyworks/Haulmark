@@ -3,7 +3,6 @@
 	require_once('system-db.php');
 	
 	start_db();
-	initialise_db();
 	
 	$mysql_requesteddate = convertStringToDate($_POST['requesteddate']);
 	$mysql_startdate = convertStringToDate($_POST['startdate']);;

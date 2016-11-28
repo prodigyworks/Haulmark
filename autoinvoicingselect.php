@@ -8,6 +8,9 @@
 		border:1px solid #CCCCCC;
 		padding:2px;
 	}
+	.total {
+		text-align: right; 
+	}
 	form {
 		padding:5px;
 	}
@@ -15,6 +18,36 @@
 <SCRIPT>
 	$(document).ready(
 			function() {
+				$("input[name='selected[]']").change(
+						function() {
+							var box = $(this).parent().parent().find("td .total");
+
+							if ($(this).attr("checked")) {
+								box.attr("disabled", false);
+								box.val(box.attr("total"));
+
+							} else {
+								box.attr("disabled", true);
+								box.val("0.00");
+							}
+							
+							recalculate();
+						}
+					);
+				$(".total").change(
+						function() {
+							$(this).val(new Number($(this).val()).toFixed(2));
+
+							recalculate();
+						}
+					);
+				
+				$(".total").focus(
+						function() { 
+							$(this).select(); 
+						} 
+					);
+				
 				$(".scroller").css("height", $("body").attr("offsetHeight") - 320);
 			}
 		);
@@ -31,7 +64,7 @@
 					<td width='10%'>Booking</td>
 					<td width='10%'>Date</td>
 					<td width='50%'>Summary</td>
-					<td width='10%' align=right>Total Cost</td>
+					<td width='10%' align=right>Total Cost (&pound;)</td>
 				</tr>
 			</thead>
 <?php 
@@ -46,6 +79,7 @@
 			AND DATE(A.startdatetime) >= '$startdate'
 			AND DATE(A.startdatetime) <= '$enddate'
 			AND A.id NOT IN (SELECT productid FROM {$_SESSION['DB_PREFIX']}invoiceitem)
+			AND A.charge > 0
 			ORDER BY A.id";
 	
 	$result = mysql_query($sql);
@@ -65,7 +99,9 @@
 				<TD><?php echo getBookingReference($member['id']); ?></TD>
 				<TD><?php echo $member['startdate']; ?></TD>
 				<TD><?php echo $member['legsummary']; ?></TD>
-				<TD align=right class='total' total='<?php echo $member['charge']; ?>'>&pound;<?php echo $member['charge']; ?></TD>
+				<TD align=right >
+					<INPUT class='total' type='text' size=12 name='charge[]' total='<?php echo $member['charge']; ?>' value ='<?php echo $member['charge']; ?>' />
+				</TD>
 			</TR>
 <?php		
 	}
@@ -86,26 +122,20 @@
 		e.preventDefault();
 		
 	}
+	
+	function recalculate() {
+		var total = 0;
 
-	$(document).ready(
-			function() {
-				$("input[name='selected[]']").change(
-						function() {
-							var total = 0;
+		$(".booking").each(
+				function() {
+					if ($(this).find(".checker").attr("checked")) {
+						total += parseFloat($(this).find(".total").val());
+					}
+				}
+			);
 
-							$(".booking").each(
-									function() {
-										if ($(this).find(".checker").attr("checked")) {
-											total += parseFloat($(this).find(".total").attr("total"));
-										}
-									}
-								);
-
-							$("#total").html(new Number(total).toLocaleString());
-						}
-					);
-			}
-		);
+		$("#total").html(new Number(total).toLocaleString(undefined, { minimumFractionDigits: 2 }));
+	}
 </script>
 <?php 
 	include("system-footer.php"); 

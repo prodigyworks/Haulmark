@@ -37,8 +37,8 @@
 	$where .= " ORDER BY A.status DESC, id DESC";
 	
 	$qry = "SELECT
-			DATE_FORMAT(A.completeddatetime, '%d/%m/%Y %H:%m') AS completeddatetime,
-			DATE_FORMAT(A.createddate, '%d/%m/%Y %H:%m') AS createddate,
+			DATE_FORMAT(A.completeddatetime, '%d/%m/%Y %H:%I') AS completeddatetime,
+			DATE_FORMAT(A.createddate, '%d/%m/%Y %H:%I') AS createddate,
 			A.status, A.message, A.id, A.metamodifieddate,
 			B.fullname  
 			FROM {$_SESSION['DB_PREFIX']}chat A 

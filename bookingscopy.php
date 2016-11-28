@@ -59,14 +59,14 @@
 		
 		$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg
 				(
-					bookingid, arrivaltime, 
+					bookingid,  
 					departuretime, 
 					arrivaltime, 
 					place, reference,
 					phone, place_lng, place_lat, timetaken, miles
 				)
 				SELECT
-					$newid, '$bookingdate', 
+					$newid, 
 					DATE_ADD(departuretime, INTERVAL $diff SECOND), 
 					DATE_ADD(arrivaltime, INTERVAL $diff SECOND), 
 					place, reference,

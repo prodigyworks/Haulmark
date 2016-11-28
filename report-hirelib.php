@@ -70,10 +70,12 @@
 				$totalcost = 0;
 				
 				$sql = "SELECT A.*, DATE_FORMAT(A.startdatetime, '%d/%m/%Y') AS startdatetime,
-						DATEDIFF(A.enddatetime, A.startdatetime) AS days,
+						time_to_sec(timediff(enddatetime, startdatetime)) AS hours,
 						B.name AS drivername,
 						C.name AS loadname, C.agencydayrate,
-						D.description AS agencyname, D.registration
+						D.description AS agencyname, D.registration,
+						E.name AS suppliername,
+						F.rateper24hours
 						FROM  {$_SESSION['DB_PREFIX']}booking A
 					    INNER JOIN  {$_SESSION['DB_PREFIX']}driver B
 					    ON B.id = A.driverid
@@ -81,6 +83,11 @@
 					    ON C.id = A.vehicletypeid
 					    INNER JOIN  {$_SESSION['DB_PREFIX']}vehicle D
 					    ON D.id = A.vehicleid
+					    LEFT OUTER JOIN  {$_SESSION['DB_PREFIX']}supplier E
+					    ON E.id = D.supplierid
+					    LEFT OUTER JOIN  {$_SESSION['DB_PREFIX']}supplierrates F
+					    ON F.supplierid = E.id
+					    AND F.vehicletypeid = C.id
 					    WHERE DATE(A.startdatetime) >= '$dateFrom'
 					    AND DATE(A.startdatetime) <= '$dateTo'
 					    AND A.statusid >= 7
@@ -90,11 +97,22 @@
 				
 				if ($result) {
 					while (($member = mysql_fetch_assoc($result))) {
+						if ($member['rateper24hours'] == null) {
+							$rate = 80;
+							
+						} else {
+							$rate = $member['rateper24hours'];
+						}
+						
 						if ($this->GetY() > 175) {
 							$this->AddPage();
 						}
 						
-						$cost = (($member['days'] + 1) * 80);
+						$cost = intval(($member['hours'] / 3600) / 24) * $rate;
+						
+						if (intval(($member['hours'] / 3600) % 24) != 0) {
+							$cost += $rate;
+						}
 						
 						$this->setY(
 								$this->GetY() +

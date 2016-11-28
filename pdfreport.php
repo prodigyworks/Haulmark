@@ -492,7 +492,6 @@ function RoundedRect($x, $y, $w, $h, $r, $corners = '1234', $style = '')
 		require_once ('system-db.php');
 
 		start_db ();
-		initialise_db ();
 
 		$this->B = 0;
 		$this->I = 0;

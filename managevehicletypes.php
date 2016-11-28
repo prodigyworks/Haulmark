@@ -86,6 +86,30 @@
 				'datatype'	 => 'double',
 				'align'		 => 'right',
 				'label' 	 => 'Fuel Cost Per Mile'
+			),
+			array(
+				'name'       => 'groupage',
+				'length' 	 => 20,
+				'label' 	 => 'Show All Vehicles',
+				'type'       => 'COMBO',
+				'options'    => array(
+						array(
+							'value'		=> 'N',
+							'text'		=> 'No'
+						),
+						array(
+							'value'		=> 'Y',
+							'text'		=> 'Yes'
+						)
+					)
+			)
+		);
+		
+	$crud->subapplications = array(
+			array(
+				'title'		  => 'Supplier Rates',
+				'imageurl'	  => 'images/pound.png',
+				'application' => 'managesupplierrates.php'
 			)
 		);
 		

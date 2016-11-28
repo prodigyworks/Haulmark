@@ -3,7 +3,6 @@
 	require_once('system-db.php');
 	
 	start_db();
-	initialise_db();
 	
 	$pageid = $_POST['pageid'];
 	$memberid = $_POST['memberid'];

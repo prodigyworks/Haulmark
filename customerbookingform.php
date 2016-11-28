@@ -2,7 +2,7 @@
 	require_once("system-header.php"); 
 	require_once("tinymce.php"); 
 ?>
-<script src='bookingscriptlibrary-20161116.js' type="text/javascript" charset="utf-8"></script>
+<script src='bookingscriptlibrary-20161123.js' type="text/javascript" charset="utf-8"></script>
 <script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&region=EU&key=AIzaSyB1DBBtL19Tc4sz0Nl_tmGa014MeHtqjLI" type="text/javascript"></script>
 <script src='js/jquery.ui.timepicker.js'></script>
 <script type="text/javascript">

@@ -114,14 +114,21 @@
 		    		$lastsessiontime = time() - $_SESSION['lastconnectiontime'];
 		    		
 		    		/* 30 minutes. */
-		    		if (DEV_ENV != "true") {
-			    		if ($lastsessiontime >= 36000) {	//Unset the variables stored in session
+		    		if (DEV_ENV != "true" && $_SESSION['SESS_TIMEOUT'] != 0) {
+			    		if ($lastsessiontime >= ($_SESSION['SESS_TIMEOUT'] * 1000)) {	//Unset the variables stored in session
 							unset($_SESSION['SESS_MEMBER_ID']);
 							unset($_SESSION['SESS_FIRST_NAME']);
 							unset($_SESSION['SESS_LAST_NAME']);
+							unset($_SESSION['SESS_DRIVER_ID']);
+							unset($_SESSION['SESS_CUSTOMER_ID']);
+							unset($_SESSION['SESS_CUSTOMER_NAME']);
+							unset($_SESSION['SESS_SUPPLIER_ID']);
+							unset($_SESSION['SESS_SUPPLIER_NAME']);
+							unset($_SESSION['SESS_SUPPLIER_IMAGEID']);
+							unset($_SESSION['SESS_IMAGE_ID']);
 							unset($_SESSION['ROLES']);
 							unset($_SESSION['MENU_CACHE']);
-	//						unset($_SESSION['ERRMSG_ARR']);
+							unset($_SESSION['SESS_TIMEOUT']);
 	
 							$_SESSION['ROLES'] = array();
 							$_SESSION['ROLES'][0] = "PUBLIC";
@@ -157,8 +164,6 @@
 		}
 		
 	    public static function initialiseDB() {
-	    	initialise_db();
-		
 			if (! isset($_SESSION['ROLES'])) {
 				$_SESSION['ROLES'] = array();
 				$_SESSION['ROLES'][0] = "PUBLIC";

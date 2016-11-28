@@ -14,6 +14,11 @@
 				</TD>
 			</tr>
 		</table>
+	<div id="appwarning">
+	</div>
+	<div id="appwarningclose">
+	</div>
+
 	<div class="modal" id="alertdialog">
 		<table>
 			<tr>

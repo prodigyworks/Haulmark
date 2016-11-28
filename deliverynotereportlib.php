@@ -35,7 +35,7 @@
 				
 			$y = 59;
 			
-			$y = $this->addText(15, $y, "Collection Address:", 12, 5, 'BU', 80) + 1;
+			$y = $this->addText(15, $y, "Customer Address:", 12, 5, 'BU', 80) + 1;
 			
 			if ($member['customername'] != "") $y = $this->addText(15, $y, $member['customername'], 10, 4, 'B', 80);
 			if ($member['street'] != "") $y = $this->addText(15, $y, $member['street'], 10, 4, '', 80);
@@ -75,15 +75,12 @@
 				
 			$this->addText(15, $y, "Weight", 10, 4.5, 'B', 80);
 			$y = $this->addText(60, $y, $member['weight'], 10, 4.5, '', 80);
-				
-			$this->addText(15, $y, "Volume", 10, 4.5, 'B', 80);
-			$y = $this->addText(60, $y, $member['capacity'], 10, 4.5, '', 80);
+//				
+//			$this->addText(15, $y, "Volume", 10, 4.5, 'B', 80);
+//			$y = $this->addText(60, $y, $member['capacity'], 10, 4.5, '', 80);
 
 			$this->addText(15, $y, "Number Of Pallets", 10, 4.5, 'B', 80);
 			$y = $this->addText(60, $y, $member['pallets'], 10, 4.5, '', 80);
-
-			$this->addText(15, $y, "Number Of Items", 10, 4.5, 'B', 80);
-			$y = $this->addText(60, $y, $member['items'], 10, 4.5, '', 80);
 
 			$this->addText(15, $y, "Special Instructions", 10, 4.5, 'B', 80);
 			$this->WriteHTML(60, $y - 2, $member['notes']);
@@ -124,7 +121,8 @@
 					DATE_FORMAT(A.enddatetime, '%H:%i') AS endtime, 
 					DATE_FORMAT(A.metacreateddate, '%d/%m/%Y') AS metacreateddate, 
 					B.registration AS trailername, C.capacity, C.registration, D.name AS drivername, D.telephone,
-					E.name AS customername, E.street, E.city, E.town, E.postcode, E.county, E.postcode, E.telephone, E.fax 
+					E.name AS customername, E.street, E.city, E.town, E.postcode, E.county, E.postcode, E.telephone, E.fax,
+					F.code
 					FROM {$_SESSION['DB_PREFIX']}booking A 
 					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer B 
 					ON B.id = A.trailerid 
@@ -134,7 +132,11 @@
 					ON D.id = A.driverid 
 					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer E 
 					ON E.id = A.customerid 
-					WHERE A.id IN ($idInClause)";
+					LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}vehicletype F 
+					ON F.id = C.vehicletypeid 
+					WHERE A.id IN ($idInClause)
+					AND A.statusid > 1
+					ORDER BY F.code, C.registration";
 			$result = mysql_query($sql);
 			
 			if ($result) {
@@ -176,7 +178,7 @@
 								
 								if ($fromplace != getSiteConfigData()->basepostcode) {
 									$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
-									$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 80);
+									$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 180);
 									$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
 									$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
 									$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
@@ -199,7 +201,7 @@
 
 								} else {
 				 					$this->addText(15, $y, "Delivery / Collection", 10, 4.5, 'B', 80);
-				 					$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 80);
+				 					$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 180);
 									$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
 									$y = $this->addText(60, $y, $itemmember['startdate'], 10, 4.5, '', 80);
 									$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
@@ -235,8 +237,10 @@
 							while (($itemmember = mysql_fetch_assoc($itemresult))) {
 								if ($pagenumber == 1) {
 									if ($fromplace != getSiteConfigData()->basepostcode) {
+										$this->newPage();
+									
 										$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
-										$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 80);
+										$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 180);
 										$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
 										$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
 										$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
@@ -262,7 +266,7 @@
 									$this->newPage();
 									
 									$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
-									$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 80);
+									$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 180);
 									$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
 									$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
 									$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
@@ -287,7 +291,7 @@
 									$this->newPage();
 									
 				 					$this->addText(15, $y, "Delivery", 10, 4.5, 'B', 80);
-				 					$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 80);
+				 					$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 180);
 									$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
 									$y = $this->addText(60, $y, $itemmember['startdate'], 10, 4.5, '', 80);
 									$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
