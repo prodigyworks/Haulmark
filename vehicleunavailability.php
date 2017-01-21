@@ -172,7 +172,7 @@
 						'label' 	 => 'Reason',
 						'table'		 => 'vehicleunavailabilityreasons',
 						'table_id'	 => 'id',
-						'showInVIew' => false,
+						'showInView' => false,
 						'alias'		 => 'name',
 						'table_name' => 'name'
 					),

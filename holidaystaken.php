@@ -4,6 +4,8 @@
 	
 	start_db();
 	
+	$holidayClass = new HolidayAdminClass();
+	
 	viewHoliday(
 			"SELECT A.*, " .
 			"DATE_FORMAT(A.requesteddate, '%d/%m/%Y') AS requesteddate, " .

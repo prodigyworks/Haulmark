@@ -10,7 +10,7 @@
 <table width='100%' height='100%' border=1 >
 	<tr valign="top" height='50%'>
 		<td width='60%' height='100%'>
-			<iframe width='100%' height='100%' src='https://www.haulageplanner.co.uk/booking.php'></iframe>
+			<iframe width='100%' height='100%' src='<?php echo getSiteConfigData()->domainurl; ?>/booking.php'></iframe>
 		</td>
 		<td width='40%' style="padding:5px">
 			<div id="chatcontainer">

@@ -1,10 +1,12 @@
 <?php
 	require_once("../system-db.php");
-	require_once("businessobjectjsoncall.php");
+	require_once("businessobjecttojsoncall.php");
 	
 	start_db();	
 	
-	echo call(
+	header("Content-type: application/json");
+	
+	echo businessObjectToJSon(
 			$_POST['classname'], 
 			$_POST['methodname'], 
 			$_POST['args']

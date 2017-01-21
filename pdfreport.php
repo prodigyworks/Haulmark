@@ -41,14 +41,14 @@ class PDFReport extends FPDF {
 	var $issetfont;
 	var $issetcolor;
 
-	function WriteHTML($indent = 0, $indentY = 0, $html) {
+	function WriteHTML($indent = 0, $indentY = 0, $html, $rightMargin = 15) {
 		$oldmargin = $this->lMargin;
 
 		$this->SetX($indent);
 		$this->SetY($indentY);
 
 		$this->SetLeftMargin($indent);
-		$this->SetRightMargin(15);
+		$this->SetRightMargin($rightMargin);
 
 		$html = str_replace ( "&rsquo;", "'", str_replace ( "&lsquo;", "'", str_replace ( "&rdquo;", "'", str_replace ( "&ldquo;", "'", str_replace ( "&ndash;", "-", str_replace ( "&amp;", "&", str_replace ( "&lt;", "<", str_replace ( "&gt;", "<", str_replace ( "&apos;", "'", str_replace ( "&quot;", "\"", str_replace ( "&ndash;", "-", str_replace ( "&nbsp;", " ", $html ) ) ) ) ) ) ) ) ) ) )  );
 
@@ -319,12 +319,12 @@ function RoundedRect($x, $y, $w, $h, $r, $corners = '1234', $style = '')
 		return $buildingstr;
 	}
 	function DynamicImageHeight($id, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '') {
-		$query = mysql_query ( "SELECT mimetype, image FROM {$_SESSION['NEWDIARY_DB_PREFIX']}images WHERE id=$id" );
+		$query = mysql_query ( "SELECT mimetype, image FROM {$_SESSION['DB_PREFIX']}images WHERE id=$id" );
 		$row = mysql_fetch_array ( $query );
 		$content = $row ['image'];
 		$mimetype = $row ['mimetype'];
 
-		$name = "../uploads/image_" . session_id () . "-$id." . substr ( $mimetype, strpos ( $mimetype, "/" ) + 1 );
+		$name = "uploads/image_" . session_id () . "-$id." . substr ( $mimetype, strpos ( $mimetype, "/" ) + 1 );
 
 		$f = fopen ( $name, 'wb' );
 
@@ -342,13 +342,14 @@ function RoundedRect($x, $y, $w, $h, $r, $corners = '1234', $style = '')
 		return $newY;
 	}
 	function DynamicImage($id, $x = null, $y = null, $w = 0, $h = 0, $type = '', $link = '') {
-		$query = mysql_query ( "SELECT mimetype, image FROM {$_SESSION['NEWDIARY_DB_PREFIX']}images WHERE id=$id" );
+		$query = mysql_query ( "SELECT name, image FROM {$_SESSION['DB_PREFIX']}images WHERE id=$id" );
 		$row = mysql_fetch_array ( $query );
 		$content = $row ['image'];
-		$mimetype = $row ['mimetype'];
+		$filename = $row['name'];
 
-		$name = "../uploads/image_" . session_id () . "-$id." . substr ( $mimetype, strpos ( $mimetype, "/" ) + 1 );
+		$name = "uploads/image_$id_$filename";
 
+		unlink($name);
 		$f = fopen ( $name, 'wb' );
 
 		if (! $f) {

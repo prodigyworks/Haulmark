@@ -4,8 +4,8 @@
 <style>
 	td {
 		padding: 10px;
-		box-shadow: 10px 10px 5px #888888;
-		border-radius: 25px;
+		box-shadow: 10px 10px 5px #333333;
+		border-radius: 15px;
 	}
 	
 	td a {
@@ -49,6 +49,7 @@
 			INNER JOIN {$_SESSION['DB_PREFIX']}customer C
 			ON C.id = B.customerid
 			WHERE B.driverid = $driverid 
+			AND A.visittype != ''
 			AND B.statusid IN (3, 4, 5, 6)
 			AND (A.signatureid = 0 OR A.signatureid IS NULL)
 			ORDER BY B.id, A.id";

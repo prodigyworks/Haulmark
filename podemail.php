@@ -29,8 +29,8 @@ function PODEmail($id, $emailaddress) {
 
 			} else {
 				$email = $member['email'];
-				$fromname = "Allegro Transport Limited";
-				$fromemail = "info@allegrotransport.co.uk";
+				$fromname = getSiteConfigData()->companyname;
+				$fromemail = getSiteConfigData()->trafficemail;
 			}
 
 

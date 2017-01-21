@@ -1,7 +1,7 @@
 <?php
 	require_once("../system-db.php");
 	
-	function call($classname, $methodname, $args) {
+	function businessObjectToJSon($classname, $methodname, $args) {
 		start_db();	
 		
 		try {

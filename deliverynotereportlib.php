@@ -1,6 +1,7 @@
 <?php
 	require_once('pdfreport.php');
 	require_once('system-db.php');
+	require_once('sqlfunctions.php');
 	
 	class DeliveryNoteReport extends PDFReport {
 		var $y = 35;
@@ -12,7 +13,7 @@
 			$this->addPage();
 			
 			$this->SetDrawColor(180, 180, 180);
-			$this->Image("images/logoreport2.png", 10, 6);
+			$this->DynamicImage(getSiteConfigData()->logoimageid, 10, 6);
 			$this->Image("images/report-footer.png", 75, 280);
 				
 			$y = $this->GetY() + 38;
@@ -23,14 +24,10 @@
 				
 			$y = 10;
 				
-			$y = $this->addText(150, $y, "Allegro Transport Limited", 10, 4, 'B', 80);
-			$y = $this->addText(150, $y, "Cotes Park Industrial Estate", 10, 4, '', 80);
-			$y = $this->addText(150, $y, "Birchwood Way", 10, 4, '', 80);
-			$y = $this->addText(150, $y, "Alfreton", 10, 4, '', 80);
-			$y = $this->addText(150, $y, "Derbyshire", 10, 4, '', 80);
-			$y = $this->addText(150, $y, "DE55 4QQ", 10, 4, '', 80);
-			$y = $this->addText(150, $y, "Tel : 01773 541771", 10, 4, '', 80);
-			$y = $this->addText(150, $y, "Fax : 01773 541774", 10, 4, '', 80);
+			$y = $this->addText(150, $y, getSiteConfigData()->companyname, 10, 4, 'B', 80);
+			$y = $this->addText(150, $y, getSiteConfigData()->address, 10, 4, '', 80);
+			$y = $this->addText(150, $y, "Tel : " . getSiteConfigData()->maintelephone, 10, 4, '', 80);
+			$y = $this->addText(150, $y, "Fax : " . getSiteConfigData()->fax, 10, 4, '', 80);
 			
 				
 			$y = 59;
@@ -265,17 +262,17 @@
 								} else if ($pagenumber == 2) {
 									$this->newPage();
 									
-									$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
-									$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 180);
-									$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
-									$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
-									$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
-									$y = $this->addText(60, $y, $starttime, 10, 4.5, '', 80);
-									$this->addText(15, $y, "Reference", 10, 4.5, 'B', 80);
-									$y = $this->addText(60, $y, $reference, 10, 4.5, '', 80);
-									$this->addText(15, $y, "Phone", 10, 4.5, 'B', 80);
-									$y = $this->addText(60, $y, $phone, 10, 4.5, '', 80) + 4;
-									
+//									$this->addText(15, $y, "Collection", 10, 4.5, 'B', 80);
+//									$y = $this->addText(60, $y, $fromplace, 10, 4.5, '', 180);
+//									$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);
+//									$y = $this->addText(60, $y, $startdate, 10, 4.5, '', 80);
+//									$this->addText(15, $y, "Time", 10, 4.5, 'B', 80);
+//									$y = $this->addText(60, $y, $starttime, 10, 4.5, '', 80);
+//									$this->addText(15, $y, "Reference", 10, 4.5, 'B', 80);
+//									$y = $this->addText(60, $y, $reference, 10, 4.5, '', 80);
+//									$this->addText(15, $y, "Phone", 10, 4.5, 'B', 80);
+//									$y = $this->addText(60, $y, $phone, 10, 4.5, '', 80) + 4;
+//									
 				 					$this->addText(15, $y, "Delivery", 10, 4.5, 'B', 80);
 				 					$y = $this->addText(60, $y, $itemmember['place'], 10, 4.5, '', 180);
 									$this->addText(15, $y, "Date", 10, 4.5, 'B', 80);

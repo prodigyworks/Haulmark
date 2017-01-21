@@ -29,6 +29,12 @@
 			</td>
 		</tr>
 		<tr>
+			<td>Invoice Date</td>
+			<td>
+				<input type="text" id="invoicedate" name="invoicedate" class="datepicker" required="true" />
+			</td>
+		</tr>
+		<tr>
 			<td>&nbsp;</td>
 			<td>
 				<a href="javascript: if (verifyStandardForm('#searchform')) submit();" class="link2"><em><b>Search</b></em></a>

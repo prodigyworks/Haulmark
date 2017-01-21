@@ -1,6 +1,5 @@
 <?php
 	require_once("system-db.php");
-	require_once("bookingshared.php");
 	require_once("invoiceemail.php");
 	
 	start_db();

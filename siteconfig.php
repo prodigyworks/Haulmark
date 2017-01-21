@@ -1,5 +1,6 @@
 <?php 
 	require_once("system-header.php"); 
+	require_once("sqlfunctions.php"); 
 	require_once("tinymce.php"); 
 ?>
 
@@ -15,14 +16,20 @@
 		$defaultprofitmargin = $_POST['defaultprofitmargin'];
 		$defaultwagesmargin = $_POST['defaultwagesmargin'];
 		$bookingprefix = $_POST['bookingprefix'];
+		$invoiceprefix = $_POST['invoiceprefix'];
+		$poprefix = $_POST['poprefix'];
 		$trafficofficetelephone1 = mysql_escape_string($_POST['trafficofficetelephone1']);
 		$trafficofficetelephone2 = mysql_escape_string($_POST['trafficofficetelephone2']);
 		$fax = mysql_escape_string($_POST['fax']);
 		$accountsemail = mysql_escape_string($_POST['accountsemail']);
 		$trafficemail = mysql_escape_string($_POST['trafficemail']);
+		$adminemail = mysql_escape_string($_POST['adminemail']);
 		$website = mysql_escape_string($_POST['website']);
+		$telematicsurl = mysql_escape_string($_POST['telematicsurl']);
 		$vatregnumber = mysql_escape_string($_POST['vatregnumber']);
+		$logoimageid = mysql_escape_string($_POST['logoimageid']);
 		$timezoneoffset = mysql_escape_string($_POST['timezoneoffset']);
+		$logoimageid = getImageData("logoimageid");
 		$vatprefix = mysql_escape_string($_POST['vatprefix']);
 		$ssl = mysql_escape_string($_POST['ssl']);
 		$companynumber = mysql_escape_string($_POST['companynumber']);
@@ -35,11 +42,22 @@
 		$payereference = mysql_escape_string($_POST['payereference']);
 		$bank = mysql_escape_string($_POST['bank']);
 		$bankaccountnumber = mysql_escape_string($_POST['bankaccountnumber']);
+		$companyrole = mysql_escape_string($_POST['companyrole']);
+		$companyname = mysql_escape_string($_POST['companyname']);
 		$banksortcode = mysql_escape_string($_POST['banksortcode']);
 		$defaultworktype = mysql_escape_string($_POST['defaultworktype']);
 		$averagewaittime = mysql_escape_string($_POST['averagewaittime']);
 		$vatrate = $_POST['vatrate'];
 		$basepostcode = $_POST['basepostcode'];
+		$holidaycutoffday = $_POST['holidaycutoffday'];
+		$holidaycutoffmonth = $_POST['holidaycutoffmonth'];
+		
+		if ($logoimageid == null || $logoimageid == 0) {
+			$logoimageid = "logoimageid";
+			
+		} else {
+			$logoimageid = "'$logoimageid'";
+		}
 		
 		$memberid = getLoggedOnMemberID();
 		$qry = "UPDATE {$_SESSION['DB_PREFIX']}siteconfig SET 
@@ -50,13 +68,18 @@
 				defaultprofitmargin = '$defaultprofitmargin', 
 				defaultwagesmargin = '$defaultwagesmargin', 
 				bookingprefix = '$bookingprefix', 
+				poprefix = '$poprefix', 
+				invoiceprefix = '$invoiceprefix', 
 				trafficofficetelephone1 = '$trafficofficetelephone1', 
 				trafficofficetelephone2 = '$trafficofficetelephone2', 
 				fax = '$fax', 
 				accountsemail = '$accountsemail', 
 				trafficemail = '$trafficemail', 
+				adminemail = '$adminemail',
 				website = '$website', 
+				telematicsurl = '$telematicsurl',
 				vatregnumber = '$vatregnumber', 
+				logoimageid = $logoimageid,
 				timezoneoffset = '$timezoneoffset',
 				vatprefix = '$vatprefix', 
 				sslencryption = '$ssl',
@@ -71,9 +94,13 @@
 				bank = '$bank', 
 				bankaccountnumber = '$bankaccountnumber', 
 				banksortcode = '$banksortcode', 
+				companyrole = '$companyrole',
+				companyname = '$companyname',
 				defaultworktype = '$defaultworktype',  
 			 	averagewaittime = '$averagewaittime', 
 				basepostcode = '$basepostcode', 
+				holidaycutoffday = $holidaycutoffday,
+				holidaycutoffmonth = $holidaycutoffmonth,
 				runscheduledays = '$runscheduledays', 
 				emailfooter = '$emailfooter', 
 				autotimecalculation = '$autotimecalculation',
@@ -97,7 +124,7 @@
 	if ($result) {
 		while (($member = mysql_fetch_assoc($result))) {
 ?>
-<form id="contentForm" name="contentForm" method="post" class="entryform">
+<form id="contentForm" enctype="multipart/form-data" name="contentForm" method="post" class="entryform">
 	<h4><?php echo $_SESSION['title']; ?></h4>
 	<label>Domain URL</label>
 	<input required="true" type="url" class="textbox90" id="domainurl" name="domainurl" value="<?php echo $member['domainurl']; ?>" />
@@ -135,8 +162,14 @@
 	<label>Traffic email</label>
 	<input type="text" class="textbox90" id="trafficemail" name="trafficemail" value="<?php echo $member['trafficemail']; ?>" />
 
+	<label>Admin email</label>
+	<input type="text" class="textbox90" id="adminemail" name="adminemail" value="<?php echo $member['adminemail']; ?>" />
+
 	<label>Web Site</label>
 	<input type="url" class="textbox90" id="website" name="website" value="<?php echo $member['website']; ?>" />
+
+	<label>Telematics URL</label>
+	<textarea id="telematicsurl" name="telematicsurl" rows="6" cols="100"></textarea>
 
 	<label>Timezone Offset</label>
 	<input type="text" class="textbox20" id="timezoneoffset" name="timezoneoffset" value="<?php echo $member['timezoneoffset']; ?>" />
@@ -158,6 +191,20 @@
 		<OPTION value='N'>No</OPTION>
 		<OPTION value='Y'>Yes</OPTION>
 	</SELECT>
+
+	<label>Company Name</label>
+	<input type="text" class="textbox90" id="companyname" name="companyname" value="<?php echo $member['companyname']; ?>" />
+
+	<label>Company Logo</label>
+	<input type="file" style="width:400px" id="logoimageid" name="logoimageid" value="" />
+	<br>
+<?php 
+	if ($member['logoimageid'] != null && $member['logoimageid'] != 0) {
+?>	
+	<img src="system-imageviewer.php?id=<?php echo $member['logoimageid']; ?>" height=50 />
+<?php 
+	}
+?>	
 
 	<label>Company Number</label>
 	<input type="number" class="textbox20" id="companynumber" name="companynumber" value="<?php echo $member['companynumber']; ?>" />
@@ -194,6 +241,36 @@
 
 	<label>Base Post Code</label>
 	<input type="text" class="textbox20" id="basepostcode" name="basepostcode" value="<?php echo $member['basepostcode']; ?>" />
+	
+	<label>Holiday Cut Off Day Of Month</label>
+	<SELECT id="holidaycutoffday" name="holidaycutoffday">
+<?php 
+	for ($i = 1; $i <= 31; $i++) {
+?>
+		<OPTION value='<?php echo $i; ?>'><?php echo $i; ?></OPTION>
+<?php
+	}
+?>
+	</SELECT>
+	
+	<label>Holiday Cut Off Month Of Year</label>
+	<SELECT id="holidaycutoffmonth" name="holidaycutoffmonth">
+		<OPTION value='1'>January</OPTION>
+		<OPTION value='2'>February</OPTION>
+		<OPTION value='3'>March</OPTION>
+		<OPTION value='4'>April</OPTION>
+		<OPTION value='5'>May</OPTION>
+		<OPTION value='6'>June</OPTION>
+		<OPTION value='7'>July</OPTION>
+		<OPTION value='8'>August</OPTION>
+		<OPTION value='9'>September</OPTION>
+		<OPTION value='10'>October</OPTION>
+		<OPTION value='11'>November</OPTION>
+		<OPTION value='12'>December</OPTION>
+	</SELECT>
+
+	<label>Employee Role</label>
+	<?php createCombo("companyrole", "roleid", "roleid", "{$_SESSION['DB_PREFIX']}roles"); ?>
 
 	<label>Defaut Profit Margin</label>
 	<input type="number" class="textbox20" id="defaultprofitmargin" name="defaultprofitmargin" value="<?php echo $member['defaultprofitmargin']; ?>" />
@@ -203,6 +280,12 @@
 
 	<label>Booking Prefix</label>
 	<input type="text" id="bookingprefix" name="bookingprefix" value="<?php echo $member['bookingprefix']; ?>" />
+
+	<label>Invoice Prefix</label>
+	<input type="text" id="invoiceprefix" name="invoiceprefix" value="<?php echo $member['invoiceprefix']; ?>" />
+
+	<label>Purchase Order Prefix</label>
+	<input type="text" id="poprefix" name="poprefix" value="<?php echo $member['poprefix']; ?>" />
 
 	<label>Average Waiting Time (Minutes)</label>
 	<input type="number" class="textbox20" id="averagewaittime" name="averagewaittime" value="<?php echo $member['averagewaittime']; ?>" />
@@ -223,8 +306,12 @@
 			$("#webbookingconfirmation").val("<?php echo escape_notes($member['webbookingconfirmation']); ?>");
 			$("#deliveryconfirmationmessage").val("<?php echo escape_notes($member['deliveryconfirmationmessage']); ?>");
 			$("#defaultworktype").val("<?php echo escape_notes($member['defaultworktype']); ?>");
+			$("#companyrole").val("<?php echo escape_notes($member['companyrole']); ?>");
+			$("#telematicsurl").val("<?php echo escape_notes($member['telematicsurl']); ?>");
 			$("#ssl").val("<?php echo escape_notes($member['sslencryption']); ?>");
 			$("#autotimecalculation").val("<?php echo escape_notes($member['autotimecalculation']); ?>");
+			$("#holidaycutoffday").val("<?php echo ($member['holidaycutoffday']); ?>");
+			$("#holidaycutoffmonth").val("<?php echo ($member['holidaycutoffmonth']); ?>");
 		});
 </script>
 	<?php

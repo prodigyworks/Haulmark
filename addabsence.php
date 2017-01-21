@@ -8,8 +8,8 @@
 	$mysql_startdate = convertStringToDate($_POST['startdate']);;
 	$mysql_enddate = convertStringToDate($_POST['enddate']);
 	$memberid = mysql_escape_string($_POST['memberid']);
-	$startdate_half = (isset($_POST['startdate_half']) && $_POST['startdate_half'] == "on") ? 0 : 1;
-	$enddate_half = (isset($_POST['enddate_half']) && $_POST['enddate_half'] == "on") ? 0 : 1;
+	$startdate_half = (isset($_POST['startdate_half']) && $_POST['startdate_half'] == "on") ? 1 : 0;
+	$enddate_half = (isset($_POST['enddate_half']) && $_POST['enddate_half'] == "on") ? 1 : 0;
 	$daystaken = networkdays(strtotime($mysql_startdate), strtotime($mysql_enddate));
 	$absentreason = mysql_escape_string($_POST['absentreason']);
 	$absencetype = mysql_escape_string($_POST['absencetype']);
@@ -30,11 +30,11 @@
 	}
 	
 	if ($daystaken > 0) {
-		if ($startdate_half == 1 && date("w", strtotime($mysql_startdate)) > 0 && date("w", strtotime($mysql_startdate)) < 6) {
+		if ($startdate_half == 0 && date("w", strtotime($mysql_startdate)) > 0 && date("w", strtotime($mysql_startdate)) < 6) {
 			$daystaken -= 0.5;
 		} 
 		
-		if ($enddate_half == 1 && date("w", strtotime($mysql_enddate)) > 0 && date("w", strtotime($mysql_enddate)) < 6) {
+		if ($enddate_half == 0 && date("w", strtotime($mysql_enddate)) > 0 && date("w", strtotime($mysql_enddate)) < 6) {
 			$daystaken -= 0.5;
 		} 
 	}
@@ -58,19 +58,6 @@
 			logError($qry . " = " . mysql_error());
 		}
 		
-		sendTeamMessage(
-				$memberid,
-				"Absence updated", 
-				"<h4>An absence has been updated for " 
-				. GetUserName($memberid) 
-				. "</h4><p>Date range of absence " 
-				. $_POST['startdate'] 
-				. " - " 
-				. $_POST['enddate']
-				. "</p><h5>Reason:</h5>"
-				. $absentreason
-			);
-
 		header("location: " . base64_decode($_GET['callee']));	
 		
 	} else {

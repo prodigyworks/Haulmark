@@ -30,5 +30,14 @@
 		$where = "WHERE vehicletypeid = $vehicletypeid AND active = 'Y'";
 	}
 	
+	ob_start();
 	createComboOptions("id", "registration", "{$_SESSION['DB_PREFIX']}vehicle", $where);
+	$combo = ob_get_clean();
+	
+	$array = array(
+			'data'	 	=> $combo,
+			'groupage'	=> $groupage
+		);
+	
+	echo json_encode($array);
 ?>

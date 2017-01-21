@@ -1,5 +1,6 @@
 <?php 
-	require_once("system-mobileheader.php"); 
+require_once("system-mobileheader.php");
+require_once("businessobjects/BookingClass.php");
 ?>
 	<style>
 		#podform {
@@ -18,34 +19,16 @@
 			</a>
 		</div>
 <?php 
-	$bookingid = $_GET['id'];
-	$sql = "SELECT 
-			AA.place, AA.bookingid, A.id, A.pallets, 
-			B.name
-			FROM {$_SESSION['DB_PREFIX']}bookingleg AA
-			INNER JOIN {$_SESSION['DB_PREFIX']}booking A
-			ON A.id = AA.bookingid
-			INNER JOIN {$_SESSION['DB_PREFIX']}customer B
-			ON B.id = A.customerid
-			WHERE AA.id = $bookingid";
+	$bookingleg = new BookingLegClass();
+	$bookingleg->load($_GET['id']);
 	
-	$result = mysql_query($sql);
+	echo date("d/m/Y H:i");
+	echo "<br><br>" . $bookingleg->getBooking()->getCustomer()->getName();
+	echo "<br>" . $bookingleg->getPlace();
 	
-	if ($result) {
-		while (($member = mysql_fetch_assoc($result))) {
-			echo date("d/m/Y H:i");
-			echo "<br><br>" . $member['name'];
-			echo "<br>" . $member['place'];
-			
-			$bookingid = $member['bookingid'];
-		}
-		
-	} else {
-		logError("$sql - " . mysql_error());
-	}
 ?>
 		<form id="podform" onsubmit="return validate()" enctype="multipart/form-data" method="POST" action="m.uploadpoddocsave.php">
-			<input type="hidden" id="bookingid" name="bookingid" value="<?php echo $bookingid; ?>" />
+			<input type="hidden" id="bookingid" name="bookingid" value="<?php echo $bookingleg->getBookingid(); ?>" />
 			<label>Reference (Optional)</label>
 			<br>
 			<input type="text" id="reference" name="reference" style="width:50%" />

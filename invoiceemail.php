@@ -49,7 +49,7 @@ function invoiceEmail($id) {
 			}
 			
 			$filename = "uploads/$invoice.pdf";
-			$invoice = "INV-" . sprintf("%06d", $id);
+			$invoice = getInvoiceReference($id);
 			
 			unlink($filename);
 			
@@ -59,10 +59,10 @@ function invoiceEmail($id) {
 			try {
 				smtpmailer(
 						$email, 
-						"admin@haulageplanner.co.uk", 
-						"Allegro Transport Limited", 
-						"Invoice : $invoice", 
-						"Please find the attached PDF for invoice $invoice.", 
+						getSiteConfigData()->invoicingemail, 
+						getSiteConfigData()->companyname, 
+						"Invoice : $invoice from " . getSiteConfigData()->companyname, 
+						getEmailHeader() . "Please find the attached PDF for invoice $invoice.<br>". getSiteConfigData()->emailfooter, 
 						array($filename)
 					);
 					

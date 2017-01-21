@@ -20,13 +20,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>Allegro Transport</title>
+<title>Truck-Net</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=8" />
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <link rel="shortcut icon" href="favicon.ico">
 
-<link href="css/m.style-20092016.css" rel="stylesheet" type="text/css" />
+<link href="css/m.style-200120167.css" rel="stylesheet" type="text/css" />
 <!-- 
 <link href="css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
  -->
@@ -40,7 +40,7 @@
 <script src="js/jquery-ui.min.js" type="text/javascript"></script>
 <script src='js/jquery.hoverIntent.minified.js' type='text/javascript'></script>
 <script src='js/jquery.dcmegamenu.1.3.3.js' type='text/javascript'></script>
-<script src="js/prodigyworks-20161031.js" language="javascript" ></script>
+<script src="js/prodigyworks-20012017.js" language="javascript" ></script>
 <!--[if lt IE 7]>
 <script type="text/javascript" src="js/ie_png.js"></script>
 <script type="text/javascript">

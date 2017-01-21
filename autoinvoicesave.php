@@ -5,6 +5,7 @@
 	start_db();
 	
 	$yourordernumber = mysql_escape_string($_POST['yourordernumber']);
+	$invoicedate = convertStringToDate($_POST['invoicedate']);
 	$memberid = getLoggedOnMemberID();
 	$first = true;
 	$total = 0;
@@ -37,7 +38,7 @@
 							)
 							VALUES
 							(
-								$customerid, 1, CURDATE(), '$yourordernumber',
+								$customerid, 1, '$invoicedate', '$yourordernumber',
 								'N', 'N', 0, 1, 0,
 								0, 0, 'N'
 							)";

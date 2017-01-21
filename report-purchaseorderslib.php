@@ -93,7 +93,7 @@
 								$this->addLine(
 										$this->getY(), 
 										array( 
-												"Purchase Order"	=> "ALBR-" . sprintf("%06d", $member['id']),
+												"Purchase Order"	=> getPOReference($member['id']),
 									            "Date"  			=> $member['orderdate'],
 									            "Supplier"  		=> $member['suppliername'],
 									            "Revision"  		=> $member['revision'],

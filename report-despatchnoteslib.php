@@ -8,8 +8,8 @@
 	$todate = convertStringToDate($_POST['todate']);
 	$sql = "SELECT id 
 			FROM {$_SESSION['DB_PREFIX']}booking 
-			WHERE (DATE(startdatetime) >= '$fromdate' OR DATE(enddatetime) >= '$fromdate') 
-			AND   (DATE(startdatetime) <= '$todate' OR DATE(enddatetime) <= '$todate')";
+			WHERE (DATE(startdatetime) >= '$fromdate') 
+			AND   (DATE(startdatetime) <= '$todate')";
 	
 	$result = mysql_query($sql);
 	

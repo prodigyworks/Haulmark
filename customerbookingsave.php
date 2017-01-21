@@ -1,155 +1,66 @@
 <?php
 	require_once("system-db.php");
-	require_once("bookingshared.php");
 	require_once("sqlfunctions.php");
+	require_once("businessobjects/BookingClass.php");
+	require_once("businessobjects/BookingLegClass.php");
 	
 	start_db();
 	
-	$memberid = getLoggedOnMemberID();
-	$customerid = getLoggedOnCustomerID();
-	$statusid = 1;
-	$startdatetime = $_POST['startdatetime'];
-	$enddatetime = $_POST['enddatetime'];
-	$vehicletypeid = $_POST['vehicletypeid'];
-	$pallets = $_POST['pallets'];
-	$baselng = $_POST['base_lng'];
-	$baselat = $_POST['base_lat'];
-	$duration = $_POST['duration'];
-	$miles = $_POST['miles'];
+	$booking = new BookingClass();
+	$booking->setMemberid(getLoggedOnMemberID());
+	$booking->setCustomerid(getLoggedOnCustomerID());
+	$booking->setStatusid(1);
+	$booking->setStartdatetime($_POST['startdatetime']);
+	$booking->setEnddatetime($_POST['enddatetime']);
+	$booking->setVehicleid($_POST['vehicletypeid']);
+	$booking->setPallets($_POST['pallets']);
+	$booking->setMiles($_POST['miles']);
+	$booking->setDuration($_POST['duration']);
+	$booking->setNotes(mysql_escape_string($_POST['notes']));
+	$booking->setFromplace(getSiteConfigData()->basepostcode);
+	$booking->setFromplace_lat($_POST['base_lat']);
+	$booking->setFromplace_lng($_POST['base_lng']);
+	$booking->setToplace(getSiteConfigData()->basepostcode);
+	$booking->setToplace_lat($_POST['base_lat']);
+	$booking->setToplace_lng($_POST['base_lng']);
+	$booking->setBookingtype("W");
+	$booking->setConfirmed("N");
+	$booking->setFixedprice("0");
 	
-	$allegrodayrate = 0;
-	$agencydayrate = 0;
-	$vehiclecostoverhead = 0;
-	$fuelcostoverhead = 0;
-	$maintenanceoverhead = 0;
-	$customercostpermile = 0;
-	$wages = 0;
-	$rate = 0;
-	$charge = 0;
-
-	$sql = "SELECT A.* 
-			FROM {$_SESSION['DB_PREFIX']}vehicletype A 
-			WHERE A.id = $vehicletypeid";
+	try {
+		/* Default costs from base data. */
+		$booking->initialiseCostsFromBaseData();
+		
+		/* Create new booking. */
+		$booking->insert();
 	
-	$result = mysql_query($sql);
-	
-	if ($result) {
-		while (($member = mysql_fetch_assoc($result))) {
-			$allegrodayrate = $member['allegrodayrate'];
-			$agencydayrate = $member['agencydayrate'];
-			$vehiclecostoverhead = $member['vehiclecostpermile'];
-			$fuelcostoverhead = $member['fuelcostpermile'];
-			$maintenanceoverhead = $member['overheadcostpermile'];
-		}
-	}
-	
-	$sql = "SELECT A.* 
-			FROM {$_SESSION['DB_PREFIX']}customer A 
-			WHERE A.id = $customerid";
-	
-	$result = mysql_query($sql);
-	
-	if ($result) {
-		while (($member = mysql_fetch_assoc($result))) {
-			$customercostpermile = $member['customercostpermile'];
-			
-			if ($customercostpermile == null) {
-				$customercostpermile = 0;
+		for ($i = 1; ; $i++) {
+			if (isset($_POST['point_' . $i])) {
+				$leg = new BookingLegClass();
+				$leg->setPlace($_POST['point_' . $i]);
+				$leg->setReference($_POST['point_' . $i . "_ref"]);
+				$leg->setPhone($_POST['point_' . $i . "_phone"]);
+				$leg->setVisittype($_POST['point_' . $i . "_visittype"]);
+				$leg->setArrivaltime(convertStringToDate($_POST['pointarrivaldate_' . $i]) . " " . $_POST['pointarrivaltime_' . $i]);
+				$leg->setDeparturetime(convertStringToDate($_POST['pointdeparturedate_' . $i]) . " " . $_POST['pointdeparturetime_' . $i]);
+				
+				$booking->addLeg($leg);
+				
+			} else {
+				break;
 			}
 		}
-	}
 	
-	$wages = ($duration * $allegrodayrate) * (1 + (getSiteConfigData()->defaultwagesmargin / 100));
+		/* Leg summary will have changed. */
+		$booking->update();
 	
-	if ($customercostpermile != 0) {
-		$rate = $customercostpermile * $miles;
-		
-	} else {
-		$rate = $wages + (($vehiclecostoverhead + $fuelcostoverhead + $maintenanceoverhead) * $miles);
-	}
-	
-	$charge = $rate * (1 + (getSiteConfigData()->defaultprofitmargin / 100));
-	
-	$base = getSiteConfigData()->basepostcode;
-	$notes = mysql_escape_string($_POST['notes']);
-	$worktypeid = getSiteConfigData()->defaultworktype;
-	
-	$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}booking
-			(
-				customerid, vehicletypeid, pallets,
-				startdatetime, enddatetime, statusid,
-				fromplace, fromplace_lat, fromplace_lng,
-				fromplace_phone, fromplace_ref,
-				toplace, toplace_lat, toplace_lng,
-				toplace_phone, toplace_ref,
-				memberid, notes, bookingtype,
-				miles, duration, allegrodayrate,
-				agencydayrate, vehiclecostoverhead,
-				fuelcostoverhead, maintenanceoverhead,
-				customercostpermile, 
-				charge, rate, confirmed, worktypeid,
-				metacreateddate, metamodifieddate,
-				metamodifieduserid, metacreateduserid
-			)
-			VALUES
-			(
-				$customerid, $vehicletypeid, $pallets,
-				'$startdatetime', '$enddatetime', $statusid,
-				'$base', '$base_lat', '$base_lng',
-				'', '',
-				'$base', '$base_lat', '$base_lng',
-				'', '',
-				$memberid, '$notes', 'W',
-				$miles, $duration, $allegrodayrate,
-				$agencydayrate, $vehiclecostoverhead,
-				$fuelcostoverhead, $maintenanceoverhead,
-				$customercostpermile,
-				$charge, $rate, 'N', '$worktypeid',
-				NOW(), NOW(),
-				$memberid, $memberid
-			)";
-
-//	logError($sql, false);				
-				
-	if (! mysql_query($sql)) {
-		logError("$sql - " . mysql_error());
-	}
-	
-	$bookingid = mysql_insert_id();
-	
-	for ($i = 1; ; $i++) {
-		if (isset($_POST['point_' . $i])) {
-			$point = $_POST['point_' . $i];
-			$pointlat = $_POST['point_' . $i . "_lat"];
-			$pointlng = $_POST['point_' . $i . "_lng"];
-			$pointdeparturedate = convertStringToDate($_POST['pointdeparturedate_' . $i]);
-			$pointdeparturetime = $_POST['pointdeparturetime_' . $i];
-			$pointdeparturedate = $pointdeparturedate . " " . $pointdeparturetime;
-			$pointarrivaldate = convertStringToDate($_POST['pointarrivaldate_' . $i]);
-			$pointarrivaltime = $_POST['pointarrivaltime_' . $i];
-			$pointarrivaldate = $pointarrivaldate . " " . $pointarrivaltime;
-			$phone = $_POST['point_' . $i . "_phone"];
-			$reference = $_POST['point_' . $i . "_ref"];
-			
-			addLeg($bookingid, $point, $pointlng, $pointlat, $pointarrivaldate, $pointdeparturedate, $phone, $reference);
-			
-		} else {
-			break;
-		}
-	}
-	
-	$legsummary = getJourneyDescription($bookingid);
-	
-	$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET 
-			legsummary = '$legsummary' 
-			WHERE id = $bookingid";
-	
-	if (! mysql_query($sql)) {
-		logError($sql . " - " . mysql_error());
+	} catch (Exception $e) {
+		SQLError($e->getMessage());
 	}
 	
 	if (isset($_FILES['po']) && $_FILES['po']['tmp_name'] != "") {
 		$documentid = getFileData("po");
+		$memberid = getLoggedOnMemberID();
 		
 		$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingdocs
 				(
@@ -159,21 +70,21 @@
 				)
 				VALUES
 				(
-					$bookingid, $documentid, NOW(),
+					{$booking->getId()}, $documentid, NOW(),
 					NOW(), NOW(),
 					$memberid, $memberid
 				)";
 					
 		if (! mysql_query($sql)) {
-			logError("$sql - " . mysql_error());
+			SQLError($sql);
 		}
 	}
 	
-	$customername = GetCustomerName($customerid);
+	$customername = GetCustomerName($booking->getCustomerid());
 	$name = GetUserName();
 	$date = date("d/m/Y H:I");
 	
-	$message = "<h1>Your booking reference is " . getBookingReference($bookingid) . "</h1><br><br>";
+	$message = "<h1>Your booking reference is {$booking->getFormattedID()}</h1><br><br>";
 	$message .= getSiteConfigData()->webbookingconfirmation;
 	
 	if (isset($_FILES['po']) && $_FILES['po']['tmp_name'] != "") {
@@ -183,29 +94,9 @@
 		sendRoleMessage("WEBBOOKING", "Online Booking", $message);
 	}
 	
-	sendCustomerMessage($customerid, "Online Booking", $message);
+	sendCustomerMessage($booking->getCustomerid(), "Online Booking", $message);
 	
 	mysql_query("COMMIT");
 	
-	header("location: customerbookingformconfirm.php?id=$bookingid");
-	
-	function addLeg($id, $point, $pointlng, $pointlat, $pointarrivaldate, $pointdeparturedate, $phone, $reference) {
-		$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}bookingleg
-				(
-					bookingid, place, place_lng, place_lat, 
-					arrivaltime, departuretime, 
-					phone, reference
-				)
-				VALUES
-				(
-					$id, '$point', $pointlng, $pointlat, 
-					'$pointarrivaldate', '$pointdeparturedate', 
-					'$phone', '$reference'
-				)";
-		$result = mysql_query($sql);
-
-		if (! $result) {
-			logError($sql . " - " . mysql_error());
-		}
-	}
+	header("location: customerbookingformconfirm.php?id={$booking->getId()}");
 ?>

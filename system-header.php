@@ -1,5 +1,7 @@
 <?php
 	require_once('system-db.php');
+	require_once('businessobjects/MessageClass.php');
+	require_once('businessobjects/UserClass.php');
 	
 	if(!isset($_SESSION)) {
 		session_start();
@@ -27,7 +29,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <link rel="shortcut icon" href="favicon.ico">
 
-<link href="css/style-13112016.css" rel="stylesheet" type="text/css" />
+<link href="css/style-20012017.css" rel="stylesheet" type="text/css" />
 <link href="css/jquery-ui-1.10.3.custom.css" rel="stylesheet" type="text/css" />
 <link href="css/dcmegamenu.css" rel="stylesheet" type="text/css" />
 <link href="css/skins/white.css" rel="stylesheet" type="text/css" />
@@ -38,7 +40,7 @@
 <script src="js/jquery-ui.min.js" type="text/javascript"></script>
 <script src='js/jquery.hoverIntent.minified.js' type='text/javascript'></script>
 <script src='js/jquery.dcmegamenu.1.3.3.js' type='text/javascript'></script>
-<script src="js/prodigyworks-20161031.js" language="javascript" ></script>
+<script src="js/prodigyworks-20012017.js" language="javascript" ></script>
 <script src="js/businessobject-20161120.js" language="javascript" ></script>
 
 <!--[if lt IE 7]>
@@ -74,8 +76,8 @@
 				?>
 					<div id="header" class='header1'>
 <?php		
-							if (($_SESSION['SESS_CUSTOMER_IMAGEID'] != null && $_SESSION['SESS_CUSTOMER_IMAGEID'] != 0) ||
-								($_SESSION['SESS_SUPPLIER_IMAGEID'] != null && $_SESSION['SESS_SUPPLIER_IMAGEID'] != 0)) {
+						if (($_SESSION['SESS_CUSTOMER_IMAGEID'] != null && $_SESSION['SESS_CUSTOMER_IMAGEID'] != 0) ||
+							($_SESSION['SESS_SUPPLIER_IMAGEID'] != null && $_SESSION['SESS_SUPPLIER_IMAGEID'] != 0)) {
 ?>
 						<div id="partnerimage">
 							<label>In Partnership With:</label>
@@ -83,38 +85,37 @@
 								<img src="system-imageviewer.php?id=<?php echo $_SESSION['SESS_CUSTOMER_IMAGEID'] | $_SESSION['SESS_SUPPLIER_IMAGEID']; ?>" />
 						</div>
 <?php		
-							}
+						}
 ?>
-						<?php		
-							$memberid = getLoggedOnMemberID();
-							$auditid = $_SESSION['SESS_LOGIN_AUDIT'];
-							
-							$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET 
-									lastaccessdate = NOW(), 
-									metamodifieddate = NOW(), 
-									metamodifieduserid = $memberid
-									WHERE member_id = $memberid";
-							$result = mysql_query($qry);
-							
-							$qry = "UPDATE {$_SESSION['DB_PREFIX']}loginaudit SET 
-									timeoff = NOW(), 
-									metamodifieddate = NOW(), 
-									metamodifieduserid = $memberid
-									WHERE id = $auditid";
-							$result = mysql_query($qry);
-						?>
+<?php		
+						UserClass::auditAccess();
+						$messagecount = MessageClass::getUnreadMessageCountForUser(getLoggedOnMemberID());
+						$emailImage = "email.gif";
+						
+						if (isset($_SESSION['SESSION_MESSAGE_COUNT'])) {
+							if ($_SESSION['SESSION_MESSAGE_COUNT'] < $messagecount) {
+								$emailImage = "email_new.png";
+							}
+						}
+?>
 						<div id="toppanel">
 							<div class="profileimage">
-							<?php 
-										if (getLoggedOnImageID() != null && getLoggedOnImageID() != 0) {
+								<a class="messages" href="messages.php">
+									<img src='images/<?php echo $emailImage; ?>'></img>&nbsp;
+<?php 
+									echo "($messagecount)";
+?>
+								</a>
+<?php 
+								if (getLoggedOnImageID() != null && getLoggedOnImageID() != 0) {
 ?>	  
 									<img id="profileimage_img" src='system-imageviewer.php?id=<?php echo getLoggedOnImageID(); ?>' />
 <?php 
-										} else {
+								} else {
 ?>	  
 									<img id="profileimage_img" src='images/noprofile.png'  />
 <?php 
-										}
+								}
 ?>									
 								<div class='profileimageselector'>
 									<img src='images/minimize.gif' />

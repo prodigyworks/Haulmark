@@ -1,6 +1,8 @@
 <?php 
-	include "system-db.php";
-	include "bookingshared.php";
+	require_once("system-db.php");
+	require_once("businessobjects/BookingCollectionClass.php");
+	require_once("businessobjects/BookingClass.php");
+	require_once("businessobjects/BookingLegClass.php");
 	
 	start_db();
 	
@@ -9,97 +11,58 @@
 	
 	$_SESSION['BOOKING_GANTT'] = $startdate;
 	
-	if ($_GET['mode'] == "V") {
-		$sectionid = "vehicleid";
-
-	} else if ($_GET['mode'] == "D") {
-		$sectionid = "driverid";
-
-	} else if ($_GET['mode'] == "T") {
-		$sectionid = "trailerid";
-	}
 	$json = array();
 	
-	$sql ="SELECT A.id, A.startdatetime, A.enddatetime, A.trailerid, A.driverid, 
-		   A.vehicleid, A.ordernumber, A.fromplace, A.toplace, A.legsummary,
-		   B.name AS drivername, 
-		   C.registration AS vehiclename, C.registration, 
-		   D.registration AS trailername,
-		   E.fgcolour, E.bgcolour,
-		   F.accountcode AS customername,
-		   F.name AS accountname,
-		   (TIMEDIFF(enddatetime, startdatetime) / 10000) AS totalhours
-		   FROM {$_SESSION['DB_PREFIX']}booking A 
-		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver B 
-		   ON B.id = A.driverid 
-		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}vehicle C 
-		   ON C.id = A.vehicleid 
-		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}trailer D 
-		   ON D.id = A.trailerid
-		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}bookingstatus E 
-		   ON E.id = A.statusid
-		   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}customer F 
-		   ON F.id = A.customerid 
-		   WHERE (A.startdatetime < '$enddate' AND A.enddatetime > '$startdate')
-		   AND A.statusid > 1";
-	$result = mysql_query($sql);
+	$bookings = new BookingCollectionClass();
+	$bookings->loadPlanningPage($startdate, $enddate);
 	
-	//Check whether the query was successful or not
-	if($result) {
-		while (($member = mysql_fetch_assoc($result))) {
-			$id = $member['id'];
-			$totalhours = $member['totalhours'];
-			$utilisationhours = 0;
+	foreach ($bookings->getBookings() AS $booking) {
+		/* Calculate hours. */
+		$hours = $booking->getUtilisationPercentage();
+		$lefthours = 100 - $hours;
 			
-			$sql ="SELECT (TIMEDIFF(B.enddatetime, A.departuretime) / 10000) AS utilisationhours
-				   FROM {$_SESSION['DB_PREFIX']}bookingleg A 
-				   LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}booking B 
-				   ON B.id = A.bookingid
-				   WHERE A.bookingid = $id
-				   ORDER BY A.id DESC
-				   LIMIT 1";
-			$itemresult = mysql_query($sql);
+		if ($_GET['mode'] == "V") {
+			$sectionid = $booking->getVehicleid();
+		
+		} else if ($_GET['mode'] == "D") {
+			$sectionid = $booking->getDriverid();
+		
+		} else if ($_GET['mode'] == "T") {
+			$sectionid = $booking->getTrailerid();
+		}
 			
-			//Check whether the query was successful or not
-			if($itemresult) {
-				while (($itemmember = mysql_fetch_assoc($itemresult))) {
-					$utilisationhours = $itemmember['utilisationhours'];
-				}
-			}
-			
-			$hours = number_format(($utilisationhours * (100 / $totalhours)), 0);
-			$lefthours = 100 - $hours;
-			
-			$tooltip = "Booking: " . getBookingReference($member['id']) . "\n" . 
-					   "Customer: " . $member['accountname'] . "\n" . 
-					   "Vehicle: " . $member['vehiclename'] . "\n" . 
-					   "Trailer: " . $member['trailername'] . "\n" .
-					   "Driver: " . $member['drivername'] . "\n" .
-					   "Utilisation: $lefthours %";
-			
-			array_push(
+		$tooltip = "Booking: {$booking->getFormattedID()}\n" . 
+				   "Customer: {$booking->getCustomer()->getName()}\n" . 
+				   "Vehicle: {$booking->getVehicle()->getRegistration()}\n" . 
+				   "Trailer: {$booking->getTrailer()->getRegistration()}\n" .
+				   "Driver: {$booking->getDriver()->getName()}\n" .
+				   "Journey: {$booking->getLegsummary()}\n" .
+				   "Charge: &pound;{$booking->getCharge()}\n" .
+				   "Utilisation: $hours %";
+		
+		array_push(
 				$json, 
 				array(
-						"id" => $id,
+						"id" => $booking->getId(),
 						"type" => "B",
-						"bookingid" => $id,
-						"color" => $member['bgcolour'],
-						"textColor" => $member['fgcolour'],
-						"start_date" => $member['startdatetime'],
-						"end_date" => $member['enddatetime'],
-						"text" => "<div bookingid='$id' class='bookingcell2' title='$tooltip'>" . $member['customername'] . ": " . $member['legsummary'] . "</div><div class='bookingcell4' bookingid='$id' title='$tooltip'><div bookingid='$id' utilisation='$hours' style='width:$hours%' class='bookingcell3'>&nbsp;</div></div>",
-						"section_id" => $member[$sectionid]
+						"bookingid" => $booking->getId(),
+						"color" => $booking->getStatus()->getBgcolour(),
+						"textColor" => $booking->getStatus()->getFgcolour(),
+						"start_date" => $booking->getStartdatetime(),
+						"end_date" => $booking->getEnddatetime(),
+						"text" => "<div bookingid='{$booking->getId()}' class='bookingcell2' title='$tooltip'>{$booking->getCustomer()->getName()}: {$booking->getLegsummary()}</div><div class='bookingcell4' bookingid='{$booking->getId()}' title='$tooltip'><div bookingid='{$booking->getId()}' utilisation='$lefthours' style='width:$lefthours%' class='bookingcell3'>&nbsp;</div></div>",
+						"section_id" => $sectionid
 					)
 			);
-			
-		}
-
-	} else {
-		logError($sql . " - " . mysql_error());
+		
 	}
 	
 	if ($_GET['mode'] == "D") {
-		$sql ="SELECT A.* FROM {$_SESSION['DB_PREFIX']}holiday A 
+		$sql ="SELECT A.*, B.driverid FROM {$_SESSION['DB_PREFIX']}holiday A  
+			   INNER JOIN {$_SESSION['DB_PREFIX']}members B
+			   ON B.member_id = A.memberid
+			   INNER JOIN {$_SESSION['DB_PREFIX']}driver C
+			   ON C.id = B.driverid
 			   WHERE A.accepteddate IS NOT NULL
 			   AND 
 			   (
@@ -141,12 +104,16 @@
 							"start_date" => $nstartdate,
 							"end_date" => $nenddate,
 							"text" => "Holiday ",
-							"section_id" => $member['memberid']
+							"section_id" => $member['driverid']
 						)
 				);
 		}
 		
-		$sql ="SELECT A.* FROM {$_SESSION['DB_PREFIX']}absence A 
+		$sql ="SELECT A.*, B.driverid FROM {$_SESSION['DB_PREFIX']}absence A 
+			   INNER JOIN {$_SESSION['DB_PREFIX']}members B
+			   ON B.member_id = A.memberid
+			   INNER JOIN {$_SESSION['DB_PREFIX']}driver C
+			   ON C.id = B.driverid
 			   WHERE A.accepteddate IS NOT NULL
 			   AND 
 			   (
@@ -182,12 +149,13 @@
 					$json, 
 					array(
 							"id" => "ABS" . $member['id'],
+							"type" => "A",
 							"color" => "#FF00FF",
 							"textColor" => "#000000",
 							"start_date" => $nstartdate,
 							"end_date" => $nenddate,
 							"text" => "Absence (" . $member['absencetype'] . ") ",
-							"section_id" => $member['memberid']
+							"section_id" => $member['driverid']
 						)
 				);
 		}

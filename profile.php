@@ -1,11 +1,14 @@
 <?php 
 	include("system-header.php"); 
+	require_once("businessobjects/HolidayAdminClass.php");
+	
 	showErrors(); 
 ?>
 <h4>Member Details</h4>
 <!--  Start of content -->
 <?php
-	$memberid =  $_SESSION['SESS_MEMBER_ID'];
+	$memberid =  getLoggedOnMemberID();
+	$holidayClass = new HolidayAdminClass();
 	
 	if (isset($_GET['id'])) {
 		global $memberid;
@@ -17,7 +20,8 @@
 			(
 			 	SELECT SUM(D.daystaken) 
 			 	FROM {$_SESSION['DB_PREFIX']}holiday D 
-			 	WHERE YEAR(D.startdate) = YEAR(NOW()) 
+				WHERE D.startdate >= '{$holidayClass->getStart()}'
+			  	AND   D.startdate <  '{$holidayClass->getEnd()}'
 			 	AND D.memberid = A.member_id 
 			 	AND D.acceptedby IS NOT NULL
 			) AS daysremaining 

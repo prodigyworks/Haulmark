@@ -55,6 +55,7 @@
 <form method="POST" id="searchform" action="autoinvoicesave.php">
 	<h4><?php echo $_SESSION['title']; ?></h4>
 	<input type="hidden" name="yourordernumber" value="<?php echo $_POST['yourordernumber']; ?>" />
+	<input type="hidden" name="invoicedate" value="<?php echo $_POST['invoicedate']; ?>" />
 	<div class='scroller'>
 		<table class='grid list' width='100%' border=0 cellspacing=0>
 			<thead>
@@ -80,6 +81,7 @@
 			AND DATE(A.startdatetime) <= '$enddate'
 			AND A.id NOT IN (SELECT productid FROM {$_SESSION['DB_PREFIX']}invoiceitem)
 			AND A.charge > 0
+			AND A.statusid = 7
 			ORDER BY A.id";
 	
 	$result = mysql_query($sql);

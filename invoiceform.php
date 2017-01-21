@@ -3,7 +3,7 @@
         display: none;
     }
 </style>
-<table width="100%" cellpadding="0" cellspacing="4" class="entryformclass">
+<table   cellpadding="0" cellspacing="4" class="entryformclass">
     <tbody>
     <tr valign="center">
         <td>Customer</td>
@@ -97,7 +97,7 @@
 </table>
 <?php
 function createHeader() {
-    ?><tr><td>Actions</td><td>Job Number</td><td align='left'>Journey</td><td align='right'>Total (Nett)</td></tr><?php
+    ?><tr><td width='13px'>Actions</td><td width='100px'>Job Number</td><td  width='450px'align='left'>Journey</td><td  width='100px' align='right'>Total (Nett)</td></tr><?php
 }
 ?>
 <div id="divtable">
@@ -109,7 +109,7 @@ function createHeader() {
 </div>
 
 <div id="invoiceitemdialog" class="modal">
-    <table width="100%" cellpadding="0" cellspacing="4" class="entryformclass">
+    <table  cellpadding="0" cellspacing="4" class="entryformclass">
         <tbody>
         <tr valign="center">
             <td width='120px'>Job Number</td>

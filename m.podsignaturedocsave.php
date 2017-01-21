@@ -3,7 +3,8 @@
 	require_once('signature-to-image.php');
 	require_once("invoiceemail.php");
 	require_once("sqlfunctions.php");
-	require_once("bookingshared.php");
+	require_once("businessobjects/BookingClass.php");
+	require_once("businessobjects/BookingLegClass.php");
 	
 	start_db();
 	
@@ -120,90 +121,19 @@
 		logError("$sql - " . mysql_error());
 	}
 	
+	$booking = new BookingClass();
+	$booking->load($bookingid);
+	
 	if ($incompletecount == 0) {
-		$statusid = 7; /* Complete. */
-		
-		if ($charge != 0) {
-			/* Completed. */
-			$sql = "SELECT A.selfbilledinvoices, A.mobileautoinvoice
-					FROM {$_SESSION['DB_PREFIX']}customer A 
-					WHERE A.id = $customerid";
-			$result = mysql_query($sql);
-		
-			//Check whether the query was successful or not
-			if($result) {
-				while (($member = mysql_fetch_assoc($result))) {
-					$selfbilledinvoices = $member['selfbilledinvoices'];
-					$mobileautoinvoice = $member['mobileautoinvoice'];
-					
-					if ($selfbilledinvoices == "N" && $mobileautoinvoice == "Y") {
-						/* Set to invoiced. */
-						$statusid = 8;
-						$generatedbooking = getBookingReference($bookinglegid);
-						
-						$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}invoice
-								(
-									customerid, revision, orderdate, yourordernumber,
-									paid, exported, status, takenbyid, deliverycharge,
-									discount, total, downloaded
-								)
-								VALUES
-								(
-									$customerid, 1, CURDATE(), '$generatedbooking',
-									'N', 'N', 0, 1, 0,
-									0, $charge, 'N'
-								)";
-									
-						if (! mysql_query($sql)) {
-							logError("Error inserting invoice: $sql - " . mysql_error());
-						}
-						
-						$invoiceid = mysql_insert_id();
-						$vatrate = getSiteConfigData()->vatrate;
-						$vat = $charge * ($vatrate / 100);
-						$linetotal = $charge;
-						$legsummary = mysql_escape_string(getJourneyDescription($bookinglegid));
-						
-						$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}invoiceitem	
-								(
-									invoiceid, productid, description, priceeach,
-									quantity, linetotal, vat, vatrate, nominalledgercodeid
-								)
-								VALUES
-								(
-									$invoiceid, $bookinglegid, '$legsummary', $charge,
-									1, $linetotal, $vat, $vatrate, '$nominalledgercodeid'
-								)";
-									
-						if (! mysql_query($sql)) {
-							logError("Error inserting invoice: $sql - " . mysql_error());
-						}
-						
-						try {
-							invoiceEmail($invoiceid);
-							
-						} catch (Exception $e) {
-							/* Ignore */
-						}
-					}
-				}
-			}
-		}
+		$booking->setStatusid(7); /* Complete. */
 		
 	} else {
 		$statusid = 6;
+		$booking->setStatusid(6);
 	}
+	
+	$booking->update();
 		
-	$qry = "UPDATE {$_SESSION['DB_PREFIX']}booking SET 
-			statusid = $statusid
-			WHERE id = $bookingid ";
-
-	$result = mysql_query($qry);
-	
-	if (! $result) {
-		logError($qry . " = " . mysql_error());
-	}
-	
 	mysql_query("COMMIT");
 	
 	header("location: m.podsignatureconfirm.php");

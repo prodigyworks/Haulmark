@@ -31,16 +31,38 @@
 		public function postUpdateEvent($invoiceid) {
 			$items = json_decode($_POST['item_serial'], true);
 			$memberid = getLoggedOnMemberID();
-
-			$qry = "DELETE FROM {$_SESSION['DB_PREFIX']}invoiceitem
+			
+			$sql = "SELECT productid 
+					FROM {$_SESSION['DB_PREFIX']}invoiceitem
 					WHERE invoiceid = $invoiceid";
-
-			$result = mysql_query($qry);
+			
+			$result = mysql_query($sql);
+			
 
 			if (! $result) {
-				logError($qry . " - " . mysql_error());
+				logError($sql . " - " . mysql_error());
 			}
+			
+			while (($member = mysql_fetch_assoc($result))) {
+				$bookingid = $member['productid'];
+				$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET
+						statusid = 7
+					    WHERE id = $bookingid";
+	
+				if (! mysql_query($sql)) {
+					logError($sql . " - " . mysql_error());
+				}
+			}
+			
+			$sql = "DELETE FROM {$_SESSION['DB_PREFIX']}invoiceitem
+					WHERE invoiceid = $invoiceid";
 
+			$result = mysql_query($sql);
+
+			if (! $result) {
+				logError($sql . " - " . mysql_error());
+			}
+			
 			foreach ($items as $k=>$item) {
 				$qty = $item['quantity'];
 				$vatrate = $item['vatrate'];
@@ -51,7 +73,7 @@
 				$productid = $item['productid'];
 				$nominalledgercodeid = $item['nominalledgercodeid'];
 
-				$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}invoiceitem
+				$sql = "INSERT INTO {$_SESSION['DB_PREFIX']}invoiceitem
 						(
 							invoiceid, description, quantity, priceeach, vatrate, vat, linetotal, nominalledgercodeid,
 							productid, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid
@@ -62,20 +84,20 @@
 							'$productid', NOW(), $memberid , NOW(), $memberid
 						)";
 
-				$result = mysql_query($qry);
+				$result = mysql_query($sql);
 
 				if (! $result) {
-					logError($qry . " - " . mysql_error());
+					logError($sql . " - " . mysql_error());
 				}
 			
-				$qry = "UPDATE {$_SESSION['DB_PREFIX']}booking SET
+				$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET
 						statusid = 8
 						WHERE id = $productid";
 
-				$result = mysql_query($qry);
+				$result = mysql_query($sql);
 
 				if (! $result) {
-					logError($qry . " - " . mysql_error());
+					logError($sql . " - " . mysql_error());
 				}
 			}
 		}
@@ -525,7 +547,7 @@
 
 
 			function bookingReference(node) {
-				return "<?php echo "INV-"; ?>" + padZero(node.id, 6);
+				return "<?php echo getSiteConfigData()->invoiceprefix; ?>" + padZero(node.id, 6);
 			}
 
 
@@ -574,6 +596,16 @@
 	$crud->allowEdit = ! isUserInRole("CUSTOMER");
 	$crud->dialogwidth = 840;
 	$crud->title = "Invoices";
+	$crud->cascadeDelete = array(
+			array(
+				"table"			=> "invoiceitem",
+				"column"		=> "invoiceid"
+			),
+			array(
+				"table"			=> "invoicedocs",
+				"column"		=> "invoiceid"
+			)
+		);
 	$crud->document = array(
 			'primaryidname'	 => 	"invoiceid",
 			'tablename'		 =>		"invoicedocs"
@@ -630,7 +662,7 @@
 			'role'		 => 
 				array(
 					'ADMIN', 
-					'ALLEGRO'
+					getSiteConfigData()->companyrole
 				),
 			'label' 	 => 'Revision'
 		),
@@ -651,7 +683,7 @@
 			'role'		 => 
 				array(
 					'ADMIN', 
-					'ALLEGRO'
+					getSiteConfigData()->companyrole
 				),
 			'label' 	 => 'Exported',
 			'type'       => 'COMBO',
@@ -672,7 +704,7 @@
 			'role'		 => 
 				array(
 					'ADMIN', 
-					'ALLEGRO'
+					getSiteConfigData()->companyrole
 				),
 			'label' 	 => 'Downloaded',
 			'type'       => 'COMBO',
@@ -695,7 +727,7 @@
 			'role'		 => 
 				array(
 					'ADMIN', 
-					'ALLEGRO'
+					getSiteConfigData()->companyrole
 				),
 			'options'    => array(
 					array(
@@ -715,7 +747,7 @@
 			'role'		 => 
 				array(
 					'ADMIN', 
-					'ALLEGRO'
+					getSiteConfigData()->companyrole
 				),
 			'label' 	 => 'Emailed Date'
 		),
@@ -725,7 +757,7 @@
 			'role'		 => 
 				array(
 					'ADMIN', 
-					'ALLEGRO'
+					getSiteConfigData()->companyrole
 				),
 			'label' 	 => 'Emailed Failure Reason'
 		),
@@ -753,7 +785,7 @@
 			'role'		 => 
 				array(
 					'ADMIN', 
-					'ALLEGRO'
+					getSiteConfigData()->companyrole
 				),
 			'required'	 => true,
 			'table_id'	 => 'member_id',

@@ -185,7 +185,7 @@
 		}
 		
 		sendRoleMessage("ADMIN", "User Registration", "User " . $login . " has been registered as a user.<br>Password : " . $_POST['password']);
-		sendUserMessage($memberid, "User Registration", "<h3>Welcome $fname $lname.</h3><br>You have been invited to become a member of 'Allegro Haulage Planner Database'.<br>Please click on the <a href='" . getSiteConfigData()->domainurl . "/index.php'>link</a> to activate your account.<br><br><h4>Login details</h4>User ID : $login<br>Password : " . $_POST['password']);
+		sendUserMessage($memberid, "User Registration", "<h3>Welcome $fname $lname.</h3><br>You have been invited to become a member of 'Truck-Net'.<br>Please click on the <a href='" . getSiteConfigData()->domainurl . "/index.php'>link</a> to activate your account.<br><br><h4>Login details</h4>User ID : $login<br>Password : " . $_POST['password']);
 		
 		if($result) {
 			header("location: system-register-success.php");
@@ -196,7 +196,7 @@
 		
 	} else {
 		$memberid = $_GET['id'];
-		$md5 = md5($password);
+		$md5passwd = md5($password);
 		$me = getLoggedOnMemberID();
 		$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET
 				email = '$email', 

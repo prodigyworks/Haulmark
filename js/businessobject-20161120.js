@@ -1,4 +1,4 @@
-function businessobjecttojson(classname, methodname, args) {
+function businessObjectToJSon(classname, methodname, args) {
 	returndata = null;
 	
 	$.ajax({
@@ -12,6 +12,7 @@ function businessobjecttojson(classname, methodname, args) {
 		},
 		type: "POST",
 		error: function(jqXHR, textStatus, errorThrown) {
+			alert("eRROR:" + errorThrown);
 			if (error) {
 				error(jqXHR, textStatus, errorThrown);
 			} else {

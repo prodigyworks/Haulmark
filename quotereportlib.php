@@ -9,12 +9,11 @@
 		function newPage() {
 			$this->AddPage();
 			
-			$this->Image("images/logoreport.png", 158.6, 6);
-//			$this->Image("images/footer.png", 80, 262);
+			$this->DynamicImage(getSiteConfigData()->logoimageid, 158.6, 6, 40);
 			
 			$this->addText( 83.5, 272, "Valid for 30 days", 8, 3, 'B');
 
-			$this->addText( 15, 13, "Allegro Transport", 12, 4, 'B') + 5;
+			$this->addText( 15, 13, getSiteConfigData()->companyname, 12, 4, 'B') + 5;
 			$dynamicY = $this->addText(15, 20, getSiteConfigData()->address, 8, 3) + 4;
 			
 			$dynamicY = 47.5;
@@ -39,7 +38,7 @@
 			$this->addText( 170, $dynamicY + 25, $this->headermember['takenbyname'], 8, 3);
 
 			$this->addText( 145, $dynamicY + 31.5, "Our Order No:", 8, 3, 'B');
-			$this->addText( 170, $dynamicY + 31.5, getBookingReference($this->headermember['id']), 8, 3, 'B');
+			$this->addText( 170, $dynamicY + 31.5, getPOReference($this->headermember['id']), 8, 3, 'B');
 			
 			$invoiceaddress = "";
 			$deliveryaddress = "";

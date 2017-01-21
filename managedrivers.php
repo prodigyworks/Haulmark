@@ -193,18 +193,21 @@
 			array(
 				'name'       => 'city',
 				'length' 	 => 30,
+				'required'	 => false,
 				'showInView' => false,
 				'label' 	 => 'City'
 			),
 			array(
 				'name'       => 'county',
 				'length' 	 => 30,
+				'required'	 => false,
 				'showInView' => false,
 				'label' 	 => 'County'
 			),
 			array(
 				'name'       => 'addressextra',
 				'length' 	 => 30,
+				'required'	 => false,
 				'showInView' => false,
 				'label' 	 => 'Additional Address Line'
 			),
@@ -233,6 +236,7 @@
 			array(
 				'name'       => 'telephone',
 				'length' 	 => 12,
+				'required'	 => false,
 				'datatype'	 => 'tel',
 				'label' 	 => 'Home Telephone'
 			),
@@ -240,7 +244,6 @@
 				'name'       => 'fax',
 				'length' 	 => 12,
 				'datatype'	 => 'tel',
-				'required'	 => false,
 				'label' 	 => 'Mobile'
 			),
 			array(

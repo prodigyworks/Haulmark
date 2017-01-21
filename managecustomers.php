@@ -182,14 +182,14 @@
 			),
 			array(
 				'name'       => 'telephone',
-				'length' 	 => 17,
+				'length' 	 => 50,
 				'required'	 => false,
 				'datatype'	 => 'tel',
 				'label' 	 => 'Telephone 1'
 			),
 			array(
 				'name'       => 'telephone2',
-				'length' 	 => 12,
+				'length' 	 => 50,
 				'required'	 => false,
 				'showInView' => false,
 				'datatype'	 => 'tel',
@@ -197,7 +197,7 @@
 			),
 			array(
 				'name'       => 'fax',
-				'length' 	 => 12,
+				'length' 	 => 50,
 				'showInView' => false,
 				'required'	 => false,
 				'label' 	 => 'Mobile'

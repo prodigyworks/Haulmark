@@ -9,9 +9,9 @@ class InvoiceReport extends PDFReport {
 	function newPage() {
 		$this->AddPage();
 
-		$this->Image("images/logoreport2.png", 220.6, 6);
+		$this->DynamicImage(getSiteConfigData()->logoimageid, 220.6, 6, 55);
 
-		$this->addText( 15, 13, "Allegro Transport Limited", 12, 4, 'B') + 5;
+		$this->addText( 15, 13, getSiteConfigData()->companyname, 12, 4, 'B') + 5;
 		$dynamicY = $this->addText(15, 20, getSiteConfigData()->address, 8, 3) + 4;
 
 		$dynamicY = 42.5;
@@ -21,7 +21,7 @@ class InvoiceReport extends PDFReport {
 		$this->addText( 240, $dynamicY, "INVOICE", 8, 3, 'B');
 
 		$this->addText( 215, $dynamicY + 5, "Invoice No:", 8, 3, 'B');
-		$this->addText( 240, $dynamicY + 5, "INV-" . sprintf("%06d", $this->headermember['id'], 6), 8, 3, 'B');
+		$this->addText( 240, $dynamicY + 5, getInvoiceReference($this->headermember['id']), 8, 3, 'B');
 
 		$this->addText( 215, $dynamicY + 10, "FAO:", 8, 3, 'B');
 		$this->addText( 240, $dynamicY + 10, $this->headermember['contact2'], 8, 2.4, '', 30);
@@ -59,9 +59,6 @@ class InvoiceReport extends PDFReport {
 		$this->RoundedRect(213, 41, 73, 38, 5, '1234', 'BD');
 		$this->Line(286, 46.5, 213, 46.5);
 		$this->Line(286, 72, 213, 72);
-		$this->Line(248, 164, 287, 164);
-		$this->Line(248, 170, 287, 170);
-		$this->Line(248, 176, 287, 176);
 
 		$this->addText( 10, 183, "Company Reg No: " . getSiteConfigData()->companynumber, 7, 3);
 		$this->addText( 10, 186, "VAT Number: " . getSiteConfigData()->vatregnumber, 7, 3);
@@ -92,23 +89,6 @@ class InvoiceReport extends PDFReport {
 		$this->addLineFormat( $cols);
 		
 		$currentY = $this->GetY();
-		$queries = "ALL QUERIES AGAINST INVOICES TO BE NOTIFIED TO\naccounts@allegrotransport.co.uk WITHIN 5 DAYS OF INVOICE DATE";
-
-		$y = $this->WriteHTML(135, 140, getSiteConfigData()->termsandconditions) - 2;
-		$y = $this->addText(135, $y, $queries, 8, 3.5, '', 110);
-		$y = $this->addText(135, $y + 2, "Please make BACS transfer to the following account:" , 8, 3.5, 'B', 110);
-
-		$this->addText(135, $y + 2, "Account Name", 8, 3.5, '', 60);
-		$y = $this->addText(170, $y + 2, "Allegro Transport Limited", 8, 3.5, '', 110);
-
-		$this->addText(135, $y, "Bank", 8, 3.5, '', 60);
-		$y = $this->addText(170, $y, getSiteConfigData()->bank, 8, 3.5, '', 110);
-
-		$this->addText(135, $y, "Sort Code", 8, 3.5, '', 60);
-		$y = $this->addText(170, $y, getSiteConfigData()->banksortcode, 8, 3.5, '', 110);
-
-		$this->addText(135, $y, "Account Number", 8, 3.5, '', 60);
-		$y = $this->addText(170, $y, getSiteConfigData()->bankaccountnumber, 8, 3.5, '', 110);
 		
 		return $currentY;
 	}
@@ -174,9 +154,9 @@ class InvoiceReport extends PDFReport {
 							$size = $this->addLine( $dynamicY, $line );
 							$dynamicY += $size + 1;
 
-							if ($dynamicY > 225) {
+							if ($dynamicY > 175) {
 								$dynamicY = $this->newPage();
-								$dynamicY = 102;
+								$dynamicY = 96;
 							}
 
 							$total = $total + ($itemmember['linetotal']);
@@ -187,7 +167,30 @@ class InvoiceReport extends PDFReport {
 					} else {
 						logError($qry . " - " . mysql_error());
 					}
-
+					
+					if ($dynamicY > 132) {
+						$dynamicY = $this->newPage();
+						$dynamicY = 96;
+					}
+					
+					$queries = "ALL QUERIES AGAINST INVOICES TO BE NOTIFIED TO\n" . getSiteConfigData()->accountsemail . " WITHIN 5 DAYS OF INVOICE DATE";
+			
+					$y = $this->WriteHTML(135, 135, getSiteConfigData()->termsandconditions, 50) - 2;
+					$y = $this->addText(135, $y, $queries, 8, 3.5, '', 110);
+					$y = $this->addText(135, $y + 2, "Please make BACS transfer to the following account:" , 8, 3.5, 'B', 110);
+			
+					$this->addText(135, $y + 2, "Account Name", 8, 3.5, '', 60);
+					$y = $this->addText(170, $y + 2, getSiteConfigData()->companyname, 8, 3.5, '', 110);
+			
+					$this->addText(135, $y, "Bank", 8, 3.5, '', 60);
+					$y = $this->addText(170, $y, getSiteConfigData()->bank, 8, 3.5, '', 110);
+			
+					$this->addText(135, $y, "Sort Code", 8, 3.5, '', 60);
+					$y = $this->addText(170, $y, getSiteConfigData()->banksortcode, 8, 3.5, '', 110);
+			
+					$this->addText(135, $y, "Account Number", 8, 3.5, '', 60);
+					$y = $this->addText(170, $y, getSiteConfigData()->bankaccountnumber, 8, 3.5, '', 110);
+					
 					$line = array(
 						"Job"    => " ",
 						"Date"  => " ",
@@ -223,12 +226,15 @@ class InvoiceReport extends PDFReport {
 					);
 
 					$size = $this->addLine( 178, $line );
+					$this->Line(248, 164, 287, 164);
+					$this->Line(248, 170, 287, 170);
+					$this->Line(248, 176, 287, 176);
 				}
 
 			} else {
 				logError($sql . " - " . mysql_error());
 			}
-
+				
 		} catch (Exception $e) {
 			logError($e->getMessage());
 		}

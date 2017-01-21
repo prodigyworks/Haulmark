@@ -11,7 +11,7 @@
 				<td>
 					<?php 
 						if (isUserInRole("ADMIN")) {
-							createCombo("memberid", "member_id", "fullname", "{$_SESSION['DB_PREFIX']}members", "WHERE member_id IN (SELECT memberid FROM {$_SESSION['DB_PREFIX']}userroles WHERE roleid IN ('ALLEGRO', 'DRIVER'))"); 
+							createCombo("memberid", "member_id", "fullname", "{$_SESSION['DB_PREFIX']}members", "WHERE member_id IN (SELECT memberid FROM {$_SESSION['DB_PREFIX']}userroles WHERE roleid IN ('" . getSiteConfigData()->companyrole . "', 'DRIVER'))"); 
 							
 						} else {
 							createCombo("memberid", "member_id", "fullname", "{$_SESSION['DB_PREFIX']}members", "WHERE member_id = " . getLoggedOnMemberID(), true, false, array(), false); 

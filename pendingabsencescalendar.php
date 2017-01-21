@@ -55,7 +55,7 @@
 									"DATE_FORMAT(A.enddate, '%c') AS endmonth, " .
 									"DATE_FORMAT(A.enddate, '%e') AS endday, " .
 									"DATE_FORMAT(A.enddate, '%H:%m:%S') AS endtime, " .
-									"A.acceptedby, B.login " .
+									"A.acceptedby, B.fullname " .
 									"FROM {$_SESSION['DB_PREFIX']}absence A " .
 									"INNER JOIN {$_SESSION['DB_PREFIX']}members B " .
 									"ON B.member_id = A.memberid " .
@@ -84,11 +84,11 @@
 							
 							if ($member['acceptedby'] == null) {
 								echo "className: 'eventColor1',\n";
-								echo "title: '" . $member['login'] . " (Pending)',\n";
+								echo "title: '" . $member['fullname'] . " (Pending)',\n";
 
 							} else {
 								echo "className: 'eventColor2',\n";
-								echo "title: '" . $member['login'] . " (Accepted)',\n";
+								echo "title: '" . $member['fullname'] . " (Accepted)',\n";
 							}
 							
 							echo "allDay: true,\n";

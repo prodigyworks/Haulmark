@@ -1,6 +1,7 @@
 <?php
 	require_once("../system-db.php");
 	require_once("../businessobjects/BookingClass.php");
+	require_once("../businessobjects/BookingLegClass.php");
 	
 	class BookingUIClass {
 		

@@ -500,7 +500,7 @@ error_reporting(E_ALL);
 
 
 			function bookingReference(node) {
-				return "<?php echo getSiteConfigData()->bookingprefix; ?>" + padZero(node.id, 6);
+				return "<?php echo getSiteConfigData()->poprefix; ?>" + padZero(node.id, 6);
 			}
 			
 			function accept(id) {

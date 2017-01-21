@@ -22,10 +22,11 @@
 					28, 
 					array( 
 							"Booking Number"	=> 24,
-				            "Date"  			=> 20,
+							"Order Number"		=> 35,
+							"Date"  			=> 16,
 				            "Company Name"  	=> 44,
-				            "Journey"  			=> 124,
-				            "Pallets"  			=> 20,
+				            "Journey"  			=> 98,
+				            "Pallets"  			=> 15,
 				            "Weight (Kg)"  		=> 25,
 				            "Revenue"  			=> 20
 						)
@@ -34,7 +35,8 @@
 			$this->addLineFormat( 
 					array( 
 							"Booking Number"	=> "L",
-				            "Date"  			=> "L",
+							"Order Number"		=> "L",
+							"Date"  			=> "L",
 				            "Company Name"  	=> "L",
 				            "Journey"  			=> "L",
 				            "Pallets"  			=> "R",
@@ -79,6 +81,7 @@
 					    AND DATE(A.startdatetime) <= '$dateTo'
 					    AND B.selfbilledinvoices != 'N'
 					    AND A.statusid = 7
+					    AND A.charge > 0
 					    $and
 					    ORDER BY B.name, A.id DESC";
 				$result = mysql_query($sql);
@@ -113,7 +116,8 @@
 										$this->getY(), 
 										array( 
 												"Booking Number"	=> getBookingReference($member['id']),
-									            "Date"  			=> $member['startdatetime'],
+									            "Order Number"      => $member['ordernumber'],
+												"Date"  			=> $member['startdatetime'],
 									            "Company Name"  	=> $member['customername'],
 									            "Journey"  			=> $member['legsummary'],
 									            "Pallets"  			=> $member['pallets'],

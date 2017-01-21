@@ -1,7 +1,7 @@
 <?php
 	require_once("crud.php");
-	require_once("bookingshared.php");
 	require_once("bookingscopy.php");
+	require_once("businessobjects/BookingClass.php");
 	require_once("businessobjects/BookingLegClass.php");
 	
 	function confirmBooking() {
@@ -56,7 +56,7 @@
 			$this->onClickCallback = "checkClick";
 			$this->title = "Bookings";
 			$this->table = "{$_SESSION['DB_PREFIX']}booking";
-			$this->allowView = true;
+			$this->allowView = false;
 			$this->dialogwidth = 1050;
 			$this->document = array(
 					'primaryidname'	 => 	"bookingid",
@@ -292,6 +292,18 @@
 						'label' 	 => 'To Location'
 					),
 					array(
+						'name'       => 'startvisittype',
+						'showInView' => false,
+						'length' 	 => 30,
+						'label' 	 => 'Start Visit Type'
+					),
+					array(
+						'name'       => 'endvisittype',
+						'showInView' => false,
+						'length' 	 => 30,
+						'label' 	 => 'End Visit Type'
+					),
+					array(
 						'name'       => 'toplace_phone',
 						'showInView' => false,
 						'length' 	 => 13,
@@ -484,11 +496,6 @@
 						'script' 	  => 'showMap'
 					),
 					array(
-						'title'		  => 'Route',
-						'imageurl'	  => 'images/map.png',
-						'application' => 'managebookinglegs.php'
-					),
-					array(
 						'id'		  => 'deliverynotebutton',
 						'title'		  => 'Delivery Note',
 						'imageurl'	  => 'images/print.png',
@@ -564,6 +571,34 @@
 			
 			counter = 1;
 			
+			if (node.startvisittype == "B" || node.startvisittype == "C") {
+				$("#img_collectfrom").attr("src", "images/booking_pointcollect_red.png");
+				
+			} else {
+				$("#img_collectfrom").attr("src", "images/booking_pointcollect.png");
+			}
+			
+			if (node.startvisittype == "B" || node.startvisittype == "D") {
+				$("#img_deliveryfrom").attr("src", "images/booking_pointdelivery_red.png");
+				
+			} else {
+				$("#img_deliveryfrom").attr("src", "images/booking_pointdelivery.png");
+			}
+			
+			if (node.endvisittype == "B" || node.endvisittype == "C") {
+				$("#img_collectto").attr("src", "images/booking_pointcollect_red.png");
+				
+			} else {
+				$("#img_collectto").attr("src", "images/booking_pointcollect.png");
+			}
+			
+			if (node.endvisittype == "B" || node.endvisittype == "D") {
+				$("#img_deliveryto").attr("src", "images/booking_pointdelivery_red.png");
+				
+			} else {
+				$("#img_deliveryto").attr("src", "images/booking_pointdelivery.png");
+			}
+			
 			loadLegs(id);
 <?php			
 		}
@@ -582,7 +617,7 @@
 		public function postHeaderEvent() {
 ?>
 			<script type="text/javascript" src="js/html2canvas.js"></script>
-			<script type="text/javascript" src="bookingscriptlibrary-20161123.js"></script>
+			<script type="text/javascript" src="bookingscriptlibrary-20161223.js"></script>
 			<link href="bookingform.css" rel="stylesheet" type="text/css" />
 			<style>
 				#dateswitch {
@@ -649,76 +684,70 @@
 		}
 
 		public function postInsertEvent($id) {
-			for ($i = 1; ; $i++) {
-				if (isset($_POST['point_' . $i])) {
-					$leg = new BookingLegClass();
-					
-			    	$leg->bookingid = $id;
-					$leg->place = $_POST['point_' . $i];
-					$leg->place_lat = $_POST['point_' . $i . "_lat"];
-					$leg->place_lng = $_POST['point_' . $i . "_lng"];
-					$leg->reference = $_POST['point_' . $i . "_ref"];
-					$leg->phone = $_POST['point_' . $i . "_phone"];
-					$leg->arrivaltime = convertStringToDate($_POST['pointarrivaldate_' . $i]) . " " . $_POST['pointarrivaltime_' . $i];
-					$leg->departuretime = convertStringToDate($_POST['pointdeparturedate_' . $i]) . " " . $_POST['pointdeparturetime_' . $i];
-					$leg->insert();
-					
-				} else {
-					break;
+			try {
+				$booking = new BookingClass();
+				$booking->load($id);
+				
+				for ($i = 1; ; $i++) {
+					if (isset($_POST['point_' . $i])) {
+						$leg = new BookingLegClass();
+						
+						$leg->setPlace($_POST['point_' . $i]);
+						$leg->setReference($_POST['point_' . $i . "_ref"]);
+						$leg->setPhone($_POST['point_' . $i . "_phone"]);
+						$leg->setVisittype($_POST['point_' . $i . "_visittype"]);
+						$leg->setArrivaltime(convertStringToDate($_POST['pointarrivaldate_' . $i]) . " " . $_POST['pointarrivaltime_' . $i]);
+						$leg->setDeparturetime(convertStringToDate($_POST['pointdeparturedate_' . $i]) . " " . $_POST['pointdeparturetime_' . $i]);
+						
+						/* Add to booking. */
+						$booking->addLeg($leg);
+						
+					} else {
+						break;
+					}
 				}
-			}
-			
-			$legsummary = getJourneyDescription($id);
-			
-			$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET 
-					legsummary = '$legsummary',
-					bookingtype = 'M'
-					WHERE id = $id";
-			
-			if (! mysql_query($sql)) {
-				logError($sql . " - " . mysql_error());
+				
+				$booking->setBookingtype("M");
+				$booking->update();
+				
+			} catch (Exception $e) {
+				SQLError($e->getMessage());
 			}
 		}
 		
 		public function postUpdateEvent($id) {
-			$sql = "DELETE FROM {$_SESSION['DB_PREFIX']}bookingleg WHERE bookingid = $id";
-			$result = mysql_query($sql);
-			
-			if (! $result) {
-				logError($sql . " - " . mysql_error());
-			}
-			
-			$counter = 0;
-			$points = $_POST['bookingpoints'];
-			
-			for ($i = 1; $counter < $points; $i++) {
-				if (isset($_POST['point_' . $i])) {
-					$counter++;
-					$leg = new BookingLegClass();
-					
-			    	$leg->bookingid = $id;
-					$leg->place = $_POST['point_' . $i];
-					$leg->place_lat = $_POST['point_' . $i . "_lat"];
-					$leg->place_lng = $_POST['point_' . $i . "_lng"];
-					$leg->reference = $_POST['point_' . $i . "_ref"];
-					$leg->phone = $_POST['point_' . $i . "_phone"];
-					$leg->arrivaltime = convertStringToDate($_POST['pointarrivaldate_' . $i]) . " " . $_POST['pointarrivaltime_' . $i];
-					$leg->departuretime = convertStringToDate($_POST['pointdeparturedate_' . $i]) . " " . $_POST['pointdeparturetime_' . $i];
-					$leg->insert();
+			try {
+				$booking = new BookingClass();
+				$booking->load($id);
+				$booking->clearLegs();
+				
+				$counter = 0;
+				$points = $_POST['bookingpoints'];
+				
+				for ($i = 1; $counter < $points; $i++) {
+					if (isset($_POST['point_' . $i])) {
+						$counter++;
+						$leg = new BookingLegClass();
 						
-				} else {
-					break;
+						$leg->setPlace($_POST['point_' . $i]);
+						$leg->setReference($_POST['point_' . $i . "_ref"]);
+						$leg->setPhone($_POST['point_' . $i . "_phone"]);
+						$leg->setVisittype($_POST['point_' . $i . "_visittype"]);
+						$leg->setArrivaltime(convertStringToDate($_POST['pointarrivaldate_' . $i]) . " " . $_POST['pointarrivaltime_' . $i]);
+						$leg->setDeparturetime(convertStringToDate($_POST['pointdeparturedate_' . $i]) . " " . $_POST['pointdeparturetime_' . $i]);
+						
+						/* Add to booking. */
+						$booking->addLeg($leg);
+												
+					} else {
+						break;
+					}
 				}
-			}
-			
-			$legsummary = getJourneyDescription($id);
-			
-			$sql = "UPDATE {$_SESSION['DB_PREFIX']}booking SET 
-					legsummary = '$legsummary' 
-					WHERE id = $id";
-			
-			if (! mysql_query($sql)) {
-				logError($sql . " - " . mysql_error());
+				
+				$booking->update();
+				
+			} catch (Exception $e) {
+				SQLError($e->getMessage());
 			}
 		}
 		
@@ -732,7 +761,12 @@
 			var map = null;
 
 			function checkClick(node) {
-				if (node.statusid == "New Booking") {
+				$("#crudremovebutton").show();
+				
+				if (node.statusid == "Invoiced") {
+					$("#crudremovebutton").hide();
+				
+				} else if (node.statusid == "New Booking") {
 					$("#deliverynotebutton").hide();
 					
 				} else {
@@ -755,6 +789,10 @@
 			}		    
 			
 		    function initializeMap(start, end, waypoints, startIndex) {
+				if (typeof(google) == "undefined") {
+			    	return;
+		    	}
+		    	
 		    	if (map == null) {
 				    directionsService = new google.maps.DirectionsService();
 				    directionsDisplay = new google.maps.DirectionsRenderer(); 
@@ -1014,20 +1052,16 @@
 					);
 			}			
 			
-			function copy(id) {
-				currentID = id;
-				
-				$("#copyordernumber").val("");
-				$("#copyvehicleid").val("0");
-				
-				$("#copyDialog").dialog("open");
-			}
-			
-			function route(id) {
-				$("#mapDialog").dialog("open");
-			}
-		
 			function validateCrudForm() {
+				if ($("#agencyvehicleregistration").val() != "") {
+					var re = /[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][ ]*[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]/;
+					
+				    if (re.test($("#agencyvehicleregistration").val()) == false) {
+				    	pwAlert("Invalid format for vehicle registration");
+				    	return false;
+				    }
+				}
+									
 				return validateForm(
 						$("#editform #crudcmd").val() == "update" 
 							? $("#crudid").val()
@@ -1045,42 +1079,6 @@
 			
 			function bookingReference(node) {
 				return "<?php echo getSiteConfigData()->bookingprefix; ?>" + padZero(node.id, 6);
-			}
-			
-			function showMap(id) {
-				callAjax(
-						"finddata.php", 
-						{ 
-							sql: "SELECT B.id, A.fromplace, A.toplace, B.place FROM <?php echo $_SESSION['DB_PREFIX'];?>booking A " +
-								 "LEFT OUTER JOIN <?php echo $_SESSION['DB_PREFIX'];?>bookingleg B " + 
-								 "ON B.bookingid = A.id " +
-								 "WHERE A.id = " + id + " " +
-								 "ORDER BY B.id"
-						},
-						function(data) {
-							if (data.length > 0) {
-								var waypoints = [];
-								var node = data[0];
-								
-								for (var i = 0; i < data.length - 1; i++) {
-									node = data[i];
-									
-									if (node.place != null && node.place != "") {
-										waypoints.push({
-												stopover: true,
-												location: node.place
-											});
-									}
-								}
-
-								initializeMap2(node.fromplace, data[data.length - 1].place, waypoints, 0);
-								  
-								$("#mapDialog").dialog("open");
-							}
-						
-						}
-					);
-			
 			}
 <?php			
 		}

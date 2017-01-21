@@ -75,14 +75,14 @@
 				<br>
 				<a href="javascript:void(0)" onclick="checkForgotPassword()">Forgotten password ?</a>
 			</form>
-<!--			<div>-->
-<!--				<span style="">-->
-<!--					<img src="images/mobiledevice.png" height=42 id="iammobile"  />-->
-<!--					<br />-->
-<!--					<h6 style='color: black'>Mobile version</h6>-->
-<!--				</span>-->
-<!--			-->
-<!--			</div>-->
+			<div>
+				<span style="">
+					<img src="images/mobiledevice.png" height=42 id="iammobile"  />
+					<br />
+					<h6 style='color: black'>Mobile version</h6>
+				</span>
+			
+			</div>
 			<script>
 				$(document).ready(
 						function() {

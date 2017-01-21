@@ -268,7 +268,7 @@
 						'table'		 => 'members',
 						'required'	 => true,
 						'table_id'	 => 'member_id',
-						'where'		 => "WHERE member_id IN (SELECT memberid FROM {$_SESSION['DB_PREFIX']}userroles WHERE roleid IN ('ALLEGRO', 'DRIVER'))",
+						'where'		 => "WHERE member_id IN (SELECT memberid FROM {$_SESSION['DB_PREFIX']}userroles WHERE roleid IN ('" . getSiteConfigData()->companyrole . "', 'DRIVER'))",
 						'alias'		 => 'fullname',
 						'table_name' => 'fullname'
 					),

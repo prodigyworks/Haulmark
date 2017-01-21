@@ -16,6 +16,7 @@
 					'Auto Generated', '$useragent'
 				)";
 		
+		mysql_query($sql);
 		mysql_query("COMMIT");
 	}
 	

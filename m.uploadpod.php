@@ -4,7 +4,8 @@
 <style>
 	td {
 		padding: 10px;
-		box-shadow: 10px 10px 5px #888888;
+		box-shadow: 10px 10px 5px #444444;
+		color: black;
 		border-radius: 25px;
 	}
 	

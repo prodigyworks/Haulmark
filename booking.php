@@ -30,7 +30,7 @@
 	<script src='js/jquery.ui.timepicker.js'></script>
 	<link rel='STYLESHEET' type='text/css' href='./codebase/dhtmlxscheduler_glossy.css'>
 	<link href="bookingform.css" rel="stylesheet" type="text/css" />
-	<script src='bookingscriptlibrary-20161123.js' type="text/javascript" charset="utf-8"></script>
+	<script src='bookingscriptlibrary-20161223.js' type="text/javascript" charset="utf-8"></script>
 	
 	<style type="text/css" media="screen">
 		div[aria-labelledby=ui-dialog-title-keydialog] {
@@ -157,42 +157,11 @@
 				);            
 		}
 		
-		function showMap(id) {
-			callAjax(
-					"finddata.php", 
-					{ 
-						sql: "SELECT B.id, A.fromplace, A.toplace, B.place FROM <?php echo $_SESSION['DB_PREFIX'];?>booking A " +
-							 "LEFT OUTER JOIN <?php echo $_SESSION['DB_PREFIX'];?>bookingleg B " + 
-							 "ON B.bookingid = A.id " +
-							 "WHERE A.id = " + id + " " +
-							 "ORDER BY B.id"
-					},
-					function(data) {
-						if (data.length > 0) {
-							var waypoints = [];
-							
-							for (var i = 0; i < data.length - 1; i++) {
-								var node = data[i];
-								
-								if (node.place != null && node.place != "") {
-									waypoints.push({
-											stopover: true,
-											location: node.place
-										});
-								}
-							}
-							
-							initializeMap2(node.fromplace, data[data.length - 1].place, waypoints, 0);
-							  
-							$("#mapDialog").dialog("open");
-						}
-					
-					}
-				);
-		
-		}
-
 	    function initializeMap(start, end, waypoints, startIndex, ingoreLast) {
+			if (typeof(google) == "undefined") {
+			    return;
+		    }
+		    
 	    	if (map == null) {
 			    directionsService = new google.maps.DirectionsService();
 			    directionsDisplay = new google.maps.DirectionsRenderer(); 
@@ -470,12 +439,15 @@
 							modal: true,
 							dialogClass: "kev",
 							autoOpen: false,
-							width: 1050,
+							width: "auto",
 							height: 600,
 							opacity: 0.4,
 							overlay: { opacity: 0.3, background: "white" },
 							title: "Booking",
 							buttons: {
+<?php
+	if (isUserInRole("ADMIN")) {
+?>						
 								"Copy": function() {
 									$("#copydate").val("<?php echo date("d/m/Y"); ?>");
 									$("#copytime").val("<?php echo date("H:m"); ?>");
@@ -483,6 +455,9 @@
 									$("#copyordernumber").val("");
 									$("#copyDialog").dialog("open");
 								},
+<?php
+	}
+?>						
 								"Map": function() {
 									showMap($("#bookingid").val());
 								},
@@ -493,7 +468,15 @@
 									if (! verifyStandardForm("#bookinginnerform")) {
 										return;
 									}
-
+									if ($("#agencyvehicleregistration").val() != "") {
+										var re = /[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9][ ]*[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9]/;
+										
+									    if (re.test($("#agencyvehicleregistration").val()) == false) {
+									    	pwAlert("Invalid format for vehicle registration");
+									    	return;
+									    }
+									}
+									
 									if (! validateForm($("#bookingid").val())) {
 										return;
 									}
@@ -522,7 +505,12 @@
 									}
 								},
 								"Remove": function() {
-									askremoval();
+									if ($("#statusid").val() > 7) {
+										pwAlert("Cannot remove bookings that are invoiced.");
+										
+									} else {
+										askremoval();
+									}
 								},
 								Cancel: function() {
 									$("#bookingdialog").dialog("close");
@@ -650,7 +638,7 @@
 		}
 
 		function updateBooking() {
-			var legs = new Array();
+			var legs = [];
 			var pointIndex = 0;
 			
 			$(".pointcontainer").each(
@@ -662,12 +650,12 @@
 								arrivaldate: $(this).find(".arrivaldate").val(),
 								arrivaltime: $(this).find(".arrivaltime").val(),
 								reference: $(this).find(".reference").val(),
+								visittype: $(this).find(".visittype").val(),
 								phone: $(this).find(".phone").val()
 							};
 					}
 				);
 
-			
 			callAjax(
 					"updatebooking.php", 
 					{ 
@@ -699,13 +687,16 @@
 						weight: $("#weight").val(),
 						rate: $("#rate").val(),
 						charge: $("#charge").val(),
+						startvisittype: $("#startvisittype").val(),
+						endvisittype: $("#endvisittype").val(),
 						notes: tinyMCE.get("notes").getContent(),
 						startdatetime: $("#startdatetime").val(),
 						startdatetime_time: $("#startdatetime_time").val(),
 						fromplace: $("#fromplace").val(),
 						enddatetime: $("#enddatetime").val(),
 						enddatetime_time: $("#enddatetime_time").val(),
-						toplace: $("#toplace").val()
+						toplace: $("#toplace").val(),
+						fixedprice: $("#fixedprice").attr("checked") ? 1 : 0
 					},
 					function(data) {
 						scheduler.clearAll();
@@ -903,9 +894,11 @@
 			
 			scheduler.attachEvent("onViewChange", function (m, d) {
 				if (timemode == "D") {
-					if (d.getFullYear() == <?php echo date("Y"); ?> && 
-					   (d.getMonth() + 1) == <?php echo date("m"); ?> && 
-						d.getDate() == <?php echo date("d"); ?>) {
+					var today = new Date();
+					
+					if (d.getFullYear() == today.getFullYear() && 
+					    d.getMonth() == today.getMonth() && 
+						d.getDate() == today.getDate()) {
 	
 						$(".nowpointer").show();
 						
@@ -1011,6 +1004,7 @@
 		}
 
 		function openBooking(parentnode) {
+//			var x = businessObjectToJSon("BookingUIClass", "load", {id: parentnode});
 			callAjax(
 					"finddata.php", 
 					{ 
@@ -1076,8 +1070,10 @@
 							$("#loadtypeid").val(node.loadtypeid);
 							$("#ordernumber").val(node.ordernumber);
 							$("#ordernumber2").val(node.ordernumber2);
+							$("#startvisittype").val(node.startvisittype);
+							$("#endvisittype").val(node.endvisittype);
 							
-							if (node.fax != "") {
+							if (node.fax != null && node.fax != "") {
 								$("#driverphonenumber").text(" (" + node.fax + ")");
 								
 							} else {
@@ -1098,6 +1094,34 @@
 							$(".pointcontainer").remove();
 							
 							counter = 1;
+							
+							if (node.startvisittype == "B" || node.startvisittype == "C") {
+								$("#img_collectfrom").attr("src", "images/booking_pointcollect_red.png");
+								
+							} else {
+								$("#img_collectfrom").attr("src", "images/booking_pointcollect.png");
+							}
+							
+							if (node.startvisittype == "B" || node.startvisittype == "D") {
+								$("#img_deliveryfrom").attr("src", "images/booking_pointdelivery_red.png");
+
+							} else {
+								$("#img_deliveryfrom").attr("src", "images/booking_pointdelivery.png");
+							}
+							
+							if (node.endvisittype == "B" || node.endvisittype == "C") {
+								$("#img_collectto").attr("src", "images/booking_pointcollect_red.png");
+								
+							} else {
+								$("#img_collectto").attr("src", "images/booking_pointcollect.png");
+							}
+							
+							if (node.endvisittype == "B" || node.endvisittype == "D") {
+								$("#img_deliveryto").attr("src", "images/booking_pointdelivery_red.png");
+
+							} else {
+								$("#img_deliveryto").attr("src", "images/booking_pointdelivery.png");
+							}
 
 							loadLegs(parentnode);
 
@@ -1137,6 +1161,13 @@
 							
 							fetchOverHeadRates();
 
+							$("#startdatetime").val(node.startdatetime.substring(0, 10));
+							$("#startdatetime_time").val(node.startdatetime.substring(11, 16));
+							$("#fromplace").val(node.fromplace);
+							$("#enddatetime").val(node.enddatetime.substring(0, 10));
+							$("#enddatetime_time").val(node.enddatetime.substring(11, 16));
+							$("#toplace").val(node.toplace);
+
 							$("#agencydriver").val(node.agencydriver);
 							$("#miles").val(node.miles);
 							$("#duration").val(node.duration);
@@ -1144,13 +1175,6 @@
 							$("#weight").val(node.weight);
 							$("#rate").val(node.rate);
 							$("#charge").val(node.charge);
-
-							$("#startdatetime").val(node.startdatetime.substring(0, 10));
-							$("#startdatetime_time").val(node.startdatetime.substring(11, 16));
-							$("#fromplace").val(node.fromplace);
-							$("#enddatetime").val(node.enddatetime.substring(0, 10));
-							$("#enddatetime_time").val(node.enddatetime.substring(11, 16));
-							$("#toplace").val(node.toplace);
 
 							$("#fixedprice").attr("checked", node.fixedprice == 1);
 

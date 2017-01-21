@@ -16,11 +16,11 @@
 	
 	function testInsertBookingLeg() {
 		$bookingLegClass = new BookingLegClass();
-		$bookingLegClass->bookingid = 2;
-		$bookingLegClass->status = "Y";
-		$bookingLegClass->arrivaltime = date("Y-m-d");
+		$bookingLegClass->setBookingid(2);
+		$bookingLegClass->setStatus("Y");
+		$bookingLegClass->setArrivaltime(date("Y-m-d"));
 		$bookingLegClass->insert();
 		
-		assert($bookingLegClass->id != null);
+		assert($bookingLegClass->getId() != null);
 	}
 ?>

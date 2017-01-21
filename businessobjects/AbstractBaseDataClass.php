@@ -6,7 +6,7 @@
 		 * @param $value String value.
 		 */
 		public function propertyStringValue($value) {
-			if ($value == null) {
+			if (is_null($value)) {
 				return "null";
 			}
 			
@@ -18,7 +18,7 @@
 		 * @param $value Integer value.
 		 */
 		public function propertyIntValue($value) {
-			if ($value == null) {
+			if (is_null($value)) {
 				return "null";
 			}
 			
@@ -39,6 +39,10 @@
 		 */
 		public function propertyDateValue($value) {
 			return $this->propertyStringValue($value);
+		}
+		
+		public function dateToDMY($date) {
+			return date("d/m/Y", strtotime($date));
 		}
 
 		/**

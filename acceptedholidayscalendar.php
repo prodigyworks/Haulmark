@@ -54,10 +54,10 @@
 									"DATE_FORMAT(A.enddate, '%c') AS endmonth, " .
 									"DATE_FORMAT(A.enddate, '%e') AS endday, " .
 									"DATE_FORMAT(A.enddate, '%H:%m:%S') AS endtime, " .
-									"A.acceptedby, B.name " .
+									"A.acceptedby, B.fullname " .
 									"FROM {$_SESSION['DB_PREFIX']}holiday A " .
-									"INNER JOIN {$_SESSION['DB_PREFIX']}driver B " .
-									"ON B.id = A.memberid " .
+									"INNER JOIN {$_SESSION['DB_PREFIX']}members B " .
+									"ON B.member_id = A.memberid " .
 									"WHERE A.acceptedby IS NOT NULL " .
 									"ORDER BY A.startdate"
 								)
@@ -82,11 +82,11 @@
 							echo "id:" . $member['id'] . ",\n";
 							
 							if ($member['acceptedby'] == null) {
-								echo "title: '" . $member['name'] . " (Pending)',\n";
+								echo "title: '" . $member['fullname'] . " (Pending)',\n";
 								echo "className: 'eventColor1',\n";
 
 							} else {
-								echo "title: '" . $member['name'] . " (Accepted)',\n";
+								echo "title: '" . $member['fullname'] . " (Accepted)',\n";
 								echo "className: 'eventColor2',\n";
 							}
 							

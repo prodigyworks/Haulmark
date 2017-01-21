@@ -25,7 +25,7 @@ if( isset($_SESSION['ERRMSG_ARR']) && is_array($_SESSION['ERRMSG_ARR']) && count
 	      <td>Account Type </td>
 	      <td>
 	      	<SELECT id="accounttype" name="accounttype" onchange="accounttype_onchange()">
-	      		<OPTION value="ALLEGRO">Employee</OPTION>
+	      		<OPTION value="<?php echo getSiteConfigData()->companyrole?>">Employee</OPTION>
 	      		<OPTION value="CUSTOMER">Customer</OPTION>
 	      		<OPTION value="DRIVER">Driver</OPTION>
 	      		<OPTION value="MAINTENANCE">Maintenance</OPTION>

@@ -51,11 +51,6 @@
 				'script' 	  => 'showMap'
 			),
 			array(
-				'title'		  => 'Route',
-				'imageurl'	  => 'images/map.png',
-				'application' => 'managebookinglegs.php'
-			),
-			array(
 				'id'		  => 'deliverynotebutton',
 				'title'		  => 'Delivery Note',
 				'imageurl'	  => 'images/print.png',

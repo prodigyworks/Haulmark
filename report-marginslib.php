@@ -21,12 +21,13 @@
 			$this->addCols(
 					28, 
 					array( 
-							"Booking Number"	=> 24,
-				            "Date"  			=> 20,
-				            "Company Name"  	=> 44,
-				            "Journey"  			=> 77,
-				            "Pallets"  			=> 20,
-				            "Weight (Kg)"  		=> 20,
+							"Booking Number"	=> 19,
+							"Invoice"	=> 17,
+				            "Date"  			=> 16,
+				            "Company Name"  	=> 46,
+				            "Journey"  			=> 74,
+				            "Pallets"  			=> 15,
+				            "Weight (Kg)"  		=> 18,
 				            "Revenue"  			=> 18,
 							"Cost"				=> 18,
 							"Profit"			=> 18,
@@ -37,6 +38,7 @@
 			$this->addLineFormat( 
 					array( 
 							"Booking Number"	=> "L",
+							"Invoice"	=> "L",
 				            "Date"  			=> "L",
 				            "Company Name"  	=> "L",
 				            "Journey"  			=> "L",
@@ -78,13 +80,15 @@
 				}
 				
 				$sql = "SELECT A.*, DATE_FORMAT(A.startdatetime, '%d/%m/%Y') AS startdatetime,
-						B.name AS customername
+						B.name AS customername, C.invoiceid
 						FROM  {$_SESSION['DB_PREFIX']}booking A
 					    INNER JOIN  {$_SESSION['DB_PREFIX']}customer B
 					    ON B.id = A.customerid
+					    LEFT OUTER JOIN  {$_SESSION['DB_PREFIX']}invoiceitem C
+					    ON C.productid = A.id
 					    WHERE DATE(A.startdatetime) >= '$dateFrom'
 					    AND DATE(A.startdatetime) <= '$dateTo'
-					    AND A.statusid = 7
+					    AND A.statusid = 8
 					    $and
 					    ORDER BY B.name, A.id DESC";
 				$result = mysql_query($sql);
@@ -112,6 +116,13 @@
 						if ($this->GetY() > 175) {
 							$this->AddPage();
 						}
+
+						if ($member['invoiceid'] == null || $member['invoiceid'] == 0) {
+							$invoice = "";
+
+						} else {
+							$invoice = getInvoiceReference($member['invoiceid']);
+						}
 						
 						$this->setY(
 								$this->GetY() +
@@ -119,6 +130,7 @@
 										$this->getY(), 
 										array( 
 												"Booking Number"	=> getBookingReference($member['id']),
+												"Invoice"	=> $invoice,
 									            "Date"  			=> $member['startdatetime'],
 									            "Company Name"  	=> $member['customername'],
 									            "Journey"  			=> $member['legsummary'],

@@ -1,10 +1,13 @@
 <?php 
 	require_once("holidaylib.php"); 
+	require_once("businessobjects/HolidayAdminClass.php");
 	
 	$crud = new HolidayCrud();
 	$crud->allowAdd = false;
 	$crud->allowEdit = false;
 	$crud->subapplications = array();
+	
+	$holidayClass = new HolidayAdminClass();
 	
 	if (! isUserInRole("ADMIN")) {
 		$memberid = getLoggedOnMemberID();
@@ -16,7 +19,8 @@
 			 (
 			 	SELECT SUM(D.daystaken) 
 			 	FROM {$_SESSION['DB_PREFIX']}holiday D 
-			 	WHERE YEAR(D.startdate) = YEAR(A.startdate) 
+				WHERE D.startdate >= '{$holidayClass->getStart()}'
+			  	AND   D.startdate <  '{$holidayClass->getEnd()}'
 			 	AND D.memberid = A.memberid 
 			 	AND D.acceptedby IS NOT NULL
 			 ) AS daysremaining 
@@ -35,7 +39,8 @@
 			 (
 			 	SELECT SUM(D.daystaken) 
 			 	FROM {$_SESSION['DB_PREFIX']}holiday D 
-			 	WHERE YEAR(D.startdate) = YEAR(A.startdate) 
+				WHERE D.startdate >= '{$holidayClass->getStart()}'
+			  	AND   D.startdate <  '{$holidayClass->getEnd()}'
 			 	AND D.memberid = A.memberid 
 			 	AND D.acceptedby IS NOT NULL
 			 ) AS daysremaining 

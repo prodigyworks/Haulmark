@@ -1,6 +1,7 @@
 <?php
 	require_once("crud.php");
 	require_once("datafilter.php");
+	require_once("businessobjects/HolidayAdminClass.php");
 	
 	class HolidayCrud extends Crud {
 		
@@ -258,7 +259,9 @@
 			$this->table = "{$_SESSION['DB_PREFIX']}holiday";
 			$this->dialogwidth = 500;
 			$this->onClickCallback = "checkStatus";
-	
+			
+			$holidayClass = new HolidayAdminClass();
+			
 			if (! isUserInRole("ADMIN")) {
 				$memberid = getLoggedOnMemberID();
 				
@@ -269,7 +272,8 @@
 					 (
 					 	SELECT SUM(D.daystaken) 
 					 	FROM {$_SESSION['DB_PREFIX']}holiday D 
-					 	WHERE YEAR(D.startdate) = YEAR(A.startdate) 
+						WHERE D.startdate >= '{$holidayClass->getStart()}'
+					  	AND   D.startdate <  '{$holidayClass->getEnd()}'
 					 	AND D.memberid = A.memberid 
 					 	AND D.acceptedby IS NOT NULL
 					 ) AS daysremaining 
@@ -286,7 +290,8 @@
 					 (
 					 	SELECT SUM(D.daystaken) 
 					 	FROM {$_SESSION['DB_PREFIX']}holiday D 
-					 	WHERE YEAR(D.startdate) = YEAR(A.startdate) 
+						WHERE D.startdate >= '{$holidayClass->getStart()}'
+					  	AND   D.startdate <  '{$holidayClass->getEnd()}'
 					 	AND D.memberid = A.memberid 
 					 	AND D.acceptedby IS NOT NULL
 					 ) AS daysremaining 
@@ -333,7 +338,7 @@
 						'table'		 => 'members',
 						'required'	 => true,
 						'table_id'	 => 'member_id',
-						'where'		 => "WHERE member_id IN (SELECT memberid FROM {$_SESSION['DB_PREFIX']}userroles WHERE roleid IN ('ALLEGRO', 'DRIVER'))",
+						'where'		 => "WHERE member_id IN (SELECT memberid FROM {$_SESSION['DB_PREFIX']}userroles WHERE roleid IN ('" . getSiteConfigData()->companyrole . "', 'DRIVER'))",
 						'alias'		 => 'fullname',
 						'table_name' => 'fullname'
 					),

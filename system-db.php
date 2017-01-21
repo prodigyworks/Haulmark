@@ -8,9 +8,14 @@ class SiteConfigClass {
 	public $vatrate;
 	public $runscheduledays;
 	public $banksortcode;
+	public $holidaycutoffday;
+	public $holidaycutoffmonth;
+	public $companyrole;
+	public $companyname;
 	public $averagewaittime;
 	public $basepostcode;
 	public $bankaccountnumber;
+	public $telematicsurl;
 	public $bank;
 	public $payereference;
 	public $rhamembershipnumber;
@@ -21,8 +26,10 @@ class SiteConfigClass {
 	public $ssl;
 	public $vatregnumber;
 	public $timezoneoffset;
+	public $logoimageid;
 	public $website;
 	public $trafficemail;
+	public $adminemail;
 	public $accountsemail;
 	public $fax;
 	public $trafficofficetelephone2;
@@ -32,6 +39,8 @@ class SiteConfigClass {
 	public $defaultprofitmargin;
 	public $defaultwagesmargin;
 	public $bookingprefix;
+	public $poprefix;
+	public $invoiceprefix;
 	public $defaultworktype;
 	public $webbookingconfirmation;
 	public $termsandconditions;
@@ -98,6 +107,8 @@ function start_db() {
 					$data->defaultprofitmargin = $member['defaultprofitmargin'];
 					$data->defaultwagesmargin = $member['defaultwagesmargin'];
 					$data->bookingprefix = $member['bookingprefix'];
+					$data->poprefix = $member['poprefix'];
+					$data->invoiceprefix = $member['invoiceprefix'];
 					$data->defaultworktype = $member['defaultworktype'];
 					$data->termsandconditions = $member['termsandconditions'];
 					$data->deliveryconfirmationmessage = $member['deliveryconfirmationmessage'];
@@ -107,9 +118,11 @@ function start_db() {
 					$data->fax = $member['fax'];
 					$data->accountsemail = $member['accountsemail'];
 					$data->trafficemail = $member['trafficemail'];
+					$data->adminemail = $member['adminemail'];
 					$data->website = $member['website'];
 					$data->vatregnumber = $member['vatregnumber'];
 					$data->timezoneoffset = $member['timezoneoffset'];
+					$data->logoimageid = $member['logoimageid'];
 					$data->vatprefix = $member['vatprefix'];
 					$data->ssl = $member['sslencryption'];
 					$data->companynumber = $member['companynumber'];
@@ -119,7 +132,12 @@ function start_db() {
 					$data->payereference = $member['payereference'];
 					$data->bank = $member['bank'];
 					$data->bankaccountnumber = $member['bankaccountnumber'];
+					$data->telematicsurl = $member['telematicsurl'];
 					$data->banksortcode = $member['banksortcode'];
+					$data->holidaycutoffday = $member['holidaycutoffday'];
+					$data->holidaycutoffmonth = $member['holidaycutoffmonth'];
+					$data->companyrole = $member['companyrole'];
+					$data->companyname = $member['companyname'];
 					$data->averagewaittime = $member['averagewaittime'];
 					$data->basepostcode = $member['basepostcode'];
 					
@@ -244,70 +262,6 @@ function dateStampString($oldnotes, $newnotes, $prefix = "") {
 				$newnotes
 			);
 }
-	
-	
-function smtpmailer2($to, $from, $from_name, $subject, $body, $attachments = array()) { 
-	global $error;
-	
-	
-	
-	
-	
-	
-	
-	
-	
-//define the receiver of the email 
-//define the subject of the email 
-//create a boundary string. It must be unique 
-//so we use the MD5 algorithm to generate a random hash 
-$random_hash = md5(date('r', time())); 
-//define the headers we want passed. Note that they are separated with \r\n 
-$headers = "From: $from_name <$from>\r\nReply-To: $from"; 
-//add boundary string and mime type specification 
-$headers .= "\r\nContent-Type: multipart/mixed; boundary=\"PHP-mixed-".$random_hash."\""; 
-//read the atachment file contents into a string,
-//encode it with MIME base64,
-//and split it into smaller chunks
-//define the body of the message. 
-ob_start(); //Turn on output buffering 
-?> 
---PHP-mixed-<?php echo $random_hash; ?>  
-Content-Type: multipart/alternative; boundary="PHP-alt-<?php echo $random_hash; ?>" 
-
---PHP-alt-<?php echo $random_hash; ?>  
-Content-Type: text/html; charset="iso-8859-1" 
-Content-Transfer-Encoding: 7bit
-
-<?php echo $body; ?>
-
---PHP-alt-<?php echo $random_hash; ?>-- 
-
---PHP-mixed-<?php echo $random_hash; ?>  
-<?php
-		for($x=0;$x<count($attachments);$x++){
-			$file = fopen($attachments[$x],"rb");
-			$data = fread($file,filesize($attachments[$x]));
-			fclose($file);
-//$attachment = chunk_split(base64_encode(file_get_contents($attachments[$x]))); 
-?>
-Content-Type: application/octet-stream; name="<?php echo basename($attachments[$x]); ?>"  
-Content-Transfer-Encoding: base64  
-Content-Disposition: attachment;
-
-<?php echo base64_encode($data); ?> 
---PHP-mixed-<?php echo $random_hash; ?>-- 
-<?php
-		}
-?>
-
-<?php 
-//copy current buffer contents into $message variable and delete current output buffer 
-$message = ob_get_clean(); 
-//send the email 
-$mail_sent = @mail( $to, $subject, $message, $headers ); 
-
-}
 
 function smtpmailer($to, $from, $from_name, $subject, $body, $attachments = array()) { 
 	if (DEV_ENV == "true") {
@@ -321,29 +275,13 @@ function smtpmailer($to, $from, $from_name, $subject, $body, $attachments = arra
 	$array = explode(',', $to);
 	
 	try {
-		
 		$mail = new PHPMailer();  // create a new object
 		$mail->AddReplyTo($from, $from_name);
-		$mail->SetFrom("admin@haulageplanner.co.uk", $from_name);
+		$mail->SetFrom(getSiteConfigData()->adminemail, $from_name);
 		$mail->IsHTML(true);
 		$mail->Subject = $subject;
 		$mail->Body = $body;
 		
-		//SMTP Server: smtpcorp.com
-		//SMTP Port: 2525
-		//Username : danie@drdcomputers.net
-		//Password : jeepcj5
-		
-// 		$mail->IsSMTP(); 								// telling the class to use SMTP
-// 		$mail->Host       = "smtpcorp.com"; 			// sets the SMTP server
-// 		$mail->Port       = 2525;                   		// set the SMTP port for the GMAIL server
-// 		$mail->SMTPAuth   = true;                  		// enable SMTP authentication
-// 		$mail->SMTPDebug  = 1;                     		// enables SMTP debug information (for testing)
-// 		// 1 = errors and messages
-// 		// 2 = messages only
-// 		$mail->Username   = "danie@drdcomputers.net"; 			// SMTP account username
-// 		$mail->Password   = "jeepcj5";        			// SMTP account password
-        
 		for ($i = 0; $i < count($attachments); $i++) {
 			$mail->AddAttachment($attachments[$i]);
 		}
@@ -385,10 +323,14 @@ function sendRoleMessage($role, $subject, $message, $attachments = array()) {
 	//Check whether the query was successful or not
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			smtpmailer($member['email'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(), $attachments);
-			
-			$subject = mysql_escape_string($subject);
-			$message = mysql_escape_string($message);
+			smtpmailer(
+					$member['email'], 
+					getSiteConfigData()->adminemail, 
+					getSiteConfigData()->companyname . " (Truck-Net)", 
+					$subject, 
+					getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(), 
+					$attachments
+				);
 			
 			sendMessage($subject, $message, $member['member_id']);
 		}
@@ -402,8 +344,8 @@ function sendRoleMessage($role, $subject, $message, $attachments = array()) {
 
 
 function sendInternalRoleMessage($role, $subject, $message, $attachments = array()) {
-	$from = "admin@haulageplanner.co.uk";
-	$fromName = "Haulage Planner";
+	$from = getSiteConfigData()->adminemail;
+	$fromName = getSiteConfigData()->companyname . " (Truck-Net)";
 	$qry = "SELECT B.email, B.firstname, B.lastname FROM {$_SESSION['DB_PREFIX']}members B " .
 			"WHERE B.member_id = " . getLoggedOnMemberID();
 	$result = mysql_query($qry);
@@ -425,10 +367,14 @@ function sendInternalRoleMessage($role, $subject, $message, $attachments = array
 	//Check whether the query was successful or not
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			smtpmailer($member['email'], $from, $fromName, $subject, getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(), $attachments);
-			
-			$subject = mysql_escape_string($subject);
-			$message = mysql_escape_string($message);
+			smtpmailer(
+					$member['email'], 
+					$from, 
+					$fromName, 
+					$subject, 
+					getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(), 
+					$attachments
+				);
 			
 			sendMessage($subject, $message, $member['member_id']);
 		}
@@ -438,38 +384,6 @@ function sendInternalRoleMessage($role, $subject, $message, $attachments = array
 	}
 	
 	if (!empty($error)) echo $error;
-}
-
-function sendTeamMessage($id, $subject, $message, $footer = "") {
-	$qry = "SELECT C.member_id, C.email, C.firstname " .
-			"FROM {$_SESSION['DB_PREFIX']}members A " .
-			"INNER JOIN {$_SESSION['DB_PREFIX']}members C " .
-			"ON C.teamid = A.teamid " .
-			"INNER JOIN {$_SESSION['DB_PREFIX']}userroles D " .
-			"ON D.memberid = C.member_id " .
-			"AND D.roleid = 'TEAMLEADER' " .
-			"WHERE A.member_id = $id ";
-	$result = mysql_query($qry);
-	
-
-	//Check whether the query was successful or not
-	if($result) {
-		while (($member = mysql_fetch_assoc($result))) {
-			smtpmailer($member['email'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer);
-			
-			$subject = mysql_escape_string($subject);
-			$message = mysql_escape_string($message);
-			
-			sendMessage($subject, $message, $id);
-		}
-	} else {
-		logError($qry . " - " . mysql_error());
-	}
-	
-	if (!empty($error)) echo $error;
-	
-//	sendRoleMessage("ADMIN", $subject, $message);
-//	sendUserMessage($id, $subject, $message, $footer);
 }
 	
 function endsWith( $str, $sub ) {
@@ -481,17 +395,22 @@ function isAuthenticated() {
 }
 
 function sendUserMessage($id, $subject, $message, $footer = "", $attachments = array(), $action = "") {
-	$qry = "SELECT B.email, B.firstname FROM {$_SESSION['DB_PREFIX']}members B " .
-	"WHERE B.member_id = $id ";
+	$qry = "SELECT B.email, B.firstname 
+			FROM {$_SESSION['DB_PREFIX']}members B 
+			WHERE B.member_id = $id ";
 	$result = mysql_query($qry);
 
 	//Check whether the query was successful or not
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			smtpmailer($member['email'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, $attachments);
-				
-			$subject = mysql_escape_string($subject);
-			$message = mysql_escape_string($message);
+			smtpmailer(
+					$member['email'], 
+					getSiteConfigData()->adminemail, 
+					getSiteConfigData()->companyname . " (Truck-Net)", 
+					$subject, 
+					getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, 
+					$attachments
+				);
 				
 			sendMessage($subject, $message, $id, $action);
 		}
@@ -505,17 +424,22 @@ function sendUserMessage($id, $subject, $message, $footer = "", $attachments = a
 
 
 function sendDriverMessage($driverid, $subject, $message, $footer = "", $attachments = array(), $action = "") {
-	$qry = "SELECT B.email, B.name FROM {$_SESSION['DB_PREFIX']}driver B " .
-		   "WHERE B.id = $driverid ";
+	$qry = "SELECT B.email, B.name 
+			FROM {$_SESSION['DB_PREFIX']}driver B 
+		    WHERE B.id = $driverid ";
 	$result = mysql_query($qry);
 
 	//Check whether the query was successful or not
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			smtpmailer($member['email'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, $attachments);
-				
-			$subject = mysql_escape_string($subject);
-			$message = mysql_escape_string($message);
+			smtpmailer(
+					$member['email'], 
+					getSiteConfigData()->adminemail, 
+					getSiteConfigData()->companyname . " (Truck-Net)", 
+					$subject, 
+					getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, 
+					$attachments
+				);
 				
 			sendMessage($subject, $message, $driverid, $action);
 		}
@@ -537,11 +461,15 @@ function sendCustomerMessage($id, $subject, $message, $footer = "", $attachments
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
 			if ($member['email'] != "") {
-				smtpmailer($member['email'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['contact1'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, $attachments);
+				smtpmailer(
+						$member['email'], 
+						getSiteConfigData()->adminemail, 
+						getSiteConfigData()->companyname . " (Truck-Net)", 
+						$subject, 
+						getEmailHeader() . "<h4>Dear " . $member['contact1'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, 
+						$attachments
+					);
 			}
-				
-			$subject = mysql_escape_string($subject);
-			$message = mysql_escape_string($message);
 				
 			sendMessage($subject, $message, $id, $action);
 		}
@@ -563,11 +491,15 @@ function sendSupplierMessage($id, $subject, $message, $footer = "", $attachments
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
 			if ($member['email11'] != "") {
-				smtpmailer($member['email1'], 'admin@haulageplanner.co.uk', 'Haulage Planner', $subject, getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, $attachments);
+				smtpmailer(
+						$member['email1'], 
+						getSiteConfigData()->adminemail, 
+						getSiteConfigData()->companyname . " (Truck-Net)", 
+						$subject, 
+						getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, 
+						$attachments
+					);
 			}
-				
-			$subject = mysql_escape_string($subject);
-			$message = mysql_escape_string($message);
 				
 			sendMessage($subject, $message, $id, $action);
 		}
@@ -579,38 +511,39 @@ function sendSupplierMessage($id, $subject, $message, $footer = "", $attachments
 	if (!empty($error)) echo $error;
 }
 
-function sendMessage($subject, $message, $id, $action = "") {
-	$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}messages " .
-			"(from_member_id, to_member_id, subject, message, createddate, status, action, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) " .
-			"VALUES " .
-			"(1, ". $id . ", '$subject', '$message', NOW(), 'N', '$action', NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ") ";
+function sendMessage($subject, $message, $id, $action = "", $fromid = 1) {
+	$subject = mysql_escape_string($subject);
+	$message = mysql_escape_string($message);
+	$memberid = getLoggedOnMemberID();
+	
+	$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}messages 
+			(
+				from_member_id, to_member_id, 
+				subject, message, 
+				createddate, status, action, 
+				metacreateddate, metacreateduserid, 
+				metamodifieddate, metamodifieduserid
+			) 
+			VALUES 
+			(
+				$fromid,  $id, 
+				'$subject', '$message', 
+				NOW(), 'N', '$action', 
+				NOW(), $memberid, 
+				NOW(), $memberid
+			)";
 	
 	if (! mysql_query($qry)) {
 		logError($qry . " - " . mysql_error());
 	}
 }
 
-function addAuditLog($table, $type, $id) {
-	$memberid = getLoggedOnMemberID();
-	$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}caseauditlogs (" .
-			"tablename, pkvalue, type, auditmemberid, auditdate, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid" .
-			") " .
-			"VALUES " .
-			"(" .
-			"'$table', $id, '$type', $memberid, NOW(), NOW(), $memberid, NOW(), $memberid" .
-			")";
-	$result = mysql_query($qry);
-
-	if (! $result) {
-		logError($qry . " - " . mysql_error());
-	}			
-}
-
-function sendInternalUserMessage($id, $subject, $message, $footer = "", $attachments = array(), $action = "") {
-	$from = "admin@haulageplanner.co.uk";
-	$fromName = "Haulage Planner";
-	$qry = "SELECT B.email, B.firstname, B.lastname FROM {$_SESSION['DB_PREFIX']}members B " .
-			"WHERE B.member_id = " . getLoggedOnMemberID();
+function sendInternalUserMessage($id, $subject, $message, $footer = "", $attachments = array(), $action = "", $fromid = 1) {
+	$from = getSiteConfigData()->adminemail;
+	$fromName = getSiteConfigData()->companyname . " (Truck-Net)";
+	$qry = "SELECT B.email, B.firstname, B.lastname 
+			FROM {$_SESSION['DB_PREFIX']}members B 
+			WHERE B.member_id = " . getLoggedOnMemberID();
 	$result = mysql_query($qry);
 
 	//Check whether the query was successful or not
@@ -621,19 +554,24 @@ function sendInternalUserMessage($id, $subject, $message, $footer = "", $attachm
 		}
 	}
 
-	$qry = "SELECT B.email, B.firstname FROM {$_SESSION['DB_PREFIX']}members B " .
-			"WHERE B.member_id = $id ";
+	$qry = "SELECT B.email, B.firstname 
+			FROM {$_SESSION['DB_PREFIX']}members B 
+			WHERE B.member_id = $id ";
 	$result = mysql_query($qry);
 
 	//Check whether the query was successful or not
 	if($result) {
 		while (($member = mysql_fetch_assoc($result))) {
-			smtpmailer($member['email'], $from, $fromName, $subject, getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, $attachments);
+			smtpmailer(
+					$member['email'], 
+					$from, 
+					$fromName, 
+					$subject, 
+					getEmailHeader() . "<h4>Dear " . $member['firstname'] . ",</h4><p>" . $message . "</p>" . getEmailFooter(). $footer, 
+					$attachments
+				);
 			
-			$subject = mysql_escape_string($subject);
-			$message = mysql_escape_string($message);
-			
-			sendMessage($subject, $message, $id, $action);
+			sendMessage($subject, $message, $id, $action, $fromid);
 		}
 		
 	} else {
@@ -667,8 +605,6 @@ function createCombo($id, $value, $name, $table, $where = " ", $required = true,
 	
 	echo "</select>";
 }
-	
-
 
 function createComboOptions($value, $name, $table, $where = " ", $blank = true, $orderby) {
 	if ($blank) {
@@ -679,10 +615,10 @@ function createComboOptions($value, $name, $table, $where = " ", $blank = true, 
 		$orderby = $name;
 	}
 		
-	$qry = "SELECT A.* " .
-			"FROM $table A " .
-			$where . " " . 
-			"ORDER BY $orderby";
+	$qry = "SELECT A.* 
+			FROM $table A 
+			$where  
+			ORDER BY $orderby";
 	$result = mysql_query($qry);
 	
 	if ($result) {
@@ -712,10 +648,11 @@ function isUserAccessPermitted($action, $description = "") {
 	$pageid = $_SESSION['pageid'];
 	$found = 0;
 	$actionid = 0;
-	$qry = "SELECT A.id " .
-			"FROM {$_SESSION['DB_PREFIX']}applicationactions A  " .
-			"WHERE A.pageid = $pageid " .
-			"AND A.code = '$action'";
+	$memberid = getLoggedOnMemberID();
+	$qry = "SELECT A.id 
+			FROM {$_SESSION['DB_PREFIX']}applicationactions A 
+			WHERE A.pageid = $pageid 
+			AND A.code = '$action'";
 	$result = mysql_query($qry);
 	
 	if ($result) {
@@ -729,7 +666,18 @@ function isUserAccessPermitted($action, $description = "") {
 	}
 	
 	if ($found == 0) {
-		$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}applicationactions (pageid, code, description, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) VALUES($pageid, '$action', '$desc', NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")";
+		$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}applicationactions 
+				(
+					pageid, code, description, 
+					metacreateddate, metacreateduserid, 
+					metamodifieddate, metamodifieduserid
+				) 
+				VALUES
+				(
+					$pageid, '$action', '$desc', 
+					NOW(), $memberid, 
+					NOW(), $memberid
+				)";
 		$result = mysql_query($qry);
 		
 		if (! $result) {
@@ -738,7 +686,18 @@ function isUserAccessPermitted($action, $description = "") {
 		
 		$actionid = mysql_insert_id();
 		
-		$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}applicationactionroles (actionid, roleid, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid) VALUES($actionid, 'PUBLIC', NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . ")";
+		$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}applicationactionroles 
+				(
+					actionid, roleid, 
+					metacreateddate, metacreateduserid, 
+					metamodifieddate, metamodifieduserid
+				) 
+				VALUES
+				(
+					$actionid, 'PUBLIC', 
+					NOW(), $memberid, 
+					NOW(), $memberid
+				)";
 		$result = mysql_query($qry);
 		
 		if (! $result) {
@@ -747,10 +706,10 @@ function isUserAccessPermitted($action, $description = "") {
 	}
 	
 	$found = 0;
-	$qry = "SELECT A.* " .
-			"FROM {$_SESSION['DB_PREFIX']}applicationactionroles A  " .
-			"WHERE A.actionid = $actionid " .
-			"AND A.roleid IN (" . ArrayToInClause($_SESSION['ROLES']) . ")";
+	$qry = "SELECT A.* 
+			FROM {$_SESSION['DB_PREFIX']}applicationactionroles A 
+			WHERE A.actionid = $actionid 
+			AND A.roleid IN (" . ArrayToInClause($_SESSION['ROLES']) . ")";
 	$result = mysql_query($qry);
 
 	if ($result) {
@@ -816,7 +775,9 @@ function redirectWithoutRole($role, $location) {
 }
 
 function getEmailHeader() {
-	return "<img src='" . getSiteConfigData()->domainurl . "/images/logoreport.png' />";
+	$imageid = getSiteConfigData()->logoimageid;
+	
+	return "<img src='" . getSiteConfigData()->domainurl . "/system-imageviewer.php?id=$imageid' />";
 }
 
 function getEmailFooter() {
@@ -904,6 +865,10 @@ function networkdays($s, $e, $holidays = array()) {
     return $nwd;
 }
 
+function SQLError($description) {
+	logError("$description - " . mysql_error());
+}
+
 function logError($description, $kill = true) {
 	if ($kill) {
 		mysql_query("ROLLBACK");
@@ -942,8 +907,9 @@ function convertStringToDateTime($str) {
 
 function cms() {
 	$pageid = $_SESSION['pageid'];
-	$qry = "SELECT content FROM {$_SESSION['DB_PREFIX']}pages " .
-			"WHERE pageid = $pageid";
+	$qry = "SELECT content 
+			FROM {$_SESSION['DB_PREFIX']}pages 
+			WHERE pageid = $pageid";
 	$result = mysql_query($qry);
 
 	if ($result) {
@@ -977,17 +943,17 @@ function createUserCombo($id, $where = " ", $required = true, $isarray = false, 
 	echo "<option value='0'></option>";
 		
 	if (trim($where) != "") {
-		$qry = "SELECT A.member_id, A.firstname, A.lastname " .
-				"FROM {$_SESSION['DB_PREFIX']}members A " .
-				$where . " " .
-				"AND A.status = 'Y' " . 
-				"ORDER BY A.firstname, A.lastname";
+		$qry = "SELECT A.member_id, A.firstname, A.lastname 
+				FROM {$_SESSION['DB_PREFIX']}members A 
+				$where
+				AND A.status = 'Y'  
+				ORDER BY A.firstname, A.lastname";
 		
 	} else {
-		$qry = "SELECT A.member_id, A.firstname, A.lastname " .
-				"FROM {$_SESSION['DB_PREFIX']}members A " .
-				"WHERE A.status = 'Y' " . 
-				"ORDER BY A.firstname, A.lastname";
+		$qry = "SELECT A.member_id, A.firstname, A.lastname 
+				FROM {$_SESSION['DB_PREFIX']}members A 
+				WHERE A.status = 'Y' 
+				ORDER BY A.firstname, A.lastname";
 	}
 	
 	$result = mysql_query($qry );
@@ -1138,7 +1104,11 @@ function login($login, $password, $redirect = true) {
 			$_SESSION['SESS_SUPPLIER_IMAGEID'] = $member['supplierimageid'];
 			$_SESSION['SESS_IMAGE_ID'] = $member['imageid'];
 			
-			$qry = "SELECT * FROM {$_SESSION['DB_PREFIX']}userroles WHERE memberid = " . $_SESSION['SESS_MEMBER_ID'] . "";
+			$memberid = $_SESSION['SESS_MEMBER_ID'];
+			
+			$qry = "SELECT * 
+					FROM {$_SESSION['DB_PREFIX']}userroles 
+					WHERE memberid = $memberid";
 			$result=mysql_query($qry);
 			$index = 0;
 			$status = null;
@@ -1158,14 +1128,18 @@ function login($login, $password, $redirect = true) {
 			
 			$_SESSION['ROLES'] = $arr;
 			
-			$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}loginaudit " .
-					"(" .
-					"memberid, timeon, metacreateddate, metacreateduserid, metamodifieddate, metamodifieduserid" .
-					") " .
-					"VALUES " .
-					"(" .
-					$_SESSION['SESS_MEMBER_ID'] . ", NOW(), NOW(), " . getLoggedOnMemberID() . ", NOW(), " .  getLoggedOnMemberID() . "" .
-					")";
+			$qry = "INSERT INTO {$_SESSION['DB_PREFIX']}loginaudit 
+					(
+						memberid, timeon, 
+						metacreateddate, metacreateduserid, 
+						metamodifieddate, metamodifieduserid
+					) 
+					VALUES 
+					(
+						$memberid, NOW(), 
+						NOW(), $memberid, 
+						NOW(), $memberid
+					)";
 			$auditresult = mysql_query($qry);
 			$auditid = mysql_insert_id();
 			
@@ -1175,10 +1149,11 @@ function login($login, $password, $redirect = true) {
 				logError("$qry - " . mysql_error());
 			}
 			
-			$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET " .
-					"loginauditid = $auditid, metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-					"WHERE member_id = " .
-					$_SESSION['SESS_MEMBER_ID'];
+			$qry = "UPDATE {$_SESSION['DB_PREFIX']}members SET 
+					loginauditid = $auditid, 
+					metamodifieddate = NOW(), 
+					metamodifieduserid = $memberid
+					WHERE member_id = $memberid";
 			$auditresult = mysql_query($qry);
 			
 			if (! $auditresult) {
@@ -1186,9 +1161,9 @@ function login($login, $password, $redirect = true) {
 			}
 	
 			//Create query
-			$qry = "SELECT lastschedulerun " .
-				   "FROM {$_SESSION['DB_PREFIX']}siteconfig A " .
-				   "WHERE (lastschedulerun <= (DATE_ADD(CURDATE(), INTERVAL -" . getSiteConfigData()->runscheduledays . " DAY)) OR lastschedulerun IS NULL) ";
+			$qry = "SELECT lastschedulerun 
+				    FROM {$_SESSION['DB_PREFIX']}siteconfig A 
+				    WHERE (lastschedulerun <= (DATE_ADD(CURDATE(), INTERVAL -" . getSiteConfigData()->runscheduledays . " DAY)) OR lastschedulerun IS NULL) ";
 			$result = mysql_query($qry);
 			
 			//Check whether the query was successful or not
@@ -1223,12 +1198,16 @@ function login($login, $password, $redirect = true) {
 }
 
 function logout() {
+	$memberid = getLoggedOnMemberID();
+	$auditid = $_SESSION['SESS_LOGIN_AUDIT'];
 	start_db();
 									
 	if (isAuthenticated()) {
-		$qry = "UPDATE {$_SESSION['DB_PREFIX']}loginaudit SET " .
-				"timeoff = NOW(), metamodifieddate = NOW(), metamodifieduserid = " . getLoggedOnMemberID() . " " .
-				"WHERE id = " . $_SESSION['SESS_LOGIN_AUDIT'] . "";
+		$qry = "UPDATE {$_SESSION['DB_PREFIX']}loginaudit SET 
+				timeoff = NOW(), 
+				metamodifieddate = NOW(), 
+				metamodifieduserid = $memberid
+				WHERE id = $auditid";
 		$result = mysql_query($qry);
 	}
 	
@@ -1265,6 +1244,14 @@ function isMobileUserAgent() {
 
 function getBookingReference($id) {
 	return getSiteConfigData()->bookingprefix . sprintf("%06d", $id);
+}
+
+function getInvoiceReference($id) {
+	return getSiteConfigData()->invoiceprefix . sprintf("%06d", $id);
+}
+
+function getPOReference($id) {
+	return getSiteConfigData()->poprefix . sprintf("%06d", $id);
 }
 
 function cache_function($functionname, $arguments = array()) {

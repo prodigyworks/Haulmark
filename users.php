@@ -1,5 +1,6 @@
 <?php
 	require_once("crud.php");
+	require_once("businessobjects/HolidayAdminClass.php");
 	
 	function confirmPasswordChange() {
 		$memberid = getLoggedOnMemberID();
@@ -333,13 +334,16 @@
 	$crud->title = "Users";
 	$crud->onClickCallback = "checkClick";
 	$crud->table = "{$_SESSION['DB_PREFIX']}members";
+		
+	$holidayClass = new HolidayAdminClass();
 	
 	$crud->sql = 
-			"SELECT A.*, B.name, C.name AS suppliername,
+			"SELECT A.*, B.name, C.name AS suppliername, D.name AS drivername,
 			 (
 			 	SELECT SUM(D.daystaken) 
 			 	FROM {$_SESSION['DB_PREFIX']}holiday D 
-			 	WHERE YEAR(D.startdate) = YEAR(NOW()) 
+				WHERE D.startdate >= '{$holidayClass->getStart()}'
+			  	AND   D.startdate <  '{$holidayClass->getEnd()}'
 			 	AND D.memberid = A.member_id 
 			 	AND D.acceptedby IS NOT NULL
 			 ) AS daysremaining 
@@ -348,6 +352,8 @@
 			 ON B.id = A.customerid 
 			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}supplier C
 			 ON C.id = A.supplierid 
+			 LEFT OUTER JOIN {$_SESSION['DB_PREFIX']}driver D
+			 ON D.id = A.driverid 
 			 ORDER BY A.firstname, A.lastname"; 
 			
 	$crud->columns = array(
@@ -398,6 +404,13 @@
 				'name'       => 'suppliername',
 				'length' 	 => 30,
 				'label' 	 => 'Supplier',
+				'editable'	 => false,
+				'bind'		 => false
+			),
+			array(
+				'name'       => 'drivername',
+				'length' 	 => 30,
+				'label' 	 => 'Driver',
 				'editable'	 => false,
 				'bind'		 => false
 			),

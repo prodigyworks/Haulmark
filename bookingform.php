@@ -144,10 +144,8 @@
 						<input class="timepicker bookingtimeclass" required="true" type="text" index='0' id="startdatetime_time" onchange="calculateTimeNode(this, 1)"   name="startdatetime_time"><div class="bubble" title="Required field"></div>
 						<input type="text" style="width:200px" id="fromplace_ref" name="fromplace_ref">
 						<input type="tel" style="width:80px" id="fromplace_phone" name="fromplace_phone">
-					   <img src='images/booking_pointcollect.png' onclick='collectPoint(this)' class='booking_pointcollect hoverimage' ></img>
-					   <img src='images/booking_pointdelivery.png' onclick='deliverPoint(this)' class='booking_pointdelivery hoverimage' ></img>
-					   <img src='images/booking_pointstart_red.png' onclick='startPoint(this)' class='booking_pointstart hoverimage' ></img>
-					   <img src='images/booking_pointend.png' onclick='endPoint(this)' class='booking_pointend hoverimage' ></img>&nbsp;&nbsp;
+					   <img title='Collection' id='img_collectfrom' src='images/booking_pointcollect.png' associate='startvisittype' onclick='collectPoint(this)' class='booking_pointcollect hoverimage' ></img>
+					   <img title='Delivery' id='img_deliveryfrom' src='images/booking_pointdelivery.png' associate='startvisittype' onclick='deliverPoint(this)' class='booking_pointdelivery hoverimage' ></img>
 						<img src="images/add.png" class='pointimage' onclick="addPointBetweenNodes()"></img>
 					</div>
 				</div>
@@ -163,10 +161,8 @@
 					<div style='display:inline-block; min-width:131px'>&nbsp;</div>
 					<input type="text" style="width:200px" id="toplace_ref" name="toplace_ref">
 					<input type="tel" style="width:80px" id="toplace_phone" name="toplace_phone">
-					   <img src='images/booking_pointcollect.png' onclick='collectPoint(this)' class='booking_pointcollect hoverimage' ></img>
-					   <img src='images/booking_pointdelivery.png' onclick='deliverPoint(this)' class='booking_pointdelivery hoverimage' ></img>
-					   <img src='images/booking_pointstart.png' onclick='startPoint(this)' class='booking_pointstart hoverimage' ></img>
-					   <img src='images/booking_pointend_red.png' onclick='endPoint(this)' class='booking_pointend hoverimage' ></img>&nbsp;&nbsp;
+					   <img title='Collection' id='img_collectto' src='images/booking_pointcollect.png' associate='endvisittype' onclick='collectPoint(this)' class='booking_pointcollect hoverimage' ></img>
+					   <img title='Delivery' id='img_deliveryto' src='images/booking_pointdelivery.png' associate='endvisittype' onclick='deliverPoint(this)' class='booking_pointdelivery hoverimage' ></img>
 				</div>
 				
 			</td>
@@ -206,6 +202,8 @@
 				<input type="hidden" id="toplace_lat" name="toplace_lat">
 				<input type="hidden" id="toplace_lng" name="toplace_lng">
 				<input type="hidden" id="bookingpoints" name="bookingpoints">
+				<input type="hidden" id="startvisittype" name="startvisittype" value="" >
+				<input type="hidden" id="endvisittype" name="endvisittype" value="" >
 			</td>
 		</tr>
 		<tr valign="center">
